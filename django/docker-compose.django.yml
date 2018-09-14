@@ -1,0 +1,272 @@
+version: "3"
+
+services:
+    # Creating keys:
+    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_server
+    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}_server.pub
+    acra-keymaker_server:
+        # You can specify a docker image tag in the ACRA_DOCKER_IMAGE_TAG
+        # environment variable or run the default 'latest' images
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        # We do not need a network to generate keys at all
+        network_mode: "none"
+        environment:
+            # INSECURE!!! You MUST define your own ACRA_MASTER_KEY
+            # The default is for testing purposes only
+            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        volumes:
+            # Mount the whole ./.acrakeys directory to be able to generate keys
+            # and place them in service subdirectories
+            - ./.acrakeys:/keys
+        # Please specify ACRA_CLIENT_ID environment variable, otherwise it will
+        # be started with the default 'testclientid' client id
+        command: >-
+            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --generate_acraserver_keys
+            --keys_output_dir=/keys/acra-server
+            --keys_public_output_dir=/keys/acra-connector
+    # Creating keys:
+    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}
+    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}.pub
+    acra-keymaker_connector:
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        network_mode: "none"
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        volumes:
+            - ./.acrakeys:/keys
+        command: >-
+            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --generate_acraconnector_keys
+            --keys_output_dir=/keys/acra-connector
+            --keys_public_output_dir=/keys/acra-server
+    # Creating keys:
+    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
+    # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
+    acra-keymaker_writer:
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        network_mode: "none"
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        volumes:
+            - ./.acrakeys:/keys
+        command: >-
+            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --generate_acrawriter_keys
+            --keys_output_dir=/keys/acra-server
+            --keys_public_output_dir=/keys/acra-writer
+
+    # Creating a file with accounts for HTTP access and a key for decrypt it
+    # - ./.acrakeys/acra-server/httpauth.accounts
+    # - ./.acrakeys/acra-server/auth_key
+    acra-authmanager:
+        image: "cossacklabs/acra-authmanager:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        network_mode: "none"
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        volumes:
+            - ./.acrakeys:/keys
+        command: >-
+            --set
+            --user=${ACRA_HTTPAUTH_USER:-test}
+            --password=${ACRA_HTTPAUTH_PASSWORD:-test}
+            --file=/keys/acra-server/httpauth.accounts
+            --keys_dir=/keys/acra-server/
+
+
+    # Postgresql container
+    postgresql:
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: django/pgsql-django.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        # INSECURE!!! You MUST define your own DB name and credentials
+        environment:
+            # Admin user
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            # Same password for both django accounts:
+            # 'djangoproject' and 'code.djangoproject'
+            # (see pgsql-django-configure.sh)
+            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
+        # Open the port outside for demonstration purposes only (connections
+        # between containers are performing within isolated networks)
+        ports:
+            - "5432:5432"
+        # We use internal 'server-postgresql' network for AcraServer and
+        # DB interconnection, 'django-postgresql' for interconnection with
+        # Django, 'postgresqlweb-postgresql' for interconnections with web
+        # interface and external network 'world' for port exposing
+        networks:
+            - server-postgresql
+            - django-postgresql
+            - postgresqlweb-postgresql
+            - world
+
+
+    acra-server:
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        # Restart server after correct termination, for example after the config
+        # was changed through the API
+        restart: always
+        depends_on:
+            - acra-keymaker_server
+            - acra-keymaker_connector
+            - acra-keymaker_writer
+            - acra-authmanager
+            - postgresql
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        # We use internal networks:
+        # - 'server-postgresql' - for AcraServer and DB interconnection
+        # - 'connector-server' - for AcraServer and AcraConnector interconnection
+        networks:
+            - connector-server
+            - server-postgresql
+        volumes:
+            # Mount the directory with only the keys for this service. Must be
+            # rewriteable in case of using API, otherwise should be read-only.
+            - ./.acrakeys/acra-server:/keys
+            # Directory with configuration, rewriteable
+            - ./.acraconfigs/acra-server:/config
+        command: >-
+            --db_host=postgresql
+            --keys_dir=/keys
+            --auth_keys=/keys/httpauth.accounts
+            --http_api_enable
+            --incoming_connection_api_string=tcp://0.0.0.0:9090
+            --prometheus_metrics_address=tcp://0.0.0.0:9399
+            --config_file=/config/acra-server.yaml
+            -v
+
+
+    acra-connector:
+        image: "cossacklabs/acra-connector:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        restart: always
+        depends_on:
+            - acra-keymaker_server
+            - acra-keymaker_connector
+            - acra-server
+        # Open the port outside only for demonstration purposes only
+        # (connections between containers are performing within isolated
+        # networks)
+        ports:
+            - "9494:5432"
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        # We use internal networks:
+        # - 'connector-server' - for interconnection with AcraServer
+        # - 'webconfig-connector' - for interconnection with AcraWebconfig
+        # and external network 'world' for port exposing
+        networks:
+            - connector-server
+            - webconfig-connector
+            - django-connector
+            - world
+        volumes:
+            # Mount the directory with only the keys for this service
+            - ./.acrakeys/acra-connector:/keys:ro
+        command: >-
+            --acraserver_connection_host=acra-server
+            --keys_dir=/keys
+            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --incoming_connection_string=tcp://0.0.0.0:5432
+            --http_api_enable
+            --incoming_connection_api_string=tcp://0.0.0.0:9191
+            --prometheus_metrics_address=tcp://0.0.0.0:9499
+            -v
+
+    # Optional lightweight HTTP web server for managing AcraServer's
+    # certain configuration options
+    acra-webconfig:
+        image: "cossacklabs/acra-webconfig:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        restart: on-failure
+        depends_on:
+            - acra-connector
+        # Open http port
+        ports:
+            - "8001:8000"
+        # We use internal 'webconfig-connector' network for AcraConnector and
+        # AcraWebconfig interconnection and external network 'world' for
+        # port exposing
+        networks:
+            - webconfig-connector
+            - world
+        command: >-
+            --destination_host=acra-connector
+            --incoming_connection_host=0.0.0.0
+
+
+    django:
+        depends_on:
+            - acra-keymaker_writer
+            - acra-connector
+            - postgresql
+        # Build and run container from source directory with demo django project
+        build:
+            context: ../../djangoproject.com/
+            dockerfile: docker/django.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_DJANGO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_DJANGO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_DJANGO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        environment:
+            POSTGRES_HOST: acra-connector
+            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
+            ACRA_CLIENT_ID: ${ACRA_CLIENT_ID:-testclientid}
+            DJANGO_ADMIN_LOGIN: ${DJANGO_ADMIN_LOGIN:-admin}
+            DJANGO_ADMIN_PASSWORD: ${DJANGO_ADMIN_PASSWORD:-admin}
+        # Open http port
+        ports:
+            - "8000:8000"
+        # We use internal 'django-postgresql' network for Django and
+        # DB interconnection, 'django-connector' for access to AcraConnector
+        # and external network 'world' for port exposing
+        networks:
+            - django-postgresql
+            - django-connector
+            - world
+        volumes:
+            - ./.acrakeys/acra-writer:/app.acrakeys:ro
+
+
+    postgresqlweb:
+        image: steigr/teampostgresql
+        depends_on:
+            - postgresql
+        environment:
+            TEAMPOSTGRESQL_ADMIN_USER: ${TEAMPOSTGRESQL_ADMIN_USER:-test}
+            TEAMPOSTGRESQL_ADMIN_PASSWORD: ${TEAMPOSTGRESQL_ADMIN_PASSWORD:-test}
+            TEAMPOSTGRESQL_DEFAULT_HOST: postgresql
+            TEAMPOSTGRESQL_DEFAULT_USERNAME: ${POSTGRES_USER:-postgres}
+            TEAMPOSTGRESQL_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            TEAMPOSTGRESQL_DEFAULT_DATABASENAME: djangoproject
+        ports:
+            - "8008:80"
+        networks:
+            - postgresqlweb-postgresql
+            - world
+
+
+networks:
+    world:
+    connector-server:
+        internal: true
+    server-postgresql:
+        internal: true
+    webconfig-connector:
+        internal: true
+    django-postgresql:
+        internal: true
+    django-connector:
+        internal: true
+    postgresqlweb-postgresql:
+        internal: true
