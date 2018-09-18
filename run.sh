@@ -136,7 +136,6 @@ acraengdemo_launch_project_django() {
     acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_DJANGO_VCS_BRANCH $COSSACKLABS_DJANGO_VCS_URL" \
         "Cloning djangoproject.com"
-    acraengdemo_cmd "cp -r $BASEDIR/djangoproject.com $PROJECT_DIR/"
     COSSACKLABS_DJANGO_VCS_REF=$(git -C ./djangoproject.com/ rev-parse --verify HEAD)
 
     COSSACKLABS_ACRAENGDEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
