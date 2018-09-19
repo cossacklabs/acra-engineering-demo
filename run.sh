@@ -125,9 +125,11 @@ Resources that will become available after launch:
     * AcraWebConfig
         http://$SERVER_IP:8001
         Default user/password: test/test
+    * Prometheus
+        http://$SERVER_IP:9090
 
 '
-    read -n 1 -s -r -p 'Press any key to continue...'
+    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
 }
 
 acraengdemo_launch_project_django() {
