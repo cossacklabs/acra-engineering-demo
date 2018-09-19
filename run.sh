@@ -103,16 +103,16 @@ acraengdemo_info_django() {
     echo "
 Please do not forget to add a temporary entry to the hosts file:
 
-    echo 'SERVER_IP www.djangoproject.test' >> $ETCHOSTS_PREFIX/etc/hosts
+    echo 'SERVER_IP www.djangoproject.example' >> $ETCHOSTS_PREFIX/etc/hosts
 
     where SERVER_IP - IP address of the server with running Acra Engineering Demo.
 "
     echo '
 Resources that will become available after launch:
     * Django demo project:
-        http://www.djangoproject.test:8000
+        http://www.djangoproject.example:8000
     * Django demo project admin cabinet:
-        http://www.djangoproject.test:8000/admin
+        http://www.djangoproject.example:8000/admin
         Default user/password: admin/admin
     * PostgreSQL
         postgresql://$SERVER_IP:5432
