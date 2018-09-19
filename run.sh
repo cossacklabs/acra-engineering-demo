@@ -115,19 +115,21 @@ Resources that will become available after launch:
         http://www.djangoproject.example:8000/admin
         Default user/password: admin/admin
     * PostgreSQL
-        postgresql://$SERVER_IP:5432
+        postgresql://www.djangoproject.example:5432
         Default admin user/password: postgres/test
     * Web interface for PostgreSQL
-        http://$SERVER_IP:8008
+        http://www.djangoproject.example:8008
         Default user/password: test/test
     * AcraConnector
-        tcp://$SERVER_IP:9494
+        tcp://www.djangoproject.example:9494
     * AcraWebConfig
-        http://$SERVER_IP:8001
+        http://www.djangoproject.example:8001
         Default user/password: test/test
+    * Prometheus
+        http://www.djangoproject.example:9090
 
 '
-    read -n 1 -s -r -p 'Press any key to continue...'
+    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
 }
 
 acraengdemo_launch_project_django() {

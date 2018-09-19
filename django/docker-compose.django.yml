@@ -142,7 +142,7 @@ services:
             --auth_keys=/keys/httpauth.accounts
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
-            --prometheus_metrics_address=tcp://0.0.0.0:9399
+            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --config_file=/config/acra-server.yaml
             -v
 
@@ -180,7 +180,7 @@ services:
             --incoming_connection_string=tcp://0.0.0.0:5432
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9191
-            --prometheus_metrics_address=tcp://0.0.0.0:9499
+            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9499
             -v
 
     # Optional lightweight HTTP web server for managing AcraServer's
@@ -256,6 +256,25 @@ services:
             - world
 
 
+    prometheus:
+        image: prom/prometheus:v2.4.0
+        depends_on:
+            - acra-server
+            - acra-connector
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./prometheus:/app.cfg
+        networks:
+            - connector-server
+            - world
+        command: >-
+            --config.file=/app.cfg/prometheus.yml
+            --storage.tsdb.path=/prometheus
+            --web.console.libraries=/usr/share/prometheus/console_libraries
+            --web.console.templates=/usr/share/prometheus/consoles
+
+
 networks:
     world:
     connector-server:
@@ -270,3 +289,4 @@ networks:
         internal: true
     postgresqlweb-postgresql:
         internal: true
+
