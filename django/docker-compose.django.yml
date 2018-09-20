@@ -275,6 +275,22 @@ services:
             --web.console.templates=/usr/share/prometheus/consoles
 
 
+    grafana:
+        image: grafana/grafana:5.2.4
+        depends_on:
+            - prometheus
+        environment:
+            GF_AUTH_ANONYMOUS_ENABLED: !!str 'true'
+            GF_PATHS_PROVISIONING: '/app.cfg/provisioning'
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./grafana:/app.cfg
+        networks:
+            - grafana-prometheus
+            - world
+
+
 networks:
     world:
     connector-server:
@@ -288,5 +304,7 @@ networks:
     django-connector:
         internal: true
     postgresqlweb-postgresql:
+        internal: true
+    grafana-prometheus:
         internal: true
 

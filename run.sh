@@ -109,24 +109,35 @@ Please do not forget to add a temporary entry to the hosts file:
 "
     echo '
 Resources that will become available after launch:
-    * Django demo project:
-        http://www.djangoproject.example:8000
-    * Django demo project admin cabinet:
-        http://www.djangoproject.example:8000/admin
+
+    * Django demo project admin cabinet - add entries to the demo site:
+        http://www.djangoproject.example:8000/admin/
         Default user/password: admin/admin
-    * PostgreSQL
-        postgresql://www.djangoproject.example:5432
-        Default admin user/password: postgres/test
-    * Web interface for PostgreSQL
+
+    * Django demo project - here you can see the added materials:
+        http://www.djangoproject.example:8000/weblog/
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
         http://www.djangoproject.example:8008
         Default user/password: test/test
-    * AcraConnector
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://www.djangoproject.example:5432
+        Default admin user/password: postgres/test
+
+    * Prometheus - examine the collected metrics:
+        http://www.djangoproject.example:9090
+
+    * Grafana - sample of dashboards with Acra metrics:
+        http://www.djangoproject.example:3000
+
+    * AcraConnector - play with the encryption system directly:
         tcp://www.djangoproject.example:9494
-    * AcraWebConfig
+
+    * AcraWebConfig - configure AcraServer:
         http://www.djangoproject.example:8001
         Default user/password: test/test
-    * Prometheus
-        http://www.djangoproject.example:9090
+
 
 '
     read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
