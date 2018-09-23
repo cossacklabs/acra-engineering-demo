@@ -143,32 +143,68 @@ Resources that will become available after launch:
     read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
 }
 
-acraengdemo_launch_project_django() {
-    acraengdemo_info_django
+acraengdemo_info_python() {
+    echo '
+Resources that will become available after launch:
 
-    COSSACKLABS_DJANGO_VCS_URL='https://github.com/cossacklabs/djangoproject.com'
-    COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
-    acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_DJANGO_VCS_BRANCH $COSSACKLABS_DJANGO_VCS_URL" \
-        "Cloning djangoproject.com"
-    COSSACKLABS_DJANGO_VCS_REF=$(git -C ./djangoproject.com/ rev-parse --verify HEAD)
+    * Container with environment prepared for the python example. Folder with
+      example scripts will be mounted to container, so you will be able to
+      modify these scripts without stopping docker compose.
 
+      Run example without zones (write, read):
+        docker exec -it python_python_1 \
+            python /app/example_without_zone.py --data="some data #1"
+        docker exec -it python_python_1 \
+            python /app/example_without_zone.py --print
+
+      Run example with zones (write, read):
+        docker exec -it python_python_1 \
+            python /app/example_with_zone.py --data="some data"
+        docker exec -it python_python_1 \
+            python /app/example_with_zone.py \
+            --print --zone_id=$ZONE_ID
+      where $ZONE_ID - zone id, printed on write step
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
+        http://$HOST:8008
+        Default user/password: test/test
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://$HOST:5432
+        Default admin user/password: postgres/test
+
+    * Prometheus - examine the collected metrics:
+        http://$HOST:9090
+
+    * Grafana - sample of dashboards with Acra metrics:
+        http://$HOST:3000
+
+    * AcraConnector - play with the encryption system directly:
+        tcp://$HOST:9494
+
+    * AcraWebConfig - configure AcraServer:
+        http://$HOST:8001
+        Default user/password: test/test
+
+    where are HOST is the IP address of the server with running Acra
+    Engineering Demo. If you run this demo on the same host, from
+    which you will connect, use "localhost".
+
+'
+    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
+}
+
+acraengdemo_git_clone_acraengdemo() {
     COSSACKLABS_ACRAENGDEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
     COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH:-master}
     acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_ACRAENGDEMO_VCS_BRANCH $COSSACKLABS_ACRAENGDEMO_VCS_URL" \
         "Cloning acra-engineering-demo"
     COSSACKLABS_ACRAENGDEMO_VCS_REF=$(git -C ./acra-engineering-demo/ rev-parse --verify HEAD)
+}
 
+acraengdemo_run_compose() {
     DC_FILE="acra-engineering-demo/$demo_project_name/docker-compose.$demo_project_name.yml"
-
-    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
-"COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
-"COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
-"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "\
-"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
 
     acraengdemo_add_cleanup_cmd \
         'docker image prune --all --force --filter "label=com.cossacklabs.product.name=acra-engdemo"' \
@@ -181,8 +217,54 @@ acraengdemo_launch_project_django() {
     acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE up" 'Starting docker-compose'
 }
 
+acraengdemo_launch_project_django() {
+    acraengdemo_info_django
+
+    acraengdemo_git_clone_acraengdemo
+
+    COSSACKLABS_DJANGO_VCS_URL='https://github.com/cossacklabs/djangoproject.com'
+    COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
+    acraengdemo_cmd \
+        "git clone --depth 1 -b $COSSACKLABS_DJANGO_VCS_BRANCH $COSSACKLABS_DJANGO_VCS_URL" \
+        "Cloning djangoproject.com"
+    COSSACKLABS_DJANGO_VCS_REF=$(git -C ./djangoproject.com/ rev-parse --verify HEAD)
+
+    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+"COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
+"COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
+"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "\
+"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+
+    acraengdemo_run_compose
+}
+
+acraengdemo_launch_project_python() {
+    acraengdemo_info_python
+
+    acraengdemo_git_clone_acraengdemo
+
+    COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra'
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
+    acraengdemo_cmd \
+        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
+        "Cloning Acra"
+    COSSACKLABS_ACRA_VCS_REF=$(git -C ./acra/ rev-parse --verify HEAD)
+
+    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+"COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
+"COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_ACRA_VCS_BRANCH\" "\
+"COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "\
+"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project() {
-    PROJECTS_SUPPORTED=( django )
+    PROJECTS_SUPPORTED=( django python )
     [[ " ${PROJECTS_SUPPORTED[@]} " =~ " $demo_project_name " ]] ||
         acraengdemo_raise "unknown demo project '$demo_project_name'."
 
