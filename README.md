@@ -183,7 +183,7 @@ Using [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) prov
 
 1. Disable Zones in AcraWebConfig. Open [http://$HOST:8001](http://127.0.0.1:8001) and tap "No" for "zone mode".
 
-<img src="_pics/acra_web_config_python" width="800">
+<img src="_pics/acra_web_config_python.png" width="800">
 
 2. Write and read data:
 
@@ -219,10 +219,51 @@ AcraServer decrypts either AcraStructs with Zones, or without Zones at the same 
 6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file describes all configuration and containers for this example.  
 
  
-## 3. How much code to change
+## 3. Show me code!
 
+Take a look on the full code of [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) and [`example_without_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_without_zone.py).
+
+Let's see how many code lines are needed to encrypt data using Acra. We will look on example with Zones, because it's more coplicated and requires additional API call to fetch Zone.
+
+1. App gets Zone using AcraServer API:
+
+```python
+def get_zone():
+    response = urlopen('{}/getNewZone'.format(ACRA_CONNECTOR_API_ADDRESS))
+    json_data = response.read().decode('utf-8')
+    zone_data = json.loads(json_data)
+    return zone_data['id'], b64decode(zone_data['public_key'])
 ```
-<Before / after>
+
+2. App uses ZoneId and Zone public key for encrypting data
+
+```python
+encrypted_data = create_acrastruct(
+  data.encode('utf-8'), key, zone_id.encode('utf-8'))
+```
+
+and writes data to the database as usual:
+
+```python
+connection.execute(
+    test_table.insert(), data=encrypted_data,
+    zone_id=zone_id.encode('utf-8'),
+    raw_data=data)
+```
+
+3. Reading data from database is not changed:
+
+```python
+result = connection.execute(
+    select([cast(zone_id.encode('utf-8'), BYTEA), test_table]))
+result = result.fetchall()
+
+ZONE_ID_INDEX = 0
+for row in result:
+    print(
+        "{:<3} - {} - {} - {}\n".format(
+        row['id'], row[ZONE_ID_INDEX].decode('utf-8'),
+        row['data'].decode('utf-8', errors='ignore'), row['raw_data']))
 ```
 
 # Further steps
