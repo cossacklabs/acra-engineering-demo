@@ -30,7 +30,7 @@ This command downloads code of Django web site example, Acra Docker containers a
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture" width="530"></p>
+<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture" width="700"></p>
 
 **Client application** is the famous Django app example – the source code of djangoproject.com. We [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blogposts. Django app **encrypts** blogposts's sensitive fields into separate AcraStructs (author name, author email, content are encrypted; blogpost ID and title are plaintext).
 
@@ -52,7 +52,7 @@ where `SERVER_IP` is IP address of the server with running Acra Engineering Demo
 
 1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. Add blog post to the Blogs/Entries:
 
-<img src="_pics/web_django_posts.png" width="900">
+<img src="_pics/web_django_posts.png" width="600">
 
 2. Open blog posts feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
 
@@ -129,7 +129,7 @@ This command downloads simple Python application that stores data in database, A
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/eng_demo_python.png" alt="Protecting simple python application: Acra architecture" width="450"></p>
+<p align="center"><img src="_pics/eng_demo_python.png" alt="Protecting simple python application: Acra architecture" width="700"></p>
 
 **Client application** is the simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python), that works with database. Application **encrypts** data in AcraStructs before sending to the database. Application **reads** decrypted data through AcraConnector and AcraServer (that are transparent for the application).
 
