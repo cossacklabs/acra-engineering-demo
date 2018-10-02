@@ -101,12 +101,10 @@ services:
         ports:
             - "5432:5432"
         # We use internal 'server-postgresql' network for AcraServer and
-        # DB interconnection, 'django-postgresql' for interconnection with
-        # Django, 'postgresqlweb-postgresql' for interconnections with web
-        # interface and external network 'world' for port exposing
+        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # with web interface and external network 'world' for port exposing
         networks:
             - server-postgresql
-            - django-postgresql
             - postgresqlweb-postgresql
             - world
 
@@ -208,7 +206,6 @@ services:
         depends_on:
             - acra-keymaker_writer
             - acra-connector
-            - postgresql
         # Build and run container from source directory with demo django project
         build:
             context: ../../djangoproject.com/
@@ -227,11 +224,9 @@ services:
         # Open http port
         ports:
             - "8000:8000"
-        # We use internal 'django-postgresql' network for Django and
-        # DB interconnection, 'django-connector' for access to AcraConnector
+        # We use internal 'django-connector' for access to AcraConnector
         # and external network 'world' for port exposing
         networks:
-            - django-postgresql
             - django-connector
             - world
         volumes:
@@ -298,8 +293,6 @@ networks:
     server-postgresql:
         internal: true
     webconfig-connector:
-        internal: true
-    django-postgresql:
         internal: true
     django-connector:
         internal: true
