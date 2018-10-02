@@ -151,12 +151,6 @@ Resources that will become available after launch:
       example scripts will be mounted to container, so you will be able to
       modify these scripts without stopping docker compose.
 
-      Run example without zones (write, read):
-        docker exec -it python_python_1 \
-            python /app/example_without_zone.py --data="some data #1"
-        docker exec -it python_python_1 \
-            python /app/example_without_zone.py --print
-
       Run example with zones (write, read):
         docker exec -it python_python_1 \
             python /app/example_with_zone.py --data="some data"
@@ -164,6 +158,18 @@ Resources that will become available after launch:
             python /app/example_with_zone.py \
             --print --zone_id=$ZONE_ID
       where $ZONE_ID - zone id, printed on write step
+
+      Before using AcraServer without zones, open AcraWebConfig and
+      disable zone mode.
+      Run example without zones (write, read):
+        docker exec -it python_python_1 \
+            python /app/example_without_zone.py --data="some data #1"
+        docker exec -it python_python_1 \
+            python /app/example_without_zone.py --print
+
+    * AcraWebConfig - configure AcraServer:
+        http://$HOST:8001
+        Default user/password: test/test
 
     * Web interface for PostgreSQL - see how the encrypted data is stored:
         http://$HOST:8008
@@ -181,10 +187,6 @@ Resources that will become available after launch:
 
     * AcraConnector - play with the encryption system directly:
         tcp://$HOST:9494
-
-    * AcraWebConfig - configure AcraServer:
-        http://$HOST:8001
-        Default user/password: test/test
 
     where are HOST is the IP address of the server with running Acra
     Engineering Demo. If you run this demo on the same host, from

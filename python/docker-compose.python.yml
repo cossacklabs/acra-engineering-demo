@@ -130,6 +130,7 @@ services:
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
+            --zonemode_enable
             --config_file=/config/acra-server.yaml
             -v
 
