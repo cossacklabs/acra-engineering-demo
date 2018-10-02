@@ -268,6 +268,7 @@ for row in result:
 
 # Further steps
 
-```
-<Links to Acra, other examples>
-```
+Let us know if you have any questions by dropping email to [dev@cossacklabs.com](mailto:dev@cossacklabs.com).
+
+1. [cossacklabs/acra](https://github.com/cossacklabs/acra) – main Acra repository contains tons of examples and documentation.
+2. [Acra Live Demo](https://www.cossacklabs.com/acra/#acralivedemo) – is a web-based demo of a typical web-infrastructure protected by Acra and deployed on our servers for your convenience. It shows other features like SQL firewall, intrusion detection, database rollback and so on.
