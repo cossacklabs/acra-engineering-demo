@@ -4,12 +4,11 @@ Acra Engineering Demo illustrates how to integrate Acra data protection into you
 
 **Integrating Acra into any application contains 3 steps:**
 
-1. **Generate storage and transport encryption keys** using AcraKeymaker. For this example we will generate one storage keypair (for encrypting and decrypting data), and two transport keypairs (for secure connection between AcraServer and AcraConnector). 
-2. **Integrate AcraWriter** – the client-side library – into the client application (web or mobile app). Application calls AcraWriter to encrypt data, then sends data to the database as usual. AcraWriter uses storage public key to encrypt data.
-3. **Deploy server-side infrastructure**: AcraServer and AcraConnector.  
-
-      1. To decrypt the data, application reads data through AcraServer. AcraServer identifies application, makes sure that requests are legit, fetches data from database and returns decrypted data to the application. AcraServer is deployed as Docker container and connected to the database and AcraConnector. AcraServer has storage private key to decrypt the data, AcraServer's transport keypair and AcraConnector's public key to build protected transport connection.
-      2. AcraConnector is an important transport protection between client and AcraServer. AcraConnector is deployed as Docker container into separate host, and uses own transport keypair and AcraServer's public key to build protected transport connection.
+1. **Generate encryption keys**. For this example we will generate one storage keypair (for encrypting and decrypting data), and two transport keypairs (for secure connection between AcraServer and AcraConnector). 
+2. **Integrate AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts data using storage public key, then application writes data to the database. Application reads decrypted data from AcraConnector.
+3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.  
+      1. AcraConnector ensures transport protection between client app and AcraServer. AcraConnector is deployed as close as possible to the AcraWriter (ideally at the same host), and uses own transport keypair and AcraServer's public key to encrypt transport.
+      2. AcraServer receives reading request from application through AcraConnector, makes sure it's legit, fetches data from database, decrypts it and returns to the AcraConnector. AcraServer is separate container and connected to the database and AcraConnector. AcraServer uses storage private key to decrypt the data, own transport keypair and AcraConnector's public key to encrypt transport.
 
 Please refer to the [Acra/Readme documentation](https://github.com/cossacklabs/acra#protecting-data-in-sql-databases-using-acrawriter-and-acraserver) for more detailed description and schemes.
 
@@ -40,8 +39,8 @@ From user perspective web site works as usual, however, data is protected.
 
 Please add a temporary entry to the hosts file:
 
-```
-echo 'SERVER_IP www.djangoproject.example' >> /private/etc/hosts
+```bash
+echo "$SERVER_IP www.djangoproject.example" >> /etc/hosts
 ```
 
 where `SERVER_IP` is IP address of the server with running Acra Engineering Demo (if you run demo on your machine, set "127.0.0.1"). Updating hosts file is required because we will run protected djangoproject site locally. You can remove this line after using demo.
@@ -124,22 +123,30 @@ This command downloads simple Python application that stores data in database, A
 
 ```bash
 docker exec -it python_python_1 \
-  python /app/example_without_zone.py --data="top secret data"
+  python /app/example_with_zone.py --data="top secret data"
   
-$ insert data: top secret data
+$:
+data: top secret data
+zone: DDDDDDDDFidFDxORlrleaUrC
 ```
+
+Call [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) to encrypt "top secret data" with specific [Zone](https://docs.cossacklabs.com/pages/documentation-acra/#zones). Application generates Zone using AcraServer HTTP API, then uses Zone public key and Zone Id for encryption.
 
 ### 2.2 Read decrypted data through AcraServer
 
+Decrypt data using same ZoneId:
+
 ```bash
 docker exec -it python_python_1 \
-  python /app/example_without_zone.py --print
-  
-$ id  - data                 - raw_data
-  3   - top secret data      - top secret data
+  python /app/example_with_zone.py --print --zone_id=DDDDDDDDFidFDxORlrleaUrC
+
+$:
+use zone_id:  DDDDDDDDFidFDxORlrleaUrC
+id  - zone - data - raw_data
+1   - DDDDDDDDFidFDxORlrleaUrC - top secret data - top secret data
 ```
 
-`raw_data` is stored in plaintext for the demo purposes, `data` is being decrypted by AcraServer.
+Output contains Zone Id, `data` that is decrypted by AcraServer and `raw_data` (stored in plaintext for the demo purposes),
 
 ### 2.3 Read data directly from database
 
@@ -147,14 +154,12 @@ To make sure that data is encrypted, try to read it directly from database, usin
 
 ```bash
 docker exec -it python_python_1 \
-  python /app/example_without_zone.py --print --host=postgresql --port=5432
+  python /app/example_with_zone.py --print --zone_id=DDDDDDDDFidFDxORlrleaUrC --host=postgresql --port=5432
   
-$ id  - data                 - raw_data
- 3	-""""""""UEC2-Jo6l,*޿yAO\e
- T8%/`     GE].P[6߶חfq\t[Dw
-
-     Q.;@
-         h?AIɹv,ѹ&!TL\ - top secret data
+$:
+use zone_id:  DDDDDDDDkOGnRsCBZEwXnHlL
+id  - zone - data - raw_data
+1   - DDDDDDDDkOGnRsCBZEwXnHlL - """"""""UEC2-CVs-K)'9@gJ-0 '&T@ {W|SҡϛڱY+:uKn"3Wɕ|Ict'JGCW;@ ̛W]aPI|Z ~*vI] - top secret data
 ```
 
 As expected, `data` is encrypted and printed as mess, `raw_data` is plaintext.
@@ -164,9 +169,9 @@ As expected, `data` is encrypted and printed as mess, `raw_data` is plaintext.
 1. Log into web PostgreSQL interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: test/test. 
 `$HOST` is the IP address of the server with running Acra Engineering Demo (if you run demo on your machine, set "127.0.0.1").
 
-2. Find your data entry.
+2. Find table and data rows.
 
-```<screenshots>```
+<img src="_pics/db_web_python.png" width="700">
 
 3. Read content of `data` field – it's encrypted!
 
