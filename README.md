@@ -130,11 +130,11 @@ data: top secret data
 zone: DDDDDDDDFidFDxORlrleaUrC
 ```
 
-Call [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) to encrypt "top secret data" with specific [Zone](https://docs.cossacklabs.com/pages/documentation-acra/#zones). Application generates Zone using AcraServer HTTP API, then uses Zone public key and Zone Id for encryption.
+Call [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) to encrypt "top secret data" with specific [Zone](https://docs.cossacklabs.com/pages/documentation-acra/#zones). Application generates Zones using AcraServer HTTP API, then uses Zone public key and Zone Id for encryption.
 
-### 2.2 Read decrypted data through AcraServer
+### 2.2 Read data
 
-Decrypt data using same ZoneId:
+Read data using same ZoneId. AcraServer decrypts data and returns plaintext:
 
 ```bash
 docker exec -it python_python_1 \
@@ -146,11 +146,11 @@ id  - zone - data - raw_data
 1   - DDDDDDDDFidFDxORlrleaUrC - top secret data - top secret data
 ```
 
-Output contains Zone Id, `data` that is decrypted by AcraServer and `raw_data` (stored in plaintext for the demo purposes),
+Output contains Zone Id, decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
 
 ### 2.3 Read data directly from database
 
-To make sure that data is encrypted, try to read it directly from database, using database host and port:
+To make sure that data is stored encrypted, read it directly from the database:
 
 ```bash
 docker exec -it python_python_1 \
@@ -162,9 +162,9 @@ id  - zone - data - raw_data
 1   - DDDDDDDDkOGnRsCBZEwXnHlL - """"""""UEC2-CVs-K)'9@gJ-0 '&T@ {W|SҡϛڱY+:uKn"3Wɕ|Ict'JGCW;@ ̛W]aPI|Z ~*vI] - top secret data
 ```
 
-As expected, `data` is encrypted and printed as mess, `raw_data` is plaintext.
+As expected, noone decrypts the `data`, `raw_data` is stored as plaintext and didn't change.
 
-### 2.4 Check database
+### 2.4 Connect to database from web
 
 1. Log into web PostgreSQL interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: test/test. 
 `$HOST` is the IP address of the server with running Acra Engineering Demo (if you run demo on your machine, set "127.0.0.1").
@@ -177,6 +177,32 @@ As expected, `data` is encrypted and printed as mess, `raw_data` is plaintext.
 
 So, data is stored encrypted, but it is transparent for python application.
 
+### 2.5 Encrypt data without Zones
+
+Using [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) provides compartmentalization, because different users of the same app will have different encryption keys. However, it's possible to use AcraServer without Zones.
+
+1. Disable Zones in AcraWebConfig. Open [http://$HOST:8001](http://127.0.0.1:8001) and tap "No" for "zone mode".
+
+<img src="_pics/acra_web_config_python" width="800">
+
+2. Write and read data:
+
+```bash
+docker exec -it python_python_1 \
+  python /app/example_without_zone.py --data="secret data without zones"
+  
+$:
+insert data: secret data without zones
+
+docker exec -it python_python_1 \
+  python /app/example_without_zone.py --print   
+
+$:                        
+id  - data                 - raw_data
+2   - secret data without zones - secret data without zones
+```
+
+AcraServer decrypts either AcraStructs with Zones, or without Zones at the same time. Sending different kinds of AcraStructs without changing mode will lead to decryption errors.
 
 ### 2.5 Other available resources
 
