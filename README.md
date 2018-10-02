@@ -1,21 +1,21 @@
 # What is this?
 
-Acra Engineering Demo illustrates how to integrate Acra data protection into your existing application. Protecting data is completely transparent for the users and requires minimum changes of infrastructure.
+Acra Engineering Demo illustrates the integration of Acra data protection into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
 This demo has two examples:
 
 | [Protecting Django app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-on-django-based-web-site) | [Protecting CLI python app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-of-simple-database-application) |
 |---|---|
 
-**Integrating Acra into any application contains 3 steps:**
+**Integrating Acra into any application requires 3 steps:**
 
-1. **Generate encryption keys**. For this example we will generate one storage keypair (for encrypting and decrypting data), and two transport keypairs (for secure connection between AcraServer and AcraConnector). 
-2. **Integrate AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts data using storage public key, then application writes data to the database. Application reads decrypted data from AcraConnector.
+1. **Generation of encryption keys**. For this example, we will generate one storage keypair (for encryption/decryption of the data) and two transport keypairs (for a secure connection between AcraServer and AcraConnector). 
+2. **Integration of AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector.
 3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.  
-      1. AcraConnector ensures transport protection between client app and AcraServer. AcraConnector is deployed as close as possible to the AcraWriter (ideally at the same host), and uses own transport keypair and AcraServer's public key to encrypt transport.
-      2. AcraServer receives reading request from application through AcraConnector, makes sure it's legit, fetches data from database, decrypts it and returns to the AcraConnector. AcraServer is separate container and connected to the database and AcraConnector. AcraServer uses storage private key to decrypt the data, own transport keypair and AcraConnector's public key to encrypt transport.
+      1. AcraConnector ensures transport protection between the client app and AcraServer. AcraConnector is deployed as close as possible to AcraWriter (ideally, at the same host) and uses its own transport keypair and AcraServer's public key to encrypt the transport.
+      2. AcraServer receives a reading request from application through AcraConnector, makes sure it's legit, fetches the data from the database, decrypts it, and returns to the AcraConnector. AcraServer is a separate container and is connected to the database and AcraConnector. AcraServer uses the storage's private key to decrypt the data and its own transport keypair and AcraConnector's public key to encrypt transport.
 
-Please refer to the [Acra/Readme documentation](https://github.com/cossacklabs/acra#protecting-data-in-sql-databases-using-acrawriter-and-acraserver) for more detailed description and schemes.
+Please refer to the [Acra/Readme documentation](https://github.com/cossacklabs/acra#protecting-data-in-sql-databases-using-acrawriter-and-acraserver) for more detailed description and schemes (or you can find the [same entry](https://docs.cossacklabs.com/pages/documentation-acra/#protecting-data-using-acra) and all the other current documentation for Acra on the dedicated [Cossack Labs Documentation Server](https://docs.cossacklabs.com/products/acra/)).
 
 # Protecting data on Django-based web site
 
@@ -26,17 +26,17 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- django
 ```
 
-This command downloads code of Django web site example, Acra Docker containers and PostgreSQL database, sets up environment and provides list of links for you to try.
+This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, and provides a list of links for you to try.
 
 ## 2. What's inside
 
 <p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture" width="700"></p>
 
-**Client application** is the famous Django app example – the source code of djangoproject.com. We [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blogposts. Django app **encrypts** blogposts's sensitive fields into separate AcraStructs (author name, author email, content are encrypted; blogpost ID and title are plaintext).
+**The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts. Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
 
-Django app writes AcraStructs to database, and **reads decrypted posts** through AcraConnector and AcraServer (that pretends to be a database).
+Django app writes AcraStructs to the database and **reads the decrypted posts** through AcraConnector and AcraServer (which pretends to be a database).
 
-From user perspective web site works as usual, however, blogposts are protected.
+From the users' perspective, the website works as it used to. However, the blog posts are protected now.
 
 ### 2.1 Update etc/hosts
 
@@ -46,29 +46,29 @@ Please add a temporary entry to the hosts file:
 echo "$SERVER_IP www.djangoproject.example" >> /etc/hosts
 ```
 
-where `SERVER_IP` is IP address of the server with running Acra Engineering Demo (if you run demo on your machine, set "127.0.0.1"). Updating hosts file is required because we will run protected djangoproject site locally. You can remove this line after using demo.
+where `SERVER_IP` is the IP address of the server that is running the Acra Engineering Demo (if you run the demo on your machine, set it to "127.0.0.1"). Updating the hosts file is required because we will run the protected djangoproject site locally. You can remove this line when you stop needed to access the demo site.
 
-### 2.2 Add new post
+### 2.2 Add a new post
 
-1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. Add blog post to the Blogs/Entries:
+1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. Add a blog post to the Blogs/Entries:
 
 <img src="_pics/web_django_posts.png" width="600">
 
-2. Open blog posts feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
+2. Open the blog posts' feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
 
-### 2.3 Connect to database from web
+### 2.3 Connect to the database from the web
 
-Yay! Now let's check database content.
+Everything worked well! Now, let's check the content of the database.
 
-Log into web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test`/`test`. Find your blogpost in  `schems > public > Tables > blog_entries` and download and read content – it's encrypted.
+Log into the web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test`/`test`. Find your blog post in  `schems > public > Tables > blog_entries`, download and read the content – it's encrypted.
 
 <img src="_pics/db_django.png" width="900">
 
-So, blogposts are stored encrypted, but it's transparent for web reader and admin interface.
+So, the blog posts are stored encrypted, but it's transparent for the web reader and the admin interface.
 
-### 2.4 Check monitoring
+### 2.4 Check the monitoring
 
-Open Grafana dashboards to watch how AcraServer and AcraConnector performs. We collect metrics like number of decrypted AcraStructs, request and response processing time, etc.
+Open Grafana dashboards to see the performance stats of AcraServer and AcraConnector. We collect the metrics, i.e. the number of decrypted AcraStructs, request and response processing time, etc.
 
 Grafana is available at [http://www.djangoproject.example:3000](http://www.djangoproject.example:3000).
 
@@ -78,29 +78,29 @@ Grafana is available at [http://www.djangoproject.example:3000](http://www.djang
 
 There's more to explore:
 
-1. PostgreSQL – you can connect to DB directly using admin account `postgres/test`: [postgresql://www.djangoproject.example:5432](postgresql://www.djangoproject.example:5432).
+1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://www.djangoproject.example:5432](postgresql://www.djangoproject.example:5432).
 
-2. Prometheus – examine the collected metrics: [http://www.djangoproject.example:9090](http://www.djangoproject.example:9090).
+2. Prometheus –  examine the collected metrics: [http://www.djangoproject.example:9090](http://www.djangoproject.example:9090).
 
-3. AcraConnector – send some data through AcraConnector directly: [tcp://www.djangoproject.example:9494](tcp://www.djangoproject.example:9494).
+3. AcraConnector – send some data directly through AcraConnector: [tcp://www.djangoproject.example:9494](tcp://www.djangoproject.example:9494).
 
-4. AcraWebConfig – configure AcraServer remotely (for example, disable intrusion detection) using default account `test/test`: [http://www.djangoproject.example:8001](http://www.djangoproject.example:8001).
+4. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://www.djangoproject.example:8001](http://www.djangoproject.example:8001).
 
-5. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file describes all configuration and containers for this example.  
+5. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file describes all the details of the configuration and containers for this example.  
 
-## 3. Show me code!
+## 3. Show me the code!
 
-So, was it complicated to integrate Acra into Django application? Not at all.
+So, was it easy to integrate Acra into Django application? Sure it was!
 
-You can [compare our repo with original repo](
-https://github.com/django/djangoproject.com/compare/master...cossacklabs:master) to see how little changes we did.
+You can [compare our repo to the original repo](
+https://github.com/django/djangoproject.com/compare/master...cossacklabs:master) and see how few changes we introduced:
 
-1. We added Acra storage public key ([L278](https://github.com/django/djangoproject.com/compare/master...cossacklabs:master#diff-6bcf911294def277f06abfe682ce5d7bR278), that is used by AcraWriter to encrypt the data:
+1. We've added Acra storage public key ([L278](https://github.com/django/djangoproject.com/compare/master...cossacklabs:master#diff-6bcf911294def277f06abfe682ce5d7bR278) necessary for AcraWriter to encrypt the data:
 ```
 ACRA_SERVER_PUBLIC_KEY = b64decode(SECRETS.get('acra_storage_public_key'))
 ```
 
-2. We added AcraWriter as dependency and wrapped original fields with it:
+2. We added AcraWriter as a dependency and wrapped the original fields with it:
 
 ```python
 import acrawriter.django
@@ -112,11 +112,11 @@ body_html = acrawriter.django.TextField()
 author = acrawriter.django.CharField(max_length=100)
 ```
 
-3. Also we run database migration that changes fields format from string to binary to store encrypted data.
+3. We've also run a database migration that changed the fields' format from `string` to `binary` to store the encrypted data.
 
-That's all code changes! 🎉
+Those are all the code changes! 🎉
 
-# Protecting data in simple database application
+# Protecting the data in a simple database application
 
 ## 1. Installation
 
@@ -125,13 +125,13 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- python
 ```
 
-This command downloads simple Python application that stores data in database, Acra Docker containers and PostgreSQL database, sets up environment and provides list of links for you to try.
+This command downloads a simple Python application that stores the data in a database, Acra Docker containers, PostgreSQL database, sets up the environment, and provides a list of links for you to try.
 
 ## 2. What's inside
 
 <p align="center"><img src="_pics/eng_demo_python.png" alt="Protecting simple python application: Acra architecture" width="700"></p>
 
-**Client application** is the simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python), that works with database. Application **encrypts** data in AcraStructs before sending to the database. Application **reads** decrypted data through AcraConnector and AcraServer (that are transparent for the application).
+**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraConnector and AcraServer (that are transparent for the application).
 
 ### 2.1 Write data
 
@@ -144,11 +144,11 @@ data: top secret data
 zone: DDDDDDDDFidFDxORlrleaUrC
 ```
 
-Call [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) to encrypt "top secret data" with specific [Zone](https://docs.cossacklabs.com/pages/documentation-acra/#zones). Application generates Zones using AcraServer HTTP API, then uses Zone public key and Zone Id for encryption.
+Call the [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) to encrypt the "top secret data" with a specific [Zone](https://docs.cossacklabs.com/pages/documentation-acra/#zones). The application generates Zones using AcraServer HTTP API, then it uses Zone public key and Zone Id for encryption.
 
 ### 2.2 Read data
 
-Read data using same ZoneId. AcraServer decrypts data and returns plaintext:
+Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
 
 ```bash
 docker exec -it python_python_1 \
@@ -160,11 +160,11 @@ id  - zone - data - raw_data
 1   - DDDDDDDDFidFDxORlrleaUrC - top secret data - top secret data
 ```
 
-Output contains Zone Id, decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
+The output contains Zone Id, the decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
 
-### 2.3 Read data directly from database
+### 2.3 Read the data directly from the database
 
-To make sure that data is stored encrypted, read it directly from the database:
+To make sure that the data is stored in an encrypted form, read it directly from the database:
 
 ```bash
 docker exec -it python_python_1 \
@@ -176,30 +176,30 @@ id  - zone - data - raw_data
 1   - DDDDDDDDkOGnRsCBZEwXnHlL - """"""""UEC2-CVs-K)'9@gJ-0 '&T@ {W|SҡϛڱY+:uKn"3Wɕ|Ict'JGCW;@ ̛W]aPI|Z ~*vI] - top secret data
 ```
 
-As expected, noone decrypts the `data`, `raw_data` is stored as plaintext and didn't change.
+As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintext so nothing changes.
 
-### 2.4 Connect to database from web
+### 2.4 Connect to the database from the web
 
 1. Log into web PostgreSQL interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: test/test. 
-`$HOST` is the IP address of the server with running Acra Engineering Demo (if you run demo on your machine, set "127.0.0.1").
+`$HOST` is the IP address of the server where Acra Engineering Demo is running (if you run the demo on your machine, set it to "127.0.0.1").
 
-2. Find table and data rows.
+2. Find the table and the data rows.
 
 <img src="_pics/db_web_python.png" width="700">
 
-3. Read content of `data` field – it's encrypted!
+3. Tyr reading the content of `data` field – it's encrypted!
 
-So, data is stored encrypted, but it is transparent for python application.
+So, the data is stored in an encrypted form, but it is transparent for the Python application.
 
-### 2.5 Encrypt data without Zones
+### 2.5 Encrypt the data without Zones
 
-Using [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) provides compartmentalization, because different users of the same app will have different encryption keys. However, it's possible to use AcraServer without Zones.
+Usage of [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) provides compartmentalisation as different users of the same app will have different encryption keys. However, it's possible to use AcraServer without Zones.
 
-1. Disable Zones in AcraWebConfig. Open [http://$HOST:8001](http://127.0.0.1:8001) and tap "No" for "zone mode".
+1. To disable Zones in AcraWebConfig, open [http://$HOST:8001](http://127.0.0.1:8001) and tap "No" for "zone mode".
 
 <img src="_pics/acra_web_config_python.png" width="800">
 
-2. Write and read data:
+2. Write and read the data:
 
 ```bash
 docker exec -it python_python_1 \
@@ -216,30 +216,30 @@ id  - data                 - raw_data
 2   - secret data without zones - secret data without zones
 ```
 
-AcraServer decrypts either AcraStructs with Zones, or without Zones at the same time. Sending different kinds of AcraStructs without changing mode will lead to decryption errors.
+AcraServer decrypts either AcraStructs with Zones or without Zones at the same time. Sending different kinds of AcraStructs without changing the mode will lead to decryption errors.
 
 ### 2.5 Other available resources
 
-1. PostgreSQL – you can connect to DB directly using admin account `postgres/test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
+1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
 
 2. Prometheus – examine the collected metrics: [http://$HOST:9090](http://127.0.0.1:9090).
 
-3. Grafana - see dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
+3. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
 
-4. AcraConnector – send some data through AcraConnector directly: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
+4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
 
-5. AcraWebConfig – configure AcraServer remotely (for example, disable intrusion detection) using default account `test/test`: [http://$HOST:8001](http://127.0.0.1:8001).
+5. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://$HOST:8001](http://127.0.0.1:8001).
 
-6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file describes all configuration and containers for this example.  
+6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file describes all the  details of the configuration and containers for this example.  
 
  
-## 3. Show me code!
+## 3. Show me the code!
 
-Take a look on the full code of [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) and [`example_without_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_without_zone.py).
+Take a look at the complete code of [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) and [`example_without_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_without_zone.py).
 
-Let's see how many code lines are needed to encrypt data using Acra. We will look on example with Zones, because it's more coplicated and requires additional API call to fetch Zone.
+Let's see how many code lines are necessary to encrypt some data using Acra. We will look at the example with Zones because it's more complicated and requires additional API call to fetch Zone.
 
-1. App gets Zone using AcraServer API:
+1. The app gets a Zone using AcraServer API:
 
 ```python
 def get_zone():
@@ -249,14 +249,14 @@ def get_zone():
     return zone_data['id'], b64decode(zone_data['public_key'])
 ```
 
-2. App uses ZoneId and Zone public key for encrypting data
+2. The app uses ZoneId and Zone public key to encrypt the data –
 
 ```python
 encrypted_data = create_acrastruct(
   data.encode('utf-8'), key, zone_id.encode('utf-8'))
 ```
 
-and writes data to the database as usual:
+and writes the data to the database as usual:
 
 ```python
 connection.execute(
@@ -265,7 +265,7 @@ connection.execute(
     raw_data=data)
 ```
 
-3. Reading data from database is not changed:
+3. Nothing changes when reading the data from the database:
 
 ```python
 result = connection.execute(
@@ -280,12 +280,12 @@ for row in result:
         row['data'].decode('utf-8', errors='ignore'), row['raw_data']))
 ```
 
-That's all code changes! 🎉
+Thse are all the code changes! 🎉
 
 # Further steps
 
-Let us know if you have any questions by dropping email to [dev@cossacklabs.com](mailto:dev@cossacklabs.com).
+Let us know if you have any questions by dropping an email to [dev@cossacklabs.com](mailto:dev@cossacklabs.com).
 
-1. [cossacklabs/acra](https://github.com/cossacklabs/acra) – main Acra repository contains tons of examples and documentation.
+1. [cossacklabs/acra](https://github.com/cossacklabs/acra) – the main Acra repository contains tons of examples and documentation.
 2. Deploy your own Acra infrastructure using [pre-defined Docker-compose files](https://github.com/cossacklabs/acra/tree/master/docker).
-3. [Acra Live Demo](https://www.cossacklabs.com/acra/#acralivedemo) – is a web-based demo of a typical web-infrastructure protected by Acra and deployed on our servers for your convenience. It shows other features like SQL firewall, intrusion detection, database rollback and so on.
+3. [Acra Live Demo](https://www.cossacklabs.com/acra/#acralivedemo) – is a web-based demo of a typical web-infrastructure protected by Acra and deployed on our servers for your convenience. It illustrates the other features of Acra, i.e. SQL firewall, intrusion detection, database rollback, and so on.
