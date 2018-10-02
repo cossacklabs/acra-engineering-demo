@@ -159,7 +159,7 @@ Resources that will become available after launch:
             --print --zone_id=$ZONE_ID
       where $ZONE_ID - zone id, printed on write step
 
-      Before using AcraServer without zone, open AcraWebConfig:
+      Before using AcraServer without zones, open AcraWebConfig:
           http://$HOST:8001
       and disable zone mode.
 
