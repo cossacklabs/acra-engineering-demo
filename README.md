@@ -280,7 +280,7 @@ for row in result:
         row['data'].decode('utf-8', errors='ignore'), row['raw_data']))
 ```
 
-Thse are all the code changes! 🎉
+These are all the code changes! 🎉
 
 # Further steps
 
