@@ -195,7 +195,7 @@ So, the data is stored in an encrypted form, but it is transparent for the Pytho
 
 Usage of [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) provides compartmentalisation as different users of the same app will have different encryption keys. However, it's possible to [use AcraServer without Zones](https://docs.cossacklabs.com/pages/documentation-acra/#running-acraserver-in-zone-mode).
 
-1. To disable Zones in AcraWebConfig, open [http://$HOST:8001](http://127.0.0.1:8001) and tap "No" for "zone mode".
+1. To disable Zones in AcraWebConfig, open [http://$HOST:8001](http://127.0.0.1:8001) using the default account `test/test` and tap "No" for "zone mode".
 
 <img src="_pics/acra_web_config_python.png" width="800">
 
