@@ -120,6 +120,7 @@ services:
             - acra-keymaker_writer
             - acra-authmanager
             - postgresql
+            - jaeger
         environment:
             ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         # We use internal networks:
@@ -142,6 +143,9 @@ services:
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --config_file=/config/acra-server.yaml
+            --tracing_jaeger_enable
+            --jaeger_agent_endpoint=''
+            --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
 
 
@@ -152,6 +156,7 @@ services:
             - acra-keymaker_server
             - acra-keymaker_connector
             - acra-server
+            - jaeger
         # Open the port outside only for demonstration purposes only
         # (connections between containers are performing within isolated
         # networks)
@@ -179,6 +184,9 @@ services:
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9191
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9499
+            --tracing_jaeger_enable
+            --jaeger_agent_endpoint=''
+            --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
 
     # Optional lightweight HTTP web server for managing AcraServer's
@@ -283,6 +291,17 @@ services:
             - ../_common/grafana:/app.cfg
         networks:
             - grafana-prometheus
+            - world
+
+
+    jaeger:
+        image: jaegertracing/all-in-one:1.7
+        environment:
+            SPAN_STORAGE_TYPE: memory
+        ports:
+            - "16686:16686"
+        networks:
+            - connector-server
             - world
 
 

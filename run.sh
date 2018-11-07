@@ -47,15 +47,18 @@ acraengdemo_detect_os() {
 }
 
 acraengdemo_help() {
-    echo '
+    echo "
 Usage:
-    run.sh demo_project_name
+    run.sh <demo_project_name>
+
+    where <demo_project_name> can be one of:
+$(for p in ${PROJECTS_SUPPORTED[@]}; do echo -e '    - '$p; done)
 
 Description:
     This script will prepare the environment and launch the selected
     demonstration project.
 
-'
+"
 }
 
 acraengdemo_parse_args() {
@@ -138,6 +141,9 @@ Resources that will become available after launch:
         http://www.djangoproject.example:8001
         Default user/password: test/test
 
+    * Jaeger - view traces:
+        http://www.djangoproject.example:16686
+
 
 '
     read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
@@ -187,6 +193,10 @@ Resources that will become available after launch:
 
     * AcraConnector - play with the encryption system directly:
         tcp://$HOST:9494
+
+    * Jaeger - view traces:
+        http://$HOST:16686
+
 
     where are HOST is the IP address of the server with running Acra
     Engineering Demo. If you run this demo on the same host, from
@@ -266,7 +276,6 @@ acraengdemo_launch_project_python() {
 }
 
 acraengdemo_launch_project() {
-    PROJECTS_SUPPORTED=( django python )
     [[ " ${PROJECTS_SUPPORTED[@]} " =~ " $demo_project_name " ]] ||
         acraengdemo_raise "unknown demo project '$demo_project_name'."
 
@@ -321,7 +330,12 @@ acraengdemo_post() {
     echo -e '\nRun it to clean up. May require sudo to remove directories, created by docker.\n'
 }
 
+acraengdemo_init() {
+    PROJECTS_SUPPORTED=( django python )
+}
+
 acraengdemo_run() {
+    acraengdemo_init
     acraengdemo_detect_os
     acraengdemo_parse_args "$@"
     acraengdemo_check
