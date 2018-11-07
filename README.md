@@ -238,7 +238,7 @@ id  - data                 - raw_data
 
 5. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://$HOST:8001](http://127.0.0.1:8001).
 
-6. Jaeger – view traces [http://$HOST:16686](http://127.0.0.1:16686).
+6. Jaeger – view traces: [http://$HOST:16686](http://127.0.0.1:16686).
 
 7. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
 
