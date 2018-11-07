@@ -9,9 +9,9 @@ This demo has two examples:
 
 **Integrating Acra into any application requires 3 steps:**
 
-1. **Generation of encryption keys**. For this example, we will generate one storage keypair (for encryption/decryption of the data) and two transport keypairs (for a secure connection between AcraServer and AcraConnector). 
+1. **Generation of encryption keys**. For this example, we will generate one storage keypair (for encryption/decryption of the data) and two transport keypairs (for a secure connection between AcraServer and AcraConnector).
 2. **Integration of AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector.
-3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.  
+3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.
       1. AcraConnector ensures transport protection between the client app and AcraServer. AcraConnector is deployed as close as possible to AcraWriter (ideally, at the same host) and uses its own transport keypair and AcraServer's public key to encrypt the transport.
       2. AcraServer receives a reading request from application through AcraConnector, makes sure it's legit, fetches the data from the database, decrypts it, and returns to the AcraConnector. AcraServer is a separate container and is connected to the database and AcraConnector. AcraServer uses the storage's private key to decrypt the data and its own transport keypair and AcraConnector's public key to encrypt transport.
 
@@ -74,7 +74,15 @@ Grafana is available at [http://www.djangoproject.example:3000](http://www.djang
 
 <img src="_pics/django_monitoring.png" width="900">
 
-### 2.5 Other available resources
+### 2.5 View traces
+
+Both AcraServer and AcraConnector can export detailed traces to Jaeger. Use this data to optimize the performance of the entire system.
+
+Jaeger is available at [http://www.djangoproject.example:16686](http://www.djangoproject.example:16686).
+
+<img src="_pics/jaeger_traces.png" width="900">
+
+### 2.6 Other available resources
 
 There's more to explore:
 
@@ -86,7 +94,7 @@ There's more to explore:
 
 4. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://www.djangoproject.example:8001](http://www.djangoproject.example:8001).
 
-5. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.  
+5. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -138,7 +146,7 @@ This command downloads a simple Python application that stores the data in a dat
 ```bash
 docker exec -it python_python_1 \
   python /app/example_with_zone.py --data="top secret data"
-  
+
 $:
 data: top secret data
 zone: DDDDDDDDFidFDxORlrleaUrC
@@ -169,7 +177,7 @@ To make sure that the data is stored in an encrypted form, read it directly from
 ```bash
 docker exec -it python_python_1 \
   python /app/example_with_zone.py --print --zone_id=DDDDDDDDFidFDxORlrleaUrC --host=postgresql --port=5432
-  
+
 $:
 use zone_id:  DDDDDDDDkOGnRsCBZEwXnHlL
 id  - zone - data - raw_data
@@ -180,7 +188,7 @@ As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintex
 
 ### 2.4 Connect to the database from the web
 
-1. Log into web PostgreSQL interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: test/test. 
+1. Log into web PostgreSQL interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: test/test.
 `$HOST` is the IP address of the server where Acra Engineering Demo is running (if you run the demo on your machine, set it to "127.0.0.1").
 
 2. Find the table and the data rows.
@@ -204,14 +212,14 @@ Usage of [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) p
 ```bash
 docker exec -it python_python_1 \
   python /app/example_without_zone.py --data="secret data without zones"
-  
+
 $:
 insert data: secret data without zones
 
 docker exec -it python_python_1 \
-  python /app/example_without_zone.py --print   
+  python /app/example_without_zone.py --print
 
-$:                        
+$:
 id  - data                 - raw_data
 2   - secret data without zones - secret data without zones
 ```
@@ -230,9 +238,10 @@ id  - data                 - raw_data
 
 5. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://$HOST:8001](http://127.0.0.1:8001).
 
-6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.  
+6. Jaeger – view traces [http://$HOST:16686](http://127.0.0.1:16686).
 
- 
+7. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
+
 ## 3. Show me the code!
 
 Take a look at the complete code of [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) and [`example_without_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_without_zone.py).
