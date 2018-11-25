@@ -243,16 +243,18 @@ services:
 
 
     postgresqlweb:
-        image: steigr/teampostgresql
         depends_on:
             - postgresql
+        build:
+            context: ../_common/pgadmin/
+            dockerfile: pgadmin.dockerfile
         environment:
-            TEAMPOSTGRESQL_ADMIN_USER: ${TEAMPOSTGRESQL_ADMIN_USER:-test}
-            TEAMPOSTGRESQL_ADMIN_PASSWORD: ${TEAMPOSTGRESQL_ADMIN_PASSWORD:-test}
-            TEAMPOSTGRESQL_DEFAULT_HOST: postgresql
-            TEAMPOSTGRESQL_DEFAULT_USERNAME: ${POSTGRES_USER:-test}
-            TEAMPOSTGRESQL_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD:-test}
-            TEAMPOSTGRESQL_DEFAULT_DATABASENAME: ${POSTGRES_DB:-test}
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
+            POSTGRES_HOST: postgresql
+            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
         ports:
             - "8008:80"
         networks:

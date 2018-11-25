@@ -122,7 +122,7 @@ Resources that will become available after launch:
 
     * Web interface for PostgreSQL - see how the encrypted data is stored:
         http://www.djangoproject.example:8008
-        Default user/password: test/test
+        Default user/password: test@test.test/test
 
     * PostgreSQL - also you can connect to DB directly:
         postgresql://www.djangoproject.example:5432
@@ -179,7 +179,7 @@ Resources that will become available after launch:
 
     * Web interface for PostgreSQL - see how the encrypted data is stored:
         http://$HOST:8008
-        Default user/password: test/test
+        Default user/password: test@test.test/test
 
     * PostgreSQL - also you can connect to DB directly:
         postgresql://$HOST:5432
@@ -201,6 +201,53 @@ Resources that will become available after launch:
     where are HOST is the IP address of the server with running Acra
     Engineering Demo. If you run this demo on the same host, from
     which you will connect, use "localhost".
+
+'
+    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
+}
+
+acraengdemo_info_rails() {
+    ETCHOSTS_PREFIX=''
+    if [ "$(uname)" == 'Darwin' ]; then
+        ETCHOSTS_PREFIX='/private'
+    fi
+    echo "
+Please do not forget to add a temporary entry to the hosts file:
+
+    echo 'SERVER_IP www.rubygems.example' >> $ETCHOSTS_PREFIX/etc/hosts
+
+    where SERVER_IP - IP address of the server with running Acra Engineering Demo.
+"
+    echo '
+Resources that will become available after launch:
+
+    * rubygems.org demo project - here you can see the added materials:
+        http://www.rubygems.example:8000
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
+        http://www.rubygems.example:8008
+        Default user/password: test@test.test/test
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://www.rubygems.example:5432
+        Default admin user/password: rubygems/rubygems
+
+    * Prometheus - examine the collected metrics:
+        http://www.rubygems.example:9090
+
+    * Grafana - sample of dashboards with Acra metrics:
+        http://www.rubygems.example:3000
+
+    * AcraConnector - play with the encryption system directly:
+        tcp://www.rubygems.example:9494
+
+    * AcraWebConfig - configure AcraServer:
+        http://www.rubygems.example:8001
+        Default user/password: test/test
+
+    * Jaeger - view traces:
+        http://www.rubygems.example:16686
+
 
 '
     read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
@@ -275,6 +322,29 @@ acraengdemo_launch_project_python() {
     acraengdemo_run_compose
 }
 
+acraengdemo_launch_project_rails() {
+    acraengdemo_info_rails
+
+    acraengdemo_git_clone_acraengdemo
+
+    COSSACKLABS_RUBYGEMS_VCS_URL='https://github.com/cossacklabs/rubygems.org'
+    COSSACKLABS_RUBYGEMS_VCS_BRANCH=${COSSACKLABS_RUBYGEMS_VCS_BRANCH:-master}
+    acraengdemo_cmd \
+        "git clone --depth 1 -b $COSSACKLABS_RUBYGEMS_VCS_BRANCH $COSSACKLABS_RUBYGEMS_VCS_URL" \
+        "Cloning rubygems.org"
+    COSSACKLABS_RUBYGEMS_VCS_REF=$(git -C ./rubygems.org/ rev-parse --verify HEAD)
+
+    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+"COSSACKLABS_RUBYGEMS_VCS_URL=\"$COSSACKLABS_RUBYGEMS_VCS_URL\" "\
+"COSSACKLABS_RUBYGEMS_VCS_BRANCH=\"$COSSACKLABS_RUBYGEMS_VCS_BRANCH\" "\
+"COSSACKLABS_RUBYGEMS_VCS_REF=\"$COSSACKLABS_RUBYGEMS_VCS_REF\" "\
+"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project() {
     [[ " ${PROJECTS_SUPPORTED[@]} " =~ " $demo_project_name " ]] ||
         acraengdemo_raise "unknown demo project '$demo_project_name'."
@@ -331,7 +401,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django python )
+    PROJECTS_SUPPORTED=( django python rails )
 }
 
 acraengdemo_run() {
