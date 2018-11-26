@@ -76,33 +76,21 @@ services:
 
     # Postgresql container
     postgresql:
-        # Build and run the container based on the official postgresql image
-        # with an additional configuration in accordance with djangoproject
-        # requirements
-        build:
-            context: ../
-            dockerfile: django/pgsql-django.dockerfile
-            args:
-                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
-                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
-                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
-                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        image: postgres:11
         # INSECURE!!! You MUST define your own DB name and credentials
         environment:
             # Admin user
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
-            # Same password for both django accounts:
-            # 'djangoproject' and 'code.djangoproject'
-            # (see pgsql-django-configure.sh)
-            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
+            POSTGRES_USER: ${POSTGRES_USER:-rubygems}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rubygems}
+            POSTGRES_DB: ${POSTGRES_DB:-rubygems}
         # Open the port outside for demonstration purposes only (connections
         # between containers are performing within isolated networks)
         ports:
             - "5432:5432"
         # We use internal 'server-postgresql' network for AcraServer and
-        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
-        # with web interface and external network 'world' for port exposing
+        # DB interconnection, 'python-postgresql' for interconnection with
+        # Django, 'postgresqlweb-postgresql' for interconnections with web
+        # interface and external network 'world' for port exposing
         networks:
             - server-postgresql
             - postgresqlweb-postgresql
@@ -171,7 +159,7 @@ services:
         networks:
             - connector-server
             - webconfig-connector
-            - django-connector
+            - rubygems-connector
             - world
         volumes:
             # Mount the directory with only the keys for this service
@@ -188,6 +176,7 @@ services:
             --jaeger_agent_endpoint=''
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
+
 
     # Optional lightweight HTTP web server for managing AcraServer's
     # certain configuration options
@@ -210,32 +199,32 @@ services:
             --incoming_connection_host=0.0.0.0
 
 
-    django:
+    rubygems:
         depends_on:
             - acra-keymaker_writer
             - acra-connector
         # Build and run container from source directory with demo django project
         build:
-            context: ../../djangoproject.com/
-            dockerfile: docker/django.dockerfile
+            context: ../../rubygems.org/
+            dockerfile: docker/rubygems.dockerfile
             args:
-                VCS_URL: ${COSSACKLABS_DJANGO_VCS_URL}
-                VCS_REF: ${COSSACKLABS_DJANGO_VCS_REF}
-                VCS_BRANCH: ${COSSACKLABS_DJANGO_VCS_BRANCH}
+                VCS_URL: ${COSSACKLABS_RUBYGEMS_VCS_URL}
+                VCS_REF: ${COSSACKLABS_RUBYGEMS_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_RUBYGEMS_VCS_BRANCH}
                 BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         environment:
             POSTGRES_HOST: acra-connector
-            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
+            POSTGRES_USER: ${POSTGRES_USER:-rubygems}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rubygems}
+            POSTGRES_DB: ${POSTGRES_DB:-rubygems}
             ACRA_CLIENT_ID: ${ACRA_CLIENT_ID:-testclientid}
-            DJANGO_ADMIN_LOGIN: ${DJANGO_ADMIN_LOGIN:-admin}
-            DJANGO_ADMIN_PASSWORD: ${DJANGO_ADMIN_PASSWORD:-admin}
         # Open http port
         ports:
-            - "8000:8000"
-        # We use internal 'django-connector' for access to AcraConnector
+            - "8000:3000"
+        # We use internal 'rubygems-connector' for access to AcraConnector
         # and external network 'world' for port exposing
         networks:
-            - django-connector
+            - rubygems-connector
             - world
         volumes:
             - ./.acrakeys/acra-writer:/app.acrakeys:ro
@@ -243,7 +232,7 @@ services:
 
     postgresqlweb:
         depends_on:
-            - postgresql
+            - rubygems
         build:
             context: ../_common/pgadmin/
             dockerfile: pgadmin.dockerfile
@@ -251,9 +240,9 @@ services:
             PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
             POSTGRES_HOST: postgresql
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
-            POSTGRES_DB: ${POSTGRES_DB:-djangoproject}
+            POSTGRES_USER: ${POSTGRES_USER:-rubygems}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rubygems}
+            POSTGRES_DB: ${POSTGRES_DB:-rubygems}
         ports:
             - "8008:80"
         networks:
@@ -315,7 +304,7 @@ networks:
         internal: true
     webconfig-connector:
         internal: true
-    django-connector:
+    rubygems-connector:
         internal: true
     postgresqlweb-postgresql:
         internal: true
