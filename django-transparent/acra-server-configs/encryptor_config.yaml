@@ -1,0 +1,21 @@
+schemas:
+- table: blog_entries
+  columns:
+  - id
+  - headline
+  - slug
+  - is_active
+  - pub_date
+  - content_format
+  - summary
+  - summary_html
+  - body
+  - body_html
+  - author
+  encrypted:
+  - column: author
+  - column: body
+  - column: body_html
+  - column: headline
+  - column: summary
+  - column: summary_html

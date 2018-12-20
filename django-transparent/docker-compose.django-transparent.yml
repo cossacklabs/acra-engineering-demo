@@ -134,7 +134,7 @@ services:
             # rewriteable in case of using API, otherwise should be read-only.
             - ./.acrakeys/acra-server:/keys
             # Directory with configuration, rewriteable
-            - ./.acraconfigs/acra-server:/config
+            - ./acra-server-configs:/configs
         command: >-
             --db_host=postgresql
             --keys_dir=/keys
@@ -142,7 +142,8 @@ services:
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
-            --config_file=/config/acra-server.yaml
+            --config_file=/configs/acra-server.yaml
+            --encryptor_config_file=/configs/encryptor_config.yaml
             --tracing_jaeger_enable
             --jaeger_agent_endpoint=''
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
@@ -189,6 +190,7 @@ services:
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
 
+
     # Optional lightweight HTTP web server for managing AcraServer's
     # certain configuration options
     acra-webconfig:
@@ -216,8 +218,8 @@ services:
             - acra-connector
         # Build and run container from source directory with demo django project
         build:
-            context: ../../djangoproject.com/
-            dockerfile: docker/django.dockerfile
+            context: ./
+            dockerfile: django.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_DJANGO_VCS_URL}
                 VCS_REF: ${COSSACKLABS_DJANGO_VCS_REF}
@@ -225,6 +227,8 @@ services:
                 BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         environment:
             POSTGRES_HOST: acra-connector
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
             POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
             ACRA_CLIENT_ID: ${ACRA_CLIENT_ID:-testclientid}
             DJANGO_ADMIN_LOGIN: ${DJANGO_ADMIN_LOGIN:-admin}

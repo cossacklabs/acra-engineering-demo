@@ -1,0 +1,37 @@
+--- ./common.py.old	2018-12-18 17:40:35.000000000 +0200
++++ ./common.py.new	2018-12-18 18:10:00.000000000 +0200
+@@ -1,6 +1,7 @@
+ # Settings for www.djangoproject.com
+ import json
+ import os
++from base64 import b64decode
+ from pathlib import Path
+ 
+ # Utilities
+@@ -36,6 +37,9 @@
+         'HOST': SECRETS.get('db_host', ''),
+         'PASSWORD': SECRETS.get('db_password', ''),
+         'PORT': SECRETS.get('db_port', ''),
++        'OPTIONS': {
++            'sslmode': 'disable',
++        },
+     },
+     'trac': {
+         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+@@ -44,6 +48,9 @@
+         'HOST': SECRETS.get('trac_db_host', ''),
+         'PASSWORD': SECRETS.get('trac_db_password', ''),
+         'PORT': SECRETS.get('trac_db_port', ''),
++        'OPTIONS': {
++            'sslmode': 'disable',
++        },
+     }
+ }
+ 
+@@ -265,3 +272,6 @@
+ # dashboard settings
+ TRAC_RPC_URL = "https://code.djangoproject.com/rpc"
+ TRAC_URL = "https://code.djangoproject.com/"
++
++# Acra
++ACRA_SERVER_PUBLIC_KEY = b64decode(SECRETS.get('acra_storage_public_key'))

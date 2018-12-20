@@ -299,6 +299,26 @@ acraengdemo_launch_project_django() {
     acraengdemo_run_compose
 }
 
+acraengdemo_launch_project_django-transparent() {
+    acraengdemo_info_django
+
+    acraengdemo_git_clone_acraengdemo
+
+    COSSACKLABS_DJANGO_VCS_URL='https://github.com/django/djangoproject.com'
+    COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
+    COSSACKLABS_DJANGO_VCS_REF='60753aa0013f67eb4aa42a1aca1451d0ac9dab81'
+
+    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+"COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
+"COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
+"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "\
+"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project_python() {
     acraengdemo_info_python
 
@@ -401,7 +421,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django python rails )
+    PROJECTS_SUPPORTED=( django django-transparent python rails )
 }
 
 acraengdemo_run() {

@@ -29,4 +29,7 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
-COPY django/pgsql-django-configure.sh /docker-entrypoint-initdb.d/
+COPY _common/pgsql-django/pgsql-common-configure.sh /
+RUN chmod +x /pgsql-common-configure.sh && /pgsql-common-configure.sh
+
+COPY _common/pgsql-django/pgsql-django-configure.sh /docker-entrypoint-initdb.d/
