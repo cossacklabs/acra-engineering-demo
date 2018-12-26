@@ -79,7 +79,7 @@ acraengdemo_parse_args() {
 
 acraengdemo_check() {
     # Supported OS
-    OS_SUPPORTED=( debian ubuntu centos macosx )
+    OS_SUPPORTED=( debian ubuntu centos macosx arch )
     [[ " ${OS_SUPPORTED[@]} " =~ " $os " ]] ||
         acraengdemo_raise "OS version '$os' is not supported."
 
