@@ -14,7 +14,7 @@ acraengdemo_detect_os() {
             if [[ -f '/etc/os-release' ]]; then
                 . /etc/os-release
                 os="${ID,,}"
-                if [ -z "$VERSION_ID" ]; then
+                if [ -z "${VERSION_ID:-}" ]; then
                     os_ver="unknown"
                 else
                     os_ver="${VERSION_ID%%.*}"
