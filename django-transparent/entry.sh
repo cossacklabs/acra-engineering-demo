@@ -2,8 +2,6 @@
 
 set -Eeuo pipefail
 
-ACRA_STORAGE_PUBKEY=$(cat /app.acrakeys/${ACRA_CLIENT_ID}_storage.pub | base64)
-
 cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
 {
   "secret_key": "$(dd if=/dev/urandom bs=4 count=16 2>/dev/null | base64 | head -c 32)",
@@ -11,8 +9,7 @@ cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
   "db_host": "$POSTGRES_HOST",
   "db_password": "$POSTGRES_DJANGO_PASSWORD",
   "trac_db_host": "$POSTGRES_HOST",
-  "trac_db_password": "$POSTGRES_DJANGO_PASSWORD",
-  "acra_storage_public_key": "$ACRA_STORAGE_PUBKEY"
+  "trac_db_password": "$POSTGRES_DJANGO_PASSWORD"
 }
 EOF
 

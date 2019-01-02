@@ -31,8 +31,6 @@ LABEL org.label-schema.schema-version="1.0" \
 
 EXPOSE 8000
 
-VOLUME /app.acrakeys
-
 # Install packages
 RUN apk update
 

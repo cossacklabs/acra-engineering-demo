@@ -42,7 +42,8 @@ services:
             --keys_public_output_dir=/keys/acra-server
     # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
-    # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
+    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
+    # Both keys must be accessible by AcraServer in tranparent mode
     acra-keymaker_writer:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
         network_mode: "none"
@@ -54,7 +55,7 @@ services:
             --client_id=${ACRA_CLIENT_ID:-testclientid}
             --generate_acrawriter_keys
             --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-writer
+            --keys_public_output_dir=/keys/acra-server
 
     # Creating a file with accounts for HTTP access and a key for decrypt it
     # - ./.acrakeys/acra-server/httpauth.accounts
@@ -241,8 +242,6 @@ services:
         networks:
             - django-connector
             - world
-        volumes:
-            - ./.acrakeys/acra-writer:/app.acrakeys:ro
 
 
     postgresqlweb:
@@ -325,4 +324,3 @@ networks:
         internal: true
     grafana-prometheus:
         internal: true
-

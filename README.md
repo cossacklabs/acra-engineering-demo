@@ -23,9 +23,14 @@ Please refer to the [Acra/Readme documentation](https://github.com/cossacklabs/a
 
 ## 1. Installation
 
+Asymmetric mode, encryption on the application side, decryption on the AcraServer:
 ```bash
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- django
+
+Transparent mode, both encryption and decryption on the AcraServer:
+curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
+    bash -s -- django-transparent
 ```
 
 This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, and provides a list of links for you to try.
@@ -102,6 +107,8 @@ There's more to explore:
 
 So, was it easy to integrate Acra into Django application? Sure it was!
 
+### Asymmetrical mode
+
 You can [compare our repo to the original repo](
 https://github.com/django/djangoproject.com/compare/master...cossacklabs:master) and see how few changes we introduced:
 
@@ -123,6 +130,14 @@ author = acrawriter.django.CharField(max_length=100)
 ```
 
 3. We've also [run a database migration](https://github.com/django/djangoproject.com/compare/master...cossacklabs:master#diff-677329e0253d6cbba693e1ae0deda5b6) that changed the fields' format from `string` to `binary` to store the encrypted data.
+
+### Transparent mode
+
+1. AcraServer returns binary data, so [we wrote simple wrapper classes](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/fields.py) to perform encoding and decoding data.
+
+2. [We changed original fields types to new ones](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/models.py.patch).
+
+3. Created [database migration file](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/0003_encrypt.py) to convert encrypted fields to binary.
 
 Those are all the code changes! 🎉
 
