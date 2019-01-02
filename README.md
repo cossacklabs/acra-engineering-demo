@@ -27,8 +27,10 @@ Asymmetric mode, encryption on the application side, decryption on the AcraServe
 ```bash
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- django
+```
 
 Transparent mode, both encryption and decryption on the AcraServer:
+```bash
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- django-transparent
 ```
@@ -107,7 +109,7 @@ There's more to explore:
 
 So, was it easy to integrate Acra into Django application? Sure it was!
 
-### Asymmetrical mode
+### Asymmetric mode
 
 You can [compare our repo to the original repo](
 https://github.com/django/djangoproject.com/compare/master...cossacklabs:master) and see how few changes we introduced:
