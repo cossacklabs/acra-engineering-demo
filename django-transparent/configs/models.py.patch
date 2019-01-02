@@ -3,18 +3,18 @@
 @@ -10,6 +10,8 @@
  from django_hosts.resolvers import reverse
  from docutils.core import publish_parts
- 
-+from .fields import CharBinaryField, TextBinaryField
+
++from .fields import PgCharBinaryField, PgTextBinaryField
 +
  BLOG_DOCUTILS_SETTINGS = {
      'doctitle_xform': False,
      'initial_header_level': 3,
 @@ -35,7 +37,7 @@
- 
- 
+
+
  class Entry(models.Model):
 -    headline = models.CharField(max_length=200)
-+    headline = CharBinaryField(max_length=200)
++    headline = PgCharBinaryField(max_length=200)
      slug = models.SlugField(unique_for_date='pub_date')
      is_active = models.BooleanField(
          help_text=_(
@@ -27,11 +27,11 @@
 -    body = models.TextField()
 -    body_html = models.TextField()
 -    author = models.CharField(max_length=100)
-+    summary = TextBinaryField()
-+    summary_html = TextBinaryField()
-+    body = TextBinaryField()
-+    body_html = TextBinaryField()
-+    author = CharBinaryField(max_length=100)
- 
++    summary = PgTextBinaryField()
++    summary_html = PgTextBinaryField()
++    body = PgTextBinaryField()
++    body_html = PgTextBinaryField()
++    author = PgCharBinaryField(max_length=100)
+
      objects = EntryQuerySet.as_manager()
- 
+
