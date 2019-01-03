@@ -14,7 +14,11 @@ acraengdemo_detect_os() {
             if [[ -f '/etc/os-release' ]]; then
                 . /etc/os-release
                 os="${ID,,}"
-                os_ver="${VERSION_ID%%.*}"
+                if [ -z "${VERSION_ID:-}" ]; then
+                    os_ver="unknown"
+                else
+                    os_ver="${VERSION_ID%%.*}"
+                fi
                 case "$os" in
                     (debian)
                         os_ver_name="${VERSION#*(}"
@@ -75,7 +79,7 @@ acraengdemo_parse_args() {
 
 acraengdemo_check() {
     # Supported OS
-    OS_SUPPORTED=( debian ubuntu centos macosx )
+    OS_SUPPORTED=( debian ubuntu centos macosx arch )
     [[ " ${OS_SUPPORTED[@]} " =~ " $os " ]] ||
         acraengdemo_raise "OS version '$os' is not supported."
 
@@ -299,6 +303,26 @@ acraengdemo_launch_project_django() {
     acraengdemo_run_compose
 }
 
+acraengdemo_launch_project_django-transparent() {
+    acraengdemo_info_django
+
+    acraengdemo_git_clone_acraengdemo
+
+    COSSACKLABS_DJANGO_VCS_URL='https://github.com/django/djangoproject.com'
+    COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
+    COSSACKLABS_DJANGO_VCS_REF='60753aa0013f67eb4aa42a1aca1451d0ac9dab81'
+
+    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+"COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
+"COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
+"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "\
+"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project_python() {
     acraengdemo_info_python
 
@@ -401,7 +425,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django python rails )
+    PROJECTS_SUPPORTED=( django django-transparent python rails )
 }
 
 acraengdemo_run() {
