@@ -39,13 +39,26 @@ This command downloads the code of Django website example, Acra Docker container
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture" width="700"></p>
+**The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts.
 
-**The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts. Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
+### Asymmetric mode
+
+<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture (asymmetric mode)" width="700"></p>
+
+Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
 
 Django app writes AcraStructs to the database and **reads the decrypted posts** through AcraConnector and AcraServer (which pretends to be a database).
 
-From the users' perspective, the website works as it used to. However, the blog posts are protected now.
+### Transparent mode
+
+<p align="center"><img src="_pics/eng_demo_django_transparent_encr.png" alt="Protecting Django web application: Acra architecture (transparent mode)" width="700"></p>
+
+Django app **does not encrypt** the sensitive fields, it just passes data through AcraConnector to AcraServer (which pretends to be a database). AcraServer **encrypts** these sensitive fields and stores them into database.
+
+Django app **reads the decrypted posts** from the database through AcraConnector and AcraServer.
+
+
+In both cases from the users' perspective, the website works as it used to. However, the blog posts are protected now.
 
 ### 2.1 Update etc/hosts
 
