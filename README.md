@@ -53,7 +53,7 @@ Django app writes AcraStructs to the database and **reads the decrypted posts** 
 
 <p align="center"><img src="_pics/eng_demo_django_transparent_encr.png" alt="Protecting Django web application: Acra architecture (transparent mode)" width="700"></p>
 
-Django app **does not encrypt** the sensitive fields, it just pass data through AcraConnector to AcraServer (which pretends to be a database). AcraServer **encrypts** these sensitive fields and store them into database.
+Django app **does not encrypt** the sensitive fields, it just passes data through AcraConnector to AcraServer (which pretends to be a database). AcraServer **encrypts** these sensitive fields and stores them into database.
 
 Django app **reads the decrypted posts** from the database through AcraConnector and AcraServer.
 
