@@ -31,9 +31,12 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
 
 Transparent mode, both encryption and decryption on the AcraServer:
 ```bash
+export ACRA_DOCKER_IMAGE_TAG='master'
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- django-transparent
 ```
+
+> Note: Transparent mode is not publicly released yet, please use `ACRA_DOCKER_IMAGE_TAG='master'` to build demo project using Acra from master branch.
 
 This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, and provides a list of links for you to try.
 
