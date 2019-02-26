@@ -487,6 +487,62 @@ These are all the code changes! 🎉
 
 ---
 
+# Protecting metrics in TimescaleDB
+
+## 1. Installation
+
+```bash
+curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
+    bash -s -- timescaledb
+```
+
+This command:
+* downloads AcraServer, AcraConnector, TimescaleDB, Prometheus, Grafana and PgAdmin images
+* build `metricsource` image
+* configures environment and starts demo stand using docker-compose
+
+
+## 2. What's inside
+
+Demo stand based on TimescaleDB, which stores encrypted data. That data produced by `metricsource` container which connected to TimescaleDB through AcraConnector and AcraServer.
+
+At the initial stage, the TimescaleDB database will be filled with randomly generated metric data. Once started, the small daemon running in the `metricsource` container will continue to insert records into the database to simulate real processes.
+
+Grafana also connected through AcraConnector and AcraServer to TimescaleDB and can get unencrypted data to building `Temperature (demo data)` graph.
+
+Prometheus collects real metrics from AcraConnector and AcraServer. Two dashboards in Grafana: `AcraServer (real data)` and `AcraConnector (real data)` display that data.
+
+### 2.1 Read the data directly from the database
+
+1. Log into web TimescaleDB interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: `test@test.test`/`test`.
+
+2. Go to the `Servers > postgresql > databases > test > Schemas > public > Tables > versions` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table.
+Fields `device` and `unit_id` are encrypted. So, the data is stored in an encrypted form, but it is transparent for the Grafana.
+
+## 2.2 Play with stand
+
+You can easily interact with TimescaleDB through AcraConnector and AcraServer:
+```bash
+docker exec -it timescaledb_metricsource_1 \
+    psql postgres://postgres:test@acra-connector:9494/test?sslmode=disable
+```
+or directly:
+```bash
+docker exec -it -u postgres timescaledb_timescaledb_1 \
+    psql test
+```
+
+### 3. Other available resources
+
+1. TimescaleDB - connect to the database using the admin account `postgres`/`test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
+
+2. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
+
+3. Prometheus – examine the collected metrics: [http://$HOST:9090](http://127.0.0.1:9090).
+
+4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
+
+---
 
 # Further steps
 

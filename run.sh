@@ -102,6 +102,10 @@ acraengdemo_add_cleanup_cmd() {
     CLEANUP_CMDS_DESC+=( "$2" )
 }
 
+acraengdemo_press_any_key() {
+    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
+}
+
 acraengdemo_info_django() {
     ETCHOSTS_PREFIX=''
     if [ "$(uname)" == 'Darwin' ]; then
@@ -150,7 +154,7 @@ Resources that will become available after launch:
 
 
 '
-    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
+    acraengdemo_press_any_key
 }
 
 acraengdemo_info_python() {
@@ -207,7 +211,7 @@ Resources that will become available after launch:
     which you will connect, use "localhost".
 
 '
-    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
+    acraengdemo_press_any_key
 }
 
 acraengdemo_info_rails() {
@@ -254,7 +258,36 @@ Resources that will become available after launch:
 
 
 '
-    read < /dev/tty -n 1 -s -r -p 'Press any key to continue...'
+    acraengdemo_press_any_key
+}
+
+acraengdemo_info_timescaledb() {
+    echo '
+Resources that will become available after launch:
+
+    * TimescaleDB - also you can connect to DB directly:
+        postgresql://$HOST:5432
+        Default admin user/password: postgres/test
+
+    * Web interface for TimescaleDB - see how the encrypted data is stored:
+        http://$HOST:8008
+        Default user/password: test@test.test/test
+
+    * AcraConnector - play with the encryption system directly:
+        tcp://$HOST:9494
+
+    * Prometheus - examine the collected metrics:
+        http://$HOST:9090
+
+    * Grafana - sample dashboard with TimescaleDB data:
+        http://$HOST:3000
+
+    where are HOST is the IP address of the server with running Acra
+    Engineering Demo. If you run this demo on the same host, from
+    which you will connect, use "localhost".
+
+'
+    acraengdemo_press_any_key
 }
 
 acraengdemo_git_clone_acraengdemo() {
@@ -281,8 +314,6 @@ acraengdemo_run_compose() {
 }
 
 acraengdemo_launch_project_django() {
-    acraengdemo_info_django
-
     acraengdemo_git_clone_acraengdemo
 
     COSSACKLABS_DJANGO_VCS_URL='https://github.com/cossacklabs/djangoproject.com'
@@ -304,8 +335,6 @@ acraengdemo_launch_project_django() {
 }
 
 acraengdemo_launch_project_django-transparent() {
-    acraengdemo_info_django
-
     acraengdemo_git_clone_acraengdemo
 
     COSSACKLABS_DJANGO_VCS_URL='https://github.com/django/djangoproject.com'
@@ -324,8 +353,6 @@ acraengdemo_launch_project_django-transparent() {
 }
 
 acraengdemo_launch_project_python() {
-    acraengdemo_info_python
-
     acraengdemo_git_clone_acraengdemo
 
     COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra'
@@ -347,8 +374,6 @@ acraengdemo_launch_project_python() {
 }
 
 acraengdemo_launch_project_rails() {
-    acraengdemo_info_rails
-
     acraengdemo_git_clone_acraengdemo
 
     COSSACKLABS_RUBYGEMS_VCS_URL='https://github.com/cossacklabs/rubygems.org'
@@ -369,6 +394,13 @@ acraengdemo_launch_project_rails() {
     acraengdemo_run_compose
 }
 
+acraengdemo_launch_project_timescaledb() {
+    acraengdemo_git_clone_acraengdemo
+
+    COMPOSE_ENV_VARS=''
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project() {
     [[ " ${PROJECTS_SUPPORTED[@]} " =~ " $demo_project_name " ]] ||
         acraengdemo_raise "unknown demo project '$demo_project_name'."
@@ -381,6 +413,7 @@ acraengdemo_launch_project() {
     acraengdemo_add_cleanup_cmd "rm -rf $PROJECT_DIR" "remove temporary directory"
     acraengdemo_cmd "cd $PROJECT_DIR" 'Go into project dir'
 
+    eval "acraengdemo_info_$demo_project_name"
     eval "acraengdemo_launch_project_$demo_project_name"
 }
 
@@ -425,7 +458,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python rails )
+    PROJECTS_SUPPORTED=( django django-transparent python rails timescaledb )
 }
 
 acraengdemo_run() {
