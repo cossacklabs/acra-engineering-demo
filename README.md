@@ -510,6 +510,8 @@ At the initial stage, the TimescaleDB database will be filled with randomly gene
 
 Grafana also connected through AcraConnector and AcraServer to TimescaleDB and can get unencrypted data to building `Temperature (demo data)` graph.
 
+<p align="center"><img src="_pics/eng_demo_timescaledb_metrics.png" alt="Protecting TimescaleDB metrics: Grafana dashboard" width="700"></p>
+
 Prometheus collects real metrics from AcraConnector and AcraServer. Two dashboards in Grafana: `AcraServer (real data)` and `AcraConnector (real data)` display that data.
 
 ### 2.1 Read the data directly from the database
