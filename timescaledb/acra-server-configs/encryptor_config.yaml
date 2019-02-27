@@ -1,0 +1,5 @@
+schemas:
+- table: cpu_temp
+  encrypted:
+  - column: device
+  - column: unit_id
