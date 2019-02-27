@@ -492,6 +492,7 @@ These are all the code changes! 🎉
 ## 1. Installation
 
 ```bash
+export ACRA_DOCKER_IMAGE_TAG='master'
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- timescaledb
 ```
