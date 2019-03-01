@@ -2,15 +2,16 @@
 
 Acra Engineering Demo illustrates the integration of [Acra data protection suite](https://github.com/cossacklabs/acra) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
-This demo has two examples:
+This demo has several examples:
 
-| [Protecting Django app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-on-django-based-web-site) | [Protecting CLI python app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-python-cli-database-applicationn) | [Protecting Ruby Rails app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-rails-application) |
-|---|---|---|
+| [Protecting Django app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-on-django-based-web-site) | [Protecting CLI python app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-python-cli-database-applicationn) | [Protecting Ruby Rails app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-rails-application) | [Protecting TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo#protecting-metrics-in-timescaledb)
+|---|---|---|---|
 
 **Integrating Acra into any application requires 3 steps:**
 
 1. **Generation of encryption keys**. For this example, we will generate one storage keypair (for encryption/decryption of the data) and two transport keypairs (for a secure connection between AcraServer and AcraConnector).
-2. **Integration of AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector.
+2. **Integration of AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector. 
+<br/>If AcraServer works in **Transparent encryption mode**, there's no need to integrate AcraWriter inside the app, just configure AcraServer to encrypt records in specific columns only.
 3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.
       1. AcraConnector ensures transport protection between the client app and AcraServer. AcraConnector is deployed as close as possible to AcraWriter (ideally, at the same host) and uses its own transport keypair and AcraServer's public key to encrypt the transport.
       2. AcraServer receives a reading request from application through AcraConnector, makes sure it's legit, fetches the data from the database, decrypts it, and returns to the AcraConnector. AcraServer is a separate container and is connected to the database and AcraConnector. AcraServer uses the storage's private key to decrypt the data and its own transport keypair and AcraConnector's public key to encrypt transport.
