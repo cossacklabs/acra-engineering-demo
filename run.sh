@@ -157,6 +157,10 @@ Resources that will become available after launch:
     acraengdemo_press_any_key
 }
 
+acraengdemo_info_django-transparent() {
+    acraengdemo_info_django
+}
+
 acraengdemo_info_python() {
     echo '
 Resources that will become available after launch:
