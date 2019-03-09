@@ -43,11 +43,8 @@ RUN apk add gcc python3-dev musl-dev libxml2-dev git alpine-sdk rsync
 
 # Fetch and patch django
 RUN mkdir /app
-RUN cd /app \
-    && git init \
-    && git remote add origin $VCS_URL \
-    && git fetch --depth 1 origin $VCS_REF \
-    && git checkout FETCH_HEAD
+RUN git clone $VCS_URL /app/ \
+    && git checkout $VCS_REF
 
 COPY ./configs/fields.py /app/blog/
 COPY ./configs/models.py.patch /app/blog/
