@@ -44,6 +44,7 @@ RUN apk add gcc python3-dev musl-dev libxml2-dev git alpine-sdk rsync
 # Fetch and patch django
 RUN mkdir /app
 RUN git clone $VCS_URL /app/ \
+    && cd /app \
     && git checkout $VCS_REF
 
 COPY ./configs/fields.py /app/blog/
