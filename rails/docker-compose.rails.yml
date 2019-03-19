@@ -125,6 +125,7 @@ services:
             - ./.acraconfigs/acra-server:/config
         command: >-
             --db_host=postgresql
+            --db_port=5432
             --keys_dir=/keys
             --auth_keys=/keys/httpauth.accounts
             --http_api_enable

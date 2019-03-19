@@ -1,0 +1,4 @@
+version: 0.85.0
+
+# Turn on zone mode
+zonemode_enable: true
