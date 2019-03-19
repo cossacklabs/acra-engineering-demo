@@ -123,21 +123,20 @@ services:
             # rewriteable in case of using API, otherwise should be read-only.
             - ./.acrakeys/acra-server:/keys
             # Directory with configuration, rewriteable
-            - ./.acraconfigs/acra-server:/config
+            - ./acra-server-config:/config
         command: >-
             --db_host=postgresql
+            --db_port=5432
             --keys_dir=/keys
             --auth_keys=/keys/httpauth.accounts
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
-            --zonemode_enable
             --config_file=/config/acra-server.yaml
             --tracing_jaeger_enable
             --jaeger_agent_endpoint=''
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
-
 
     acra-connector:
         image: "cossacklabs/acra-connector:${ACRA_DOCKER_IMAGE_TAG:-latest}"
