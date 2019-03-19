@@ -10,7 +10,7 @@ This demo has several examples:
 **Integrating Acra into any application requires 3 steps:**
 
 1. **Generation of encryption keys**. For this example, we will generate one storage keypair (for encryption/decryption of the data) and two transport keypairs (for a secure connection between AcraServer and AcraConnector).
-2. **Integration of AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector. 
+2. **Integration of AcraWriter** – the client-side library – into the application (web or mobile app). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector.
 <br/>If AcraServer works in **Transparent encryption mode**, there's no need to integrate AcraWriter inside the app, just configure AcraServer to encrypt records in specific columns only.
 3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.
       1. AcraConnector ensures transport protection between the client app and AcraServer. AcraConnector is deployed as close as possible to AcraWriter (ideally, at the same host) and uses its own transport keypair and AcraServer's public key to encrypt the transport.
@@ -490,7 +490,6 @@ These are all the code changes! 🎉
 ## 1. Installation
 
 ```bash
-export ACRA_DOCKER_IMAGE_TAG='master'
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- timescaledb
 ```
