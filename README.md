@@ -4,7 +4,7 @@ Acra Engineering Demo illustrates the integration of [Acra data protection suite
 
 This demo has several examples:
 
-| [Protecting Django app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-on-django-based-web-site) | [Protecting CLI python app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-python-cli-database-applicationn) | [Protecting Ruby Rails app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-rails-application) | [Protecting TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo#protecting-metrics-in-timescaledb)
+| [Protecting Django app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-on-django-based-web-site) | [Protecting CLI python app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-python-cli-database-application) | [Protecting Ruby Rails app](https://github.com/cossacklabs/acra-engineering-demo#protecting-data-in-a-rails-application) | [Protecting TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo#protecting-metrics-in-timescaledb)
 |---|---|---|---|
 
 **Integrating Acra into any application requires 3 steps:**
