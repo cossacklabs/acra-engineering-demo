@@ -29,6 +29,9 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
+# Fix CVE-2019-5021
+RUN echo 'root:!' | chpasswd -e
+
 EXPOSE 8000
 
 # Install packages
