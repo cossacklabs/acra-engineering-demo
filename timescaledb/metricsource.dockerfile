@@ -1,5 +1,8 @@
 FROM alpine:3.9
 
+# Fix CVE-2019-5021
+RUN echo 'root:!' | chpasswd -e
+
 RUN apk --update add bash postgresql postgresql-client \
     && rm -rf /var/cache/apk/*
 
