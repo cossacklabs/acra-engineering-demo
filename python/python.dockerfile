@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 
 # Product version
 ARG VERSION
@@ -39,6 +39,11 @@ RUN pip3 install --no-cache-dir --upgrade pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN apk add gcc python3-dev musl-dev libxml2-dev git alpine-sdk rsync
+
+# TODO : remove when themis will fully support alpine
+RUN mkdir -p /usr/local/sbin
+RUN echo -e '#!/bin/sh\n\nexit 0\n' > /usr/local/sbin/ldconfig
+RUN chmod +x /usr/local/sbin/ldconfig
 
 RUN cd /root \
     && git clone --depth 1 -b stable https://github.com/cossacklabs/themis
