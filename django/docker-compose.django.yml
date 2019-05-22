@@ -13,7 +13,7 @@ services:
         environment:
             # INSECURE!!! You MUST define your own ACRA_MASTER_KEY
             # The default is for testing purposes only
-            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             # Mount the whole ./.acrakeys directory to be able to generate keys
             # and place them in service subdirectories
@@ -32,7 +32,7 @@ services:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
         network_mode: "none"
         environment:
-            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
         volumes:
             - ./.acrakeys:/keys
         command: >-
@@ -47,7 +47,7 @@ services:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
         network_mode: "none"
         environment:
-            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             - ./.acrakeys:/keys
         command: >-
@@ -63,7 +63,7 @@ services:
         image: "cossacklabs/acra-authmanager:${ACRA_DOCKER_IMAGE_TAG:-latest}"
         network_mode: "none"
         environment:
-            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             - ./.acrakeys:/keys
         command: >-
@@ -122,7 +122,7 @@ services:
             - postgresql
             - jaeger
         environment:
-            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         # We use internal networks:
         # - 'server-postgresql' - for AcraServer and DB interconnection
         # - 'connector-server' - for AcraServer and AcraConnector interconnection
@@ -164,7 +164,7 @@ services:
         ports:
             - "9494:5432"
         environment:
-            ACRA_MASTER_KEY: ${ACRA_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
         # We use internal networks:
         # - 'connector-server' - for interconnection with AcraServer
         # - 'webconfig-connector' - for interconnection with AcraWebconfig
