@@ -3,7 +3,7 @@
 Acra Engineering Demo illustrates the integration of [Acra data protection suite](https://github.com/cossacklabs/acra) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
 
-This demo has several example application. Each folder contains docker-compose, describing key management and start commands for Acra, as well as configuration files.
+This demo has several example application. Each folder contains docker-compose file, that describes key management procedures and configuration of Acra.
 
 
 | # | Example | What's inside |
@@ -13,9 +13,9 @@ This demo has several example application. Each folder contains docker-compose, 
 | 3 | [Asymmetric encryption with Zones, python console app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-3-protecting-data-in-a-python-cli-database-application) |  Simple python client application, client-side encryption with Zones support, AcraServer, AcraConnector, PostgreSQL |
 | 4 | [Asymmetric encryption, Ruby on Rails web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-protecting-data-in-a-rails-application) | Ruby on Rails web application, client-side encryption, AcraServer, AcraConnector, PostgreSQL |
 | 5 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-5-protecting-metrics-in-timescaledb) |  TimescaleDB with server-side encryption, AcraServer, AcraConnector |
-| 6 | [SQL injection prevention, AcraCensor (SQL firewall)](https://github.com/cossacklabs/acra-engineering-demo/#example-6-configure-acra-to-prevent-sql-injections)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor |
-| 7 | [Intrusion detection system, transparent encryption](https://github.com/cossacklabs/acra-engineering-demo/#example-7-configure-acra-to-detect-and-prevent-intrusions)  | Go client application, AcraServer in transparent encryption mode, poison records, PostgreSQL |
-| 8 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-on-acra) | python client application, AcraServer, HAProxy |
+| 6 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-6-sql-injections-prevention-with-acra)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
+| 7 | [Intrusion detection system, transparent encryption](https://github.com/cossacklabs/acra-engineering-demo/#example-7-intrusion-detection-with-acra)  | Go client application, AcraServer in transparent encryption mode, poison records, PostgreSQL |
+| 8 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-with-acraa) | python client application, AcraServer, HAProxy |
 
 
 # Overview
