@@ -1,6 +1,6 @@
 # What is this?
 
-Acra Example applications illustrate the integration of [Acra data protection suite](https://github.com/cossacklabs/acra) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
+Acra Example applications illustrate the integration of [Acra data protection suite](https://cossacklabs.com/acra/) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
 
 This collection has several example application. Each folder contains docker-compose file, that describes key management procedures and configurations of Acra.
@@ -14,7 +14,8 @@ This collection has several example application. Each folder contains docker-com
 | 5 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-5-protecting-metrics-in-timescaledb) |  TimescaleDB with server-side encryption, AcraServer, AcraConnector |
 | 6 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-6-sql-injections-prevention-with-acra)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
 | 7 | [Intrusion detection system, transparent encryption](https://github.com/cossacklabs/acra-engineering-demo/#example-7-intrusion-detection-with-acra)  | Go client application, AcraServer in transparent encryption mode, poison records, PostgreSQL |
-| 8 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-with-acraa) | python client application, AcraServer, HAProxy |
+| 8 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-with-acra) | python client application, AcraServer, HAProxy |
+| 9 | Search in encrypted data | [Acra Enterprise Edition](https://www.cossacklabs.com/acra/#pricing) supports search in encrypted data without decrypting it |
 
 
 # Overview
@@ -610,9 +611,10 @@ Follow the guide: [Acra load balancing example](https://github.com/cossacklabs/a
 
 Let us know if you have any questions by dropping an email to [dev@cossacklabs.com](mailto:dev@cossacklabs.com).
 
-1. [cossacklabs/acra](https://github.com/cossacklabs/acra) – the main Acra repository contains tons of examples and documentation.
-2. Deploy your own Acra infrastructure using [pre-defined Docker-compose files](https://github.com/cossacklabs/acra/tree/master/docker).
-3. [Acra Live Demo](https://www.cossacklabs.com/acra/#acralivedemo) – is a web-based demo of a typical web-infrastructure protected by Acra and deployed on our servers for your convenience. It illustrates the other features of Acra, i.e. SQL firewall, intrusion detection, database rollback, and so on.
+1. [Acra features](https://cossacklabs.com/acra/) – check full features set and available licenses.
+2. [Acra Community Edition](https://github.com/cossacklabs/acra) – Acra Community Edition repository contains tons of examples and documentation.
+3. Deploy your own Acra infrastructure using [pre-defined Docker-compose files](https://github.com/cossacklabs/acra/tree/master/docker).
+4. [Acra Live Demo](https://www.cossacklabs.com/acra/#acralivedemo) – is a web-based demo of a typical web-infrastructure protected by Acra and deployed on our servers for your convenience. It illustrates the other features of Acra, i.e. SQL firewall, intrusion detection, database rollback, and so on.
 
 # Need help?
 
