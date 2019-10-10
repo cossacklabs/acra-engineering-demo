@@ -200,7 +200,7 @@ diff -urN djangoproject.com/djangoproject/settings/dev.py patched/djangoproject/
  # django-hosts settings
  
 -PARENT_HOST = 'djangoproject.localhost:8000'
-+PARENT_HOST = os.environ['DJANGO_HOST']
++PARENT_HOST = SECRETS.get('parent_host', '')
  
  # django-push settings
  

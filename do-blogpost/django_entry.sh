@@ -15,6 +15,6 @@ cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
   "trac_db_password": "$POSTGRES_DJANGO_PASSWORD",
   "trac_db_port": "$ACRA_PORT",
   "allowed_hosts": ["$DJANGO_HOST", "www.$DJANGO_HOST"],
-  "parent_host": "$DJANGO_HOST:8000"
+  "parent_host": "$DJANGO_HOST"
 }
 EOF
