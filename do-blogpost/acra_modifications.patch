@@ -103,7 +103,7 @@ diff -urN djangoproject.com/blog/migrations/0003_encrypt.py patched/blog/migrati
 +        ),
 +    ]
 diff -urN djangoproject.com/blog/models.py patched/blog/models.py
---- djangoproject.com/blog/models.py	2019-10-06 18:54:47.016591988 +0300
+--- djangoproject.com/blog/models.py	2019-10-09 19:37:15.829280692 +0300
 +++ patched/blog/models.py	2019-10-06 18:57:30.015795274 +0300
 @@ -10,6 +10,8 @@
  from django_hosts.resolvers import reverse
@@ -140,8 +140,22 @@ diff -urN djangoproject.com/blog/models.py patched/blog/models.py
  
      objects = EntryQuerySet.as_manager()
  
+diff -urN djangoproject.com/djangoproject/hosts.py patched/djangoproject/hosts.py
+--- djangoproject.com/djangoproject/hosts.py	2019-10-09 19:37:15.845280657 +0300
++++ patched/djangoproject/hosts.py	2019-10-09 19:31:58.677979560 +0300
+@@ -2,7 +2,7 @@
+ from django_hosts import host
+ 
+ host_patterns = [
+-    host(r'www', settings.ROOT_URLCONF, name='www'),
+-    host(r'docs', 'djangoproject.urls.docs', name='docs'),
+-    host(r'dashboard', 'dashboard.urls', name='dashboard'),
++    host(r'', settings.ROOT_URLCONF, name='www'),
++    host(r'', 'djangoproject.urls.docs', name='docs'),
++    host(r'', 'dashboard.urls', name='dashboard'),
+ ]
 diff -urN djangoproject.com/djangoproject/settings/common.py patched/djangoproject/settings/common.py
---- djangoproject.com/djangoproject/settings/common.py	2019-10-06 18:54:47.032591948 +0300
+--- djangoproject.com/djangoproject/settings/common.py	2019-10-09 19:37:15.849280649 +0300
 +++ patched/djangoproject/settings/common.py	2019-10-06 18:57:48.147712082 +0300
 @@ -36,6 +36,9 @@
          'HOST': SECRETS.get('db_host', ''),
@@ -162,16 +176,4 @@ diff -urN djangoproject.com/djangoproject/settings/common.py patched/djangoproje
 +        },
      }
  }
- 
-diff -urN djangoproject.com/djangoproject/settings/dev.py patched/djangoproject/settings/dev.py
---- djangoproject.com/djangoproject/settings/dev.py	2019-10-06 18:54:47.032591948 +0300
-+++ patched/djangoproject/settings/dev.py	2019-10-06 18:58:04.211639215 +0300
-@@ -38,7 +38,7 @@
- 
- # django-hosts settings
- 
--PARENT_HOST = 'djangoproject.localhost:8000'
-+PARENT_HOST = SECRETS.get('parent_host', '')
- 
- # django-push settings
  
