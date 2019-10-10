@@ -156,7 +156,7 @@ diff -urN djangoproject.com/djangoproject/hosts.py patched/djangoproject/hosts.p
  ]
 diff -urN djangoproject.com/djangoproject/settings/common.py patched/djangoproject/settings/common.py
 --- djangoproject.com/djangoproject/settings/common.py	2019-10-09 19:37:15.849280649 +0300
-+++ patched/djangoproject/settings/common.py	2019-10-06 18:57:48.147712082 +0300
++++ patched/djangoproject/settings/common.py	2019-10-10 21:58:20.344425500 +0300
 @@ -36,6 +36,9 @@
          'HOST': SECRETS.get('db_host', ''),
          'PASSWORD': SECRETS.get('db_password', ''),
@@ -176,4 +176,31 @@ diff -urN djangoproject.com/djangoproject/settings/common.py patched/djangoproje
 +        },
      }
  }
+ 
+diff -urN djangoproject.com/djangoproject/settings/dev.py patched/djangoproject/settings/dev.py
+--- djangoproject.com/djangoproject/settings/dev.py	2019-10-09 19:37:15.849280649 +0300
++++ patched/djangoproject/settings/dev.py	2019-10-10 21:55:11.800703019 +0300
+@@ -1,10 +1,10 @@
+ from .common import *  # noqa
+ 
+ ALLOWED_HOSTS = [
+-    'www.djangoproject.localhost',
+-    'djangoproject.localhost',
+-    'docs.djangoproject.localhost',
+-    'dashboard.djangoproject.localhost',
++    'www.djangoproject.example',
++    'djangoproject.example',
++    'docs.djangoproject.example',
++    'dashboard.djangoproject.example',
+ ] + SECRETS.get('allowed_hosts', [])
+ 
+ LOCALE_MIDDLEWARE_EXCLUDED_HOSTS = ['docs.djangoproject.localhost']
+@@ -38,7 +38,7 @@
+ 
+ # django-hosts settings
+ 
+-PARENT_HOST = 'djangoproject.localhost:8000'
++PARENT_HOST = os.environ['DJANGO_HOST']
+ 
+ # django-push settings
  
