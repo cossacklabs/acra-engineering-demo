@@ -141,10 +141,48 @@ make compile-scss
 # run via uwsgi
 pip install uwsgi
 mkdir -p /opt/logs
-uwsgi --socket :8001 --module djangoproject.wsgi --home acra_django/ --daemonize /opt/logs/uwsgi_log
+uwsgi --socket :8001 --module djangoproject.wsgi --home acra_django/ --daemonize /opt/logs/uwsgi_log & disown
 
 # load nginx
 wget -O /etc/nginx/sites-enabled/acra_django_nginx.conf https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/acra_django_nginx.conf
 ./manage.py collectstatic
 /etc/init.d/nginx reload
 ```
+That's all. Now let's check our application. Type in browser IP address of your Djangorpoject.com droplet. You should see:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/12.png)
+
+Go to admin page, by typing `IP_address/admin` in browser:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/13.png)
+
+Put `admin` / `admin` as username / password and log in into administrative page:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/14.png)
+
+Find 'Blog' category. And select 'Entries' -> '+ Add':
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/15.png)
+
+Fill all necessary textboxes:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/16.png)
+
+Click 'Save' at the bottom of page. This will create encrypted blog record:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/17.png)
+
+It will be normally reviewed by website visitors (go to `IP_address/weblog` in browser):
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/18.png)
+
+But it is actually encrypted (as you can see the records in the `blog_entries` table of your `djangoproject` database):
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/19.png)
+
+So, here is how Acra works.
+
+#### Useful links:
+
+- Acra Github: https://github.com/cossacklabs/acra
+- Acra 1-Click Application on Digital Ocean: https://marketplace.digitalocean.com/apps/acra
