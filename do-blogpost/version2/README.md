@@ -2,11 +2,11 @@
 
 In this tutorial we will show how to protect your Django-based application (https://www.djangoproject.com/) - hereinafter 'application' - deployed on Digital Ocean cloud platform (https://www.digitalocean.com/) with a help of Acra 1-Click App. We assume that you already have one droplet and one managed database instance online:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/0-1.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/1.png)
 
 and your application can be publicly accessed:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/1-1.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/2.png)
 
 If no, and you want to deploy application on your own please read following instructions:
 * https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
@@ -16,11 +16,11 @@ Good. Now, in order to protect the application we will add AcraServer component 
 
 1) Create Acra Droplet and perform all the steps in startup configuration script. To do this, go to 'Create' -> 'Droplets' -> 'Marketplace' -> 'See all Marketplace Apps':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/5.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/5.png)
 
 Type 'Acra' in search text box. You should find Acra 1-Click App:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/6.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/6.png)
 
 Push 'Create Acra Droplet' button. As while managed database cluster creation, you will have to select plan, datacenter region (recommended to select the same location for all your droplets and database clusters). 
 
@@ -30,7 +30,7 @@ Push 'Create Droplet' button. It will take a little time to create a droplet.
 
 Now we have all the infrastructure components ready. You should have 3 components: 2 droplets and 1 database cluster:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/11.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/11.png)
 
 2) Configuring Acra.
 
@@ -45,8 +45,8 @@ DB_PORT
 ```
 You can find all those credentials in working space of your Digital Ocean account:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/0-3.png)
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/0-4.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/3.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/4.png)
 
 
 Go to your local machine terminal and run the following commands:
@@ -257,31 +257,31 @@ EOF
 ```
 As you can see, we changed the host/port of your database on Acra host/port. In this way, all SQL queries issued by your application will be forwarded to the database via Acra component. Also, remember, that in 2nd step we configured Acra to encrypt data in the `blog_entries` table. So, now let's look at how Acra exactly works. Create a blogpost via admin panel of your application: go to admin page, by typing `DJANGO_HOST/admin` in browser:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/13.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/13.png)
 
 Put `admin` / `admin` as username / password and log in into administrative page:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/14.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/14.png)
 
 Find 'Blog' category. And select 'Entries' -> '+ Add':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/15.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/15.png)
 
 Fill all necessary textboxes:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/16.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/16.png)
 
 Click 'Save' at the bottom of page. This will create encrypted blog record:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/17.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/17.png)
 
 It will be normally reviewed by website visitors (go to `IP_address/weblog` in browser):
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/18.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/18.png)
 
 But it is actually encrypted (as you can see the records in the `blog_entries` table of your `djangoproject` database):
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/19.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/19.png)
 
 So, here is how Acra works.
 

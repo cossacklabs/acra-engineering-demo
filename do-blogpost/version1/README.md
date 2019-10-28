@@ -9,23 +9,23 @@ The following steps should be performed:
 
 1) In DO's account space create new project by selecting `+ New Project` on the left panel and type name, description and purpose of the project -> 'Create Project'.
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/0.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/0.png)
 
 2) In your project workspace create new PostgreSQL database cluster. Go to 'Create' -> 'Databases':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/1.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/1.png)
 
 and select (!!!) PostgreSQL database engine, node plan that is acceptable for you and datacenter location and then push 'Create a Database Cluster'. It will take for a while ... If creation was successful, you have to see that now you have your database cluster inside your project space:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/2.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/2.png)
 
 Let's look on connection details:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/3.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/3.png)
 
 We will use **host**, **port** later. Go into your database settings and click on 'Users & Databases':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/4.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/4.png)
 
 You will see that you have 1 admin user **doadmin** with some random password and 1 database **defaultdb**. Remember where to look for: **host**, **port**, **username** and **password** to your database.
 
@@ -42,21 +42,21 @@ If there were no errors, our PostgreSQL database cluster is configured and ready
 
 4) Create Acra Droplet and perform all the steps in startup configuration script. To do this, go to 'Create' -> 'Droplets' -> 'Marketplace' -> 'See all Marketplace Apps':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/5.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/5.png)
 
 Type 'Acra' in search text box. You should find Acra project:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/6.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/6.png)
 
 Push 'Create Acra Droplet' button. As while managed database cluster creation, you will have to select plan, datacenter region (recommended to select the same location for all your droplets and database clusters). 
 
 IMPORTANT!!! You have to add your public SSH key for secure authentication on your droplets. For this purpose, there is a button 'New SSH key':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/7.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/7.png)
 
 This opens the modal form:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/8.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/8.png)
 
 Generating the SSH keys is out of scope of this blogpost. You can follow the instructions from the modal form (on the right) or find information in the Internet. Also you have to select which SSH keys will be allowed for authentication. Those people (owners of private parts of the key) will have an access to droplet. 
 
@@ -64,13 +64,13 @@ Push 'Create Droplet' button. It will take a little time to create a droplet.
 
 5) Create droplet for Djangoproject.com application. Go to 'Create' -> 'Droplets' -> 'Distributions':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/9.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/9.png)
 
 Select Ubuntu 18.04.3 (LTS) x64 version of OS, plan, datacenter region, SSH keys allowed for authentication. Push 'Create Droplet' button. It will take a little time to create a droplet.
 
 Now we have all the infrastructure components ready. You should have 3 components: 2 droplets and 1 database cluster:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/11.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/11.png)
 
 You can look for all the credentials of your droplets and managed database in the main project workspace of your DO account. We have already used credentials while configuring your database cluster and will use droplets credentials for their configuring.
 
@@ -91,7 +91,7 @@ Then proceed with configurator that will start automatically. You will need to s
 ```
 Note, that you can download CA certificate of your database by reference in connection details of your database cluster:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/10.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/10.png)
 
 7) Configuring Djangoproject.com droplet (Ubuntu 18.04). Go to your local machine terminal and run the following commands:
 ```
@@ -150,35 +150,35 @@ wget -O /etc/nginx/sites-enabled/acra_django_nginx.conf https://raw.githubuserco
 ```
 That's all. Now let's check our application. Type in browser IP address of your Djangorpoject.com droplet. You should see:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/12.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/12.png)
 
 Go to admin page, by typing `IP_address/admin` in browser:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/13.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/13.png)
 
 Put `admin` / `admin` as username / password and log in into administrative page:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/14.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/14.png)
 
 Find 'Blog' category. And select 'Entries' -> '+ Add':
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/15.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/15.png)
 
 Fill all necessary textboxes:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/16.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/16.png)
 
 Click 'Save' at the bottom of page. This will create encrypted blog record:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/17.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/17.png)
 
 It will be normally reviewed by website visitors (go to `IP_address/weblog` in browser):
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/18.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/18.png)
 
 But it is actually encrypted (as you can see the records in the `blog_entries` table of your `djangoproject` database):
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/screenshots/19.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/19.png)
 
 So, here is how Acra works.
 
