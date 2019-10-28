@@ -141,7 +141,7 @@ bash django_entry.sh
 
 # initial installation of djangoproject.com server
 cd djangoproject.com
-python3.6 -m venv acra_django
+python3 -m venv acra_django
 source acra_django/bin/activate
 pip install -r requirements/dev.txt
 npm install
