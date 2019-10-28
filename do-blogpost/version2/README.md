@@ -290,6 +290,12 @@ But it is actually encrypted (as you can see the records in the `blog_entries` t
 
 So, here is how Acra works.
 
+
+#### ANSIBLE 
+We provide an Ansible script for automatiс deployment of all infrastructure components of the whole solution.
+
+TBD...
+
 #### Useful links:
 
 - Acra Github: https://github.com/cossacklabs/acra
