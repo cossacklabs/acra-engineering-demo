@@ -65,6 +65,11 @@ Then proceed with configurator that will start automatically. You will need to s
 * Table: (skip further tables, just press 'Enter')
 ```
 
+Finally, you should see something similar to this:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/acra3.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/acra4.png)
+
 Excellent. Now we have successfully configured Acra.
 
 3) Modifications of application's source code.
