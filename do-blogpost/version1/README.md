@@ -74,7 +74,23 @@ Now we have all the infrastructure components ready. You should have 3 component
 
 You can look for all the credentials of your droplets and managed database in the main project workspace of your DO account. We have already used credentials while configuring your database cluster and will use droplets credentials for their configuring.
 
-6) Configuring Acra droplet. Go to your local machine terminal and run the following commands:
+6) Configuring Acra droplet. 
+
+Prepare the following information in order to configure Acra:
+
+```
+ACRA_HOST
+DJANGO_HOST
+DB_CERTIFICATE
+DB_HOST
+DB_PORT
+```
+You can find all those credentials in working space of your Digital Ocean account:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/3.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/4.png)
+
+Go to your local machine terminal and run the following commands:
 ```
 ssh root@<acra_droplet_ip>
 
@@ -89,9 +105,13 @@ Then proceed with configurator that will start automatically. You will need to s
 * Encrypt columns: author body body_html headline summary summary_html
 * Table: (skip further tables, just press 'Enter')
 ```
-Note, that you can download CA certificate of your database by reference in connection details of your database cluster:
 
-![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/10.png)
+Finally, you should see something similar to this:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/acra3.png)
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/acra4.png)
+
+Excellent. Now we have successfully configured Acra.
 
 7) Configuring Djangoproject.com droplet (Ubuntu 18.04). Go to your local machine terminal and run the following commands:
 ```
@@ -121,7 +141,7 @@ bash django_entry.sh
 
 # initial installation of djangoproject.com server
 cd djangoproject.com
-python3.6 -m venv acra_django
+python3 -m venv acra_django
 source acra_django/bin/activate
 pip install -r requirements/dev.txt
 npm install
@@ -141,13 +161,25 @@ make compile-scss
 # run via uwsgi
 pip install uwsgi
 mkdir -p /opt/logs
-uwsgi --socket :8001 --module djangoproject.wsgi --home acra_django/ --daemonize /opt/logs/uwsgi_log & disown
+uwsgi --socket :8001 --module djangoproject.wsgi --home /opt/djangoproject.com/acra_django/ --daemonize /opt/logs/uwsgi_log & disown
+
+#set self-signed TLS certificate
+openssl genrsa -out /opt/app_data/server.key 4096
+openssl rsa -in /opt/app_data/server.key -out /opt/app_data/server.key
+openssl req -sha256 -new -key /opt/app_data/server.key -out /opt/app_data/server.csr -subj '/CN='"$DJANGO_HOST"''
+openssl x509 -req -sha256 -days 365 -in /opt/app_data/server.csr -signkey /opt/app_data/server.key -out /opt/app_data/server.crt
 
 # load nginx
 wget -O /etc/nginx/sites-enabled/acra_django_nginx.conf https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/acra_django_nginx.conf
+sed -i 's/x.x.x.x/$DJANGO_HOST/g' /etc/nginx/sites-enabled/acra_django_nginx.conf
 ./manage.py collectstatic
-/etc/init.d/nginx reload
+systemctl reload nginx
 ```
+
+Note, that in order to use TLS, you should import generated `/opt/app_data/server.crt` certificate into your browser on your local machine. See this separate blogpost for details: https://www.techrepublic.com/article/how-to-add-a-trusted-certificate-autqhority-certificate-to-chrome-and-firefox/. 
+
+IMPORTANT!!! This is a some kind of simplification. In production, good practice would be to buy domain name for your Digital Ocean droplet that runs applciation and also buy TLS certificate for this domain from well-known Certificate Authority. It's important for security reasons.
+
 That's all. Now let's check our application. Type in browser IP address of your Djangorpoject.com droplet. You should see:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/12.png)
