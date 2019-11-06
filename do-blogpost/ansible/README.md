@@ -26,7 +26,7 @@ django     ansible_host=<django_droplet_ip>
 ```
 3) Run: `ansible-playbook acra-ansible-script.yml -i hosts --extra-vars "db_host=<postgres_host> acra_host=<acra_droplet_ip> acra_port=9393 django_host=<django_droplet_ip>"` to configure Acra droplet
 
-4) Run `ansible-playbook django-ansible-script.yml -i hosts --extra-vars "django_host=<django_droplet_ip> acra_host=<acra_droplet_ip> acra_port=9393 postgres_admin_password=<password_to_user_doadmin>"` to configure Django droplet
+4) Run `ansible-playbook django-ansible-script.yml -i hosts --extra-vars "django_host=<django_droplet_ip> acra_host=<acra_droplet_ip> acra_port=9393 postgres_admin_password=<password_to_user_doadmin> postgres_django_password=<password_to_user_djangoproject>"` to configure Django droplet
 
 To check that configuration is successful, type in browser IP address of your Djangorpoject.com droplet. You should see:
 
