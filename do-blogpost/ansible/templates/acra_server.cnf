@@ -1,0 +1,16 @@
+
+[req]
+distinguished_name=subject
+x509_extensions=v3
+prompt=no
+[subject]
+CN={{ acra_host }}
+OU=server
+
+[v3]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage=digitalSignature, keyEncipherment
+extendedKeyUsage=serverAuth, clientAuth
+basicConstraints=critical,CA:false
+

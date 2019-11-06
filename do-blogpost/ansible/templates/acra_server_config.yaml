@@ -1,0 +1,12 @@
+acraconnector_transport_encryption_disable: true
+client_id: application
+config_file: "{{ acra_config_dir }}/cfg/acra-server_config.yaml"
+db_host: {{ db_host }}
+db_port: {{ db_port }}
+encryptor_config_file: "{{ acra_config_dir }}/cfg/encryptor_config.yaml"
+keys_dir: "{{ acra_config_dir }}/keys/acra-server"
+tls_auth: 1
+tls_ca: "{{ acra_config_dir }}/tls/ca.crt"
+tls_cert: "{{ acra_config_dir }}/tls/{{ acra_host }}.crt"
+tls_key: "{{ acra_config_dir }}/tls/{{ acra_host }}.key"
+version: 0.85.0

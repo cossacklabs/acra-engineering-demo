@@ -1,0 +1,3 @@
+[digital_ocean]
+acra       ansible_host=209.97.188.47
+django     ansible_host=178.128.40.37
