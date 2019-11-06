@@ -9,7 +9,6 @@
     postgres_ssl_mode: require
     postgres_admin_user: doadmin
     postgres_database: code.djangoproject
-    postgres_django_password: secret
     droplet_working_dir: /opt
     django_src_dir: /opt/djangoproject.com
     application_venv: /opt/djangoproject.com/acra_django
@@ -46,7 +45,7 @@
       dest: "{{ droplet_working_dir }}"
   
   - get_url:
-      url: https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/django_entry.sh
+      url: https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/ansible/templates/django_entry.sh
       dest: "{{ droplet_working_dir }}"
   
   - patch:
