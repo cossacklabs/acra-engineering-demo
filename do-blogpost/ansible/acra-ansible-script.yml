@@ -1,53 +1,84 @@
 ---
-- hosts: acra
+- hosts: all
   become: no
   remote_user: root
   gather_facts: no
   vars:
     custom_tls_directory: /usr/local/share/ca-certificates/database
     acra_config_dir: /etc/acra
-  vars_files:
-    - templates/db_certificate.yml
+  handlers:
+    - name: update ca
+      command: update-ca-certificates
+      notify: restart after ca updating
+    - name: restart after ca updating
+      script: "templates/restart_acra_server.sh {{ acra_config_dir }}/keys {{ acra_port }}"
+
   tasks: 
-    # Configure VM
     - command: "hostnamectl set-hostname {{ acra_host }}"
     - shell: "ufw status | grep -E '^{{ acra_port }}/tcp[[:space:]]+ALLOW' | awk '{print $3}' | xargs -I[] ufw delete allow from [] to any port {{ acra_port }} proto tcp"
     - command: "ufw allow from {{ acra_host }} to any port {{ acra_port }} proto tcp"
     - file:
         path: "{{ custom_tls_directory }}"
         state: directory
-    - file:
-        path: "{{ custom_tls_directory }}/ca.crt"
-        state: absent
-    - copy:
-        content: "{{ db_certificate }}"
+    - template:
+        src: templates/ca_certificate.crt
         dest: "{{ custom_tls_directory }}/ca.crt"
-        owner: root
-        group: root
-        mode: 0644
-    - command: update-ca-certificates
-    
-    # Configure AcraServer
+      notify: update ca
     - set_fact:
-        ca_serial: "{{ 32 | random }}"
-        server_serial: "{{ 32 | random }}"
-      run_once: yes
+        ca_serial: "{{ 100000000000000000000000000000000000000000000 | random }}"
+        server_serial: "{{ 100000000000000000000000000000000000000000000 | random }}"
     - template:
         src: templates/ca.cnf
         dest: "{{ acra_config_dir }}/tls/ca.cnf"
     - command: "openssl genrsa -out {{ acra_config_dir }}/tls/ca.key 4096"
-    - command: "openssl req -new -x509 -key {{ acra_config_dir }}/tls/ca.key -extensions v3 -config {{ acra_config_dir }}/tls/ca.cnf -sha256 -out {{ acra_config_dir }}/tls/ca.crt -set_serial {{ ca_serial }} -days 3650"
+      args:
+        creates: "{{ acra_config_dir }}/tls/ca.key"
+    - command: "openssl req -new                                     \
+                            -x509                                    \
+                            -key {{ acra_config_dir }}/tls/ca.key    \
+                            -extensions v3                           \
+                            -config {{ acra_config_dir }}/tls/ca.cnf \
+                            -sha256                                  \
+                            -out {{ acra_config_dir }}/tls/ca.crt    \
+                            -set_serial {{ ca_serial }}              \
+                            -days 3650"
+      args:
+        creates: "{{ acra_config_dir }}/tls/ca.crt"
     - template:
         src: templates/acra_server.cnf
         dest: "{{ acra_config_dir }}/tls/acra_server.cnf"
     - command: "openssl genrsa -out {{ acra_config_dir }}/tls/{{ acra_host }}.key 4096"
-    - command: "openssl req -new -sha256 -key {{ acra_config_dir }}/tls/{{ acra_host }}.key -out {{ acra_config_dir }}/tls/{{ acra_host }}.csr -config {{ acra_config_dir }}/tls/acra_server.cnf -extensions v3"
-    - command: "openssl x509 -req -sha256 -CA {{ acra_config_dir }}/tls/ca.crt -CAkey {{ acra_config_dir }}/tls/ca.key -in {{ acra_config_dir }}/tls/{{ acra_host }}.csr -out {{ acra_config_dir }}/tls/{{ acra_host }}.crt -set_serial {{ server_serial }} -days 3650 -extfile {{ acra_config_dir }}/tls/acra_server.cnf -extensions v3"
+      args:
+        creates: "{{ acra_config_dir }}/tls/{{ acra_host }}.key"
+    - command: "openssl req -new                                               \
+                            -sha256                                            \
+                            -key {{ acra_config_dir }}/tls/{{ acra_host }}.key \
+                            -out {{ acra_config_dir }}/tls/{{ acra_host }}.csr \
+                            -config {{ acra_config_dir }}/tls/acra_server.cnf  \
+                            -extensions v3"
+      args:
+        creates: "{{ acra_config_dir }}/tls/{{ acra_host }}.csr"
+    - command: "openssl x509 -req                                               \
+                             -sha256                                            \
+                             -CA {{ acra_config_dir }}/tls/ca.crt               \
+                             -CAkey {{ acra_config_dir }}/tls/ca.key            \
+                             -in {{ acra_config_dir }}/tls/{{ acra_host }}.csr  \
+                             -out {{ acra_config_dir }}/tls/{{ acra_host }}.crt \
+                             -set_serial {{ server_serial }}                    \
+                             -days 3650                                         \
+                             -extfile {{ acra_config_dir }}/tls/acra_server.cnf \
+                             -extensions v3"
+      args:
+        creates: "{{ acra_config_dir }}/tls/{{ acra_host }}.crt"
     - template:
         src: templates/encryptor_config.yaml
         dest: "{{ acra_config_dir }}/cfg/encryptor_config.yaml"
     - template:
         src: templates/acra_server_config.yaml
         dest: "{{ acra_config_dir }}/cfg/acra_server_config.yaml"
+    - find:
+        paths: "{{ acra_config_dir }}/keys"
+      register: keys_found
     - script: "templates/generate_acra_keys.sh {{ acra_config_dir }}/keys application"
-    - script: "templates/run_acra_server.sh {{ acra_config_dir }}/keys {{ acra_port }}"
+      when: keys_found.matched == 0
+    - script: "templates/restart_acra_server.sh {{ acra_config_dir }}/keys {{ acra_port }}"

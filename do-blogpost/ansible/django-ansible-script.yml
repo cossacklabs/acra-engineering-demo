@@ -1,5 +1,5 @@
 ---
-- hosts: django
+- hosts: all
   become: no
   remote_user: root
   gather_facts: no
@@ -17,9 +17,18 @@
     django_admin_email: email@example.com
     django_logs_directory: /opt/djangoproject.com/logs
     django_app_data: /opt/app_data
+  handlers:
+    - name: reload nginx
+      command: systemctl reload nginx
+    - name: daemon-reload
+      command: systemctl daemon-reload
+      notify: start uwsgi
+    - name: start uwsgi
+      command: systemctl start uwsgi.service
+      args:
+        chdir: /etc/systemd/system
   tasks: 
   - apt:
-      upgrade: dist
       update_cache: yes
       cache_valid_time: 86400
   - apt:
@@ -32,44 +41,44 @@
       - python3-venv
       - python3-dev
       - python3-pip 
-  
-  # install Djangoproject.com from sources
   - git:
       repo: https://github.com/django/djangoproject.com
       dest: "{{ django_src_dir }}"
       version: a4a33ec0adf97dcae286668435b15d140f6f5041
       update: no
-  
   - get_url:
       url: https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/acra_modifications.patch
       dest: "{{ droplet_working_dir }}"
-  
-  - get_url:
-      url: https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/ansible/templates/django_entry.sh
-      dest: "{{ droplet_working_dir }}"
-  
   - patch:
       remote_src: yes
       src: "{{ droplet_working_dir }}/acra_modifications.patch"
       basedir: "{{ django_src_dir }}"
       strip: 1
-  
-  - command: bash "{{ droplet_working_dir}}/django_entry.sh"
+  - set_fact:
+      django_key: "{{ 100000000000000000000000000000000000000000000 | random }}"
+  - stat:
+      path: "{{ django_app_data }}/conf/secrets.json"
+    register: django_conf
+  - file:
+      path: "{{ django_app_data }}/conf"
+      state: directory
+    when: not django_conf.stat.exists
+  - template:
+      src: templates/django_config.json
+      dest: "{{ django_app_data }}/conf/secrets.json"
+    when: not django_conf.stat.exists
     environment: 
       DJANGOPROJECT_DATA_DIR: "{{ django_app_data }}"
       ACRA_HOST: "{{ acra_host }}"
       ACRA_PORT: "{{ acra_port }}"
       DJANGO_HOST: "{{ django_host }}"
       POSTGRES_DJANGO_PASSWORD: "{{ postgres_django_password }}"
-  
   - pip:
       requirements: "{{ django_src_dir }}/requirements/dev.txt"
       virtualenv: "{{ application_venv }}"
       virtualenv_command: /usr/bin/python3.6 -m venv 
-  
   - npm:
       path: "{{ django_src_dir }}"
-  
   - command: psql -f "{{ django_src_dir }}/tracdb/trac.sql"
     environment:
       PGSSLMODE: "{{postgres_ssl_mode}}"
@@ -78,51 +87,53 @@
       PGDATABASE: "{{postgres_database}}"
       PGHOST: "{{ acra_host }}"
       PGPORT: "{{ acra_port }}"
-      
   - django_manage:
       command: migrate
       app_path: "{{ django_src_dir }}"
       virtualenv: "{{ application_venv }}"
     environment: 
       DJANGOPROJECT_DATA_DIR: "{{ django_app_data }}" 
-  
   - django_manage:
       command: shell -c "from django.contrib.auth.hashers import make_password; from django.contrib.auth import get_user_model; MyUser = get_user_model(); MyUser.objects.filter( username__exact = '{{ django_admin_user }}' ).count() == 0 or exit(); new_super_user = MyUser( username = '{{ django_admin_user }}', email='{{ django_admin_email }}', is_superuser = True, is_staff = True ); new_super_user.password = make_password('{{ django_admin_password }}'); new_super_user.save();"
       app_path: "{{ django_src_dir }}"
       virtualenv: "{{ application_venv }}"
     environment: 
       DJANGOPROJECT_DATA_DIR: "{{ django_app_data }}" 
-  
   - command: "{{ application_venv }}/bin/pysassc {{ django_src_dir }}/djangoproject/scss/output.scss {{ django_src_dir }}/djangoproject/static/css/output.css -s compressed"
-     
-  # generate TLS certificate
-  - command: "openssl genrsa -out {{ django_app_data }}/server.key 4096"  
-  - command: "openssl rsa -in {{ django_app_data }}/server.key -out {{ django_app_data }}/server.key"
-  - command: "openssl req -sha256 -new -key {{ django_app_data }}/server.key -out {{ django_app_data }}/server.csr -subj '/CN={{ django_host }}'"
-  - command: "openssl x509 -req -sha256 -days 365 -in {{ django_app_data }}/server.csr -signkey {{ django_app_data }}/server.key -out {{ django_app_data }}/server.crt"
-    
-  # setup uwsgi
-  - command: pip3 install uwsgi
-  - file:
-      path: "{{ django_logs_directory }}"
-      state: directory
-  - command: "uwsgi --socket :8001 --module djangoproject.wsgi --home {{ application_venv }} --daemonize {{ django_logs_directory }}/uwsgi_log"
-    environment:
-      DJANGOPROJECT_DATA_DIR: "{{ django_app_data }}"
     args:
-      chdir: "{{ django_src_dir }}"
-        
+      creates: "{{ django_src_dir }}/djangoproject/static/css/output.css"
+  - command: "openssl genrsa -out {{ django_app_data }}/server.key 4096"
+    args:
+      creates: "{{ django_app_data }}/server.key"
+  - command: "openssl rsa -in {{ django_app_data }}/server.key -out {{ django_app_data }}/server.key"
+    args:
+      creates: "{{ django_app_data }}/server.key"
+  - command: "openssl req -sha256 -new -key {{ django_app_data }}/server.key -out {{ django_app_data }}/server.csr -subj '/CN={{ django_host }}'"
+    args:
+      creates: "{{ django_app_data }}/server.csr"
+  - command: "openssl x509 -req -sha256 -days 365 -in {{ django_app_data }}/server.csr -signkey {{ django_app_data }}/server.key -out {{ django_app_data }}/server.crt"
+    args:
+      creates: "{{ django_app_data }}/server.crt"
+  - command: pip3 install uwsgi
+  - pip:
+      name: uwsgi
+      executable: pip3
+  - template:
+      src: templates/uwsgi.ini
+      dest: "{{ django_src_dir }}/uwsgi.ini"
+  - template:
+      src: templates/uwsgi.service
+      dest: /etc/systemd/system/uwsgi.service
+    notify: daemon-reload
   - django_manage:
       command: collectstatic
       app_path: "{{ django_src_dir }}"
       virtualenv: "{{ application_venv }}"  
     environment: 
-      DJANGOPROJECT_DATA_DIR: "{{ django_app_data }}"    
-     
-  # setup nginx
+      DJANGOPROJECT_DATA_DIR: "{{ django_app_data }}"
   - apt:
       name: nginx
   - template:
       src: templates/nginx.conf
       dest: /etc/nginx/sites-enabled/acra_django.conf
-  - command: systemctl reload nginx
+    notify: reload nginx

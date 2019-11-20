@@ -1,3 +1,0 @@
-[digital_ocean]
-acra       ansible_host=X.X.X.X
-django     ansible_host=X.X.X.X

@@ -1,0 +1,16 @@
+[Unit]
+Description=uWSGI Service
+After=syslog.target
+
+[Service]
+ExecStart=/usr/local/bin/uwsgi --ini {{ django_src_dir }}/uwsgi.ini
+Restart=always
+RestartSec=5
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+StandardError=syslog
+Environment="DJANGOPROJECT_DATA_DIR={{ django_app_data }}"
+
+[Install]
+WantedBy=multi-user.target
