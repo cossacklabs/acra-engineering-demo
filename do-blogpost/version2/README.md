@@ -1,38 +1,59 @@
-#### Example of using Acra with Djangoproject.com web application on Digital Ocean cloud platform
+# Field level encryption for web apps using Acra and Digital Ocean managed PostgreSQL
 
-In this tutorial we will show how to protect your Django-based application (https://www.djangoproject.com/) - hereinafter 'application' - deployed on Digital Ocean cloud platform (https://www.digitalocean.com/) with a help of Acra 1-Click App. We assume that you already have one droplet and one managed database instance online:
+Field level encryption helps to protect data stored in database, providng better security guarantees than "data at rest" encryption. If your application is deployed on Digital Ocean and uses PostgreSQL, you can setup "transparent encryption" to protect each data record while your app and database won't notice that data is encrypted. We will illustrate how to do it using [Django-based web app](https://www.djangoproject.com/), open source [Acra database security suite](https://marketplace.digitalocean.com/apps/acra), and Digital Ocean managed PostgreSQL.
+
+## Initial setup
+
+We assume that you already have your web application and managed PostgreSQL instance deployed on Digital Ocean:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/1.png)
 
-and your application can be publicly accessed:
+And your web application is publicly accessed:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/2.png)
 
-If no, and you want to deploy application on your own please read following instructions:
-* https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
-* https://www.digitalocean.com/community/tutorials/how-to-set-up-a-scalable-django-app-with-digitalocean-managed-databases-and-spaces
+If not, no worries, you can use any of your existing apps or deploy example app using following instructions:
 
-Good. Now, in order to protect the application we will add AcraServer component into existing infrastructure, configure it and slightly change source code and some settings of your application. Let's start one step by one.
+* [How To Set Up Django with Postgres, Nginx, and Gunicorn on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04)
 
-1) Create Acra Droplet and perform all the steps in startup configuration script. To do this, go to 'Create' -> 'Droplets' -> 'Marketplace' -> 'See all Marketplace Apps':
+* [How to Set Up a Scalable Django App with DigitalOcean Managed Databases and Spaces](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-scalable-django-app-with-digitalocean-managed-databases-and-spaces)
+
+## Security goals
+
+What exactly we are trying to protect here? Our application is Django-based blog, where authors can publish their blog posts. We will encrypt sensitive fields, like author name, post body and metadata, and store them encrypted in the database. Web applications can be easily cracked, so we don't want application to decrypt the data and handle decryption keys. At the same time, we don't want database to decrypt the data and handle keys, because if database is misconfigured, data is publicly available. We'd better store our blog posts encrypted all the time. We need to introduce a proxy – Acra – to handle encryption and decryption for us. 
+
+Web application sends data to AcraServer, AcraServer encrypts it and sends to the database. On reading data, AcraServer requests data from the database, decrypts it and returns back to the application. AcraServer authenticate the application using cryptographic keys, so if malicious app doesn't have the key, decryption will fail. Besides encryption, AcraServer has additional security measures, like SQL firewall, intrusion detection, key management utils, SIEM integration, and so on, that helps to protect and monitor data accesses.
+
+## AcraServer setup
+
+Now we will add AcraServer as proxy to the existing infrastructure, configure it and update web app to point to the AcraServer instead of the database.
+
+Let's start step by step.
+
+### Step 1 – Install Acra 1-Click app
+
+Go to 'Create' -> 'Droplets' -> 'Marketplace' -> 'See all Marketplace Apps':
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/5.png)
+
 
 Type 'Acra' in search text box. You should find Acra 1-Click App:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/6.png)
 
-Push 'Create Acra Droplet' button. As while managed database cluster creation, you will have to select plan, datacenter region (recommended to select the same location for all your droplets and database clusters). 
 
-IMPORTANT!!! You should minimize the number of entities (SSH keys) with access to Acra Droplet for security reasons.
+Push 'Create Acra Droplet' button, select plan and datacenter region (we recommended to select the same location for all your droplets and database clusters).
 
-Push 'Create Droplet' button. It will take a little time to create a droplet.
+> Note: it's better to minimize number of SSH keys you use to access to Acra Droplet. As AcraServer will encrypt and decrypt the data, you don't want many users to connect to it. 
 
-Now we have all the infrastructure components ready. You should have 3 components: 2 droplets and 1 database cluster:
+
+Now we have all the infrastructure components ready. You should have 3 components up and ready: web app, Acra and database cluster.
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/11.png)
 
-2) Configuring Acra.
+
+### Step 2 – Configuring AcraServer
+
 
 Prepare the following information in order to configure Acra:
 
