@@ -332,6 +332,8 @@ Visitors of your site see blog posts in plaintext (check this by opening `DJANGO
 
 But blog posts are encrypted under the hood. Open `djangoproject` database, open table `blog_entries` and query data:
 
+`PGPASSWORD=$POSTGRES_DJANGO_PASSWORD psql -h $DB_HOST -U djangoproject -p $DB_PORT -c 'select * from blog_entries;'`
+
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/19.png)
 
 So, the Acra works as proxy, encrypting and decrypting data transparently for the application in a way, that hacking the app or the database won't lead to the data compromise – as every data field is encrypted using unique keys. Read more about [how Acra works](https://www.cossacklabs.com/acra/) and how to use it for different types of applications.
