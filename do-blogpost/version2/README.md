@@ -1,40 +1,62 @@
-#### Example of using Acra with Djangoproject.com web application on Digital Ocean cloud platform
+# Field level encryption for web apps using Acra and Digital Ocean managed PostgreSQL
 
-In this tutorial we will show how to protect your Django-based application (https://www.djangoproject.com/) - hereinafter 'application' - deployed on Digital Ocean cloud platform (https://www.digitalocean.com/) with a help of Acra 1-Click App. We assume that you already have one droplet and one managed database instance online:
+Field level encryption helps to protect data stored in database, providng better security guarantees than "data at rest" encryption. If your application is deployed on Digital Ocean and uses PostgreSQL, you can setup "transparent encryption" to protect each data record while your app and database won't notice that data is encrypted. We will illustrate how to do it using [Django-based web app](https://www.djangoproject.com/), open source [Acra database security suite](https://marketplace.digitalocean.com/apps/acra), and Digital Ocean managed PostgreSQL.
+
+## Initial setup
+
+We assume that you already have your web application and managed PostgreSQL instance deployed on Digital Ocean:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/1.png)
 
-and your application can be publicly accessed:
+And your web application is publicly accessed:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/2.png)
 
-If no, and you want to deploy application on your own please read following instructions:
-* https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
-* https://www.digitalocean.com/community/tutorials/how-to-set-up-a-scalable-django-app-with-digitalocean-managed-databases-and-spaces
+If not, no worries, you can use any of your existing apps or deploy example app using following instructions:
 
-Good. Now, in order to protect the application we will add AcraServer component into existing infrastructure, configure it and slightly change source code and some settings of your application. Let's start one step by one.
+* [How To Set Up Django with Postgres, Nginx, and Gunicorn on Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04)
 
-1) Create Acra Droplet and perform all the steps in startup configuration script. To do this, go to 'Create' -> 'Droplets' -> 'Marketplace' -> 'See all Marketplace Apps':
+* [How to Set Up a Scalable Django App with DigitalOcean Managed Databases and Spaces](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-scalable-django-app-with-digitalocean-managed-databases-and-spaces)
+
+## Security goals
+
+What exactly we are trying to protect here? Our application is Django-based blog, where authors can publish their blog posts. We will encrypt sensitive fields, like author name, post body and metadata, and store them encrypted in the database. 
+
+Web applications can be easily cracked, so we don't want application to decrypt the data and handle decryption keys. At the same time, we don't want database to decrypt the data and handle keys, because if database is misconfigured, data is publicly available. We'd better store our blog posts encrypted all the time. We need to introduce a proxy – Acra – to handle encryption and decryption for us. 
+
+<!-- AcraServers' scheme? -->
+
+Web application sends data to AcraServer, AcraServer encrypts it and sends to the database. On reading data, AcraServer requests data from the database, decrypts it and returns back to the application. AcraServer authenticate the application using cryptographic keys, so if malicious app doesn't have the key, decryption will fail. Besides encryption, AcraServer has additional security measures, like SQL firewall, intrusion detection, key management utils, SIEM integration, and so on, that helps to protect and monitor data accesses.
+
+## AcraServer setup
+
+Now we will add AcraServer as proxy to the existing infrastructure, configure it and update web app to point to the AcraServer instead of the database.
+
+Let's start step by step.
+
+### Step 1. Install Acra 1-Click app
+
+1. Go to 'Create' -> 'Droplets' -> 'Marketplace' -> 'See all Marketplace Apps':
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/5.png)
 
-Type 'Acra' in search text box. You should find Acra 1-Click App:
-
+2. Type 'Acra' in search text box. You should find Acra 1-Click App:
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/6.png)
 
-Push 'Create Acra Droplet' button. As while managed database cluster creation, you will have to select plan, datacenter region (recommended to select the same location for all your droplets and database clusters). 
+3. Push 'Create Acra Droplet' button, select plan and datacenter region (we recommended to select the same location for all your droplets and database clusters).
 
-IMPORTANT!!! You should minimize the number of entities (SSH keys) with access to Acra Droplet for security reasons.
+> Note: it's better to minimize number of SSH keys you use to access to Acra Droplet. As AcraServer will encrypt and decrypt the data, you don't want many users to connect to it. 
 
-Push 'Create Droplet' button. It will take a little time to create a droplet.
 
-Now we have all the infrastructure components ready. You should have 3 components: 2 droplets and 1 database cluster:
+Now we have all the infrastructure components ready. You should have 3 components up and ready: web app, Acra and database cluster.
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/11.png)
 
-2) Configuring Acra.
 
-Prepare the following information in order to configure Acra:
+### Step 2. Configure AcraServer
+
+
+During next steps we will need following connection parameters:
 
 ```
 ACRA_HOST
@@ -43,23 +65,31 @@ DB_CERTIFICATE
 DB_HOST
 DB_PORT
 ```
-You can find all those credentials in working space of your Digital Ocean account:
+
+You can find these credentials in working space of your Digital Ocean account:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/3.png)
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/4.png)
 
 
-Go to your local machine terminal and run the following commands:
-```
-ssh root@<acra_droplet_ip>
+⚙️ Everything is better with automation! Feel free to jump to "Automation with Ansible" part and perform Step 1 and Step 2 to setup database and AcraServer using ansible script.
 
-Then proceed with configurator that will start automatically. You will need to specify:
+
+Open terminal on your local machine and **connect to AcraServer**:
+
+```
+ssh root@<ACRA_HOST>
+```
+
+Upon connection you'll see the configuration script, step by step specify following parameters. Configuration script sets connection parameters (connects AcraServer with database and web app), and encryption configuration (which tables and columns to encrypt).
+
+```
 * Hostname: ACRA_HOST
 * Allowed hosts: DJANGO_HOST
 * CA certificate:  DB_CERTIFICATE
 * DB host: DB_HOST
 * DB port: DB_PORT
-* Table: blog_entries (table that we will protect with Acra)
+* Table: blog_entries (table which AcraServer will encrypt)
 * Columns: id headline slug is_active pub_date content_format summary summary_html body body_html author
 * Encrypt columns: author body body_html headline summary summary_html
 * Table: (skip further tables, just press 'Enter')
@@ -70,13 +100,17 @@ Finally, you should see something similar to this:
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/acra3.png)
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/acra4.png)
 
-Excellent. Now we have successfully configured Acra.
+Excellent. Now we have successfully configured AcraServer.
 
-3) Modifications of application's source code.
+### Step 3. Modify the source code of web application
 
-Acra uses binary fields in database for storing encrypted data, so most changes in the source code are required by this. There are 2 additional files:
+Encrypted data is binary data. As AcraServer doesn't know the nature of data, it returns decrypted binary data to the web app. We will change source code of web app to receive binary data and encode it. 
 
-- blog/fields.py
+Connect to the `DJANGO_HOST` (the Droplet that runs your djangoproject.com application) and update web application settings one by one. Follow your typical scenario of [building and setting up djangoproject.com](https://github.com/django/djangoproject.com) and rebuild your application after changing code.
+
+⚙️ Everything is better with automation! Feel free to jump to "Automation with Ansible" part and perform Step 3 to setup web application using ansible script.
+
+Add functions for encoding/decoding the fields to `blog/fields.py`:
 
 ```
 diff -urN djangoproject.com/blog/fields.py patched/blog/fields.py
@@ -138,7 +172,7 @@ diff -urN djangoproject.com/blog/fields.py patched/blog/fields.py
 +    return '\\x{}'.format(bytes(s, 'utf-8').hex()).encode('ascii')
 ```
 
-- blog/migrations/0003_encrypt.py:
+Migrate data to `binary` format, add migration script `blog/migrations/0003_encrypt.py`:
 
 ```
 diff -urN djangoproject.com/blog/migrations/0003_encrypt.py patched/blog/migrations/0003_encrypt.py
@@ -190,9 +224,7 @@ diff -urN djangoproject.com/blog/migrations/0003_encrypt.py patched/blog/migrati
 +    ]
 ```
 
-And some changes in 1 existing file of application:
-
-- blog/models.py:
+Update the `blog/models.py` file to encode data from `binary` type back to original data types (strings, ints, chars, etc):
 
 ```
 diff -urN djangoproject.com/blog/models.py patched/blog/models.py
@@ -234,18 +266,26 @@ diff -urN djangoproject.com/blog/models.py patched/blog/models.py
      objects = EntryQuerySet.as_manager()
 ```
 
-4) Modification in application settings.
+These are all source changes! No encryption, no magic – application doesn't know that data will be encrypted/decrypted by external forces.
 
-We assume you use standard way of configuring your application as defined in Djangoproject.com (https://github.com/django/djangoproject.com) Readme on 3rd step via 'secrets.json' file. The structure of this file should be modified in the following way: 
+We also prepared the whole patch with mentioned modification. It can be found on [Github](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/acra_modifications.patch).
+
+
+### Step 4. Modify the network settings of web application
+
+Now we should re-connect web application to the AcraServer instead of the database. In this case, SQL queries from your app will go through AcraServer to the database and back.
+
+Typical way to configure connection settings of Django apps is to use [`$DJANGOPROJECT_DATA_DIR/conf/secrets.json`](https://github.com/django/djangoproject.com) file, located `DJANGO_HOST` (the Droplet that runs your djangoproject.com application).
+
+Export following variables: 
+- `$ACRA_HOST` (ip address of Acra DO droplet), 
+- `$DJANGO_HOST` (ip address of your djangoproject.com-based application DO droplet), 
+- `$ACRA_PORT` (port of Acra server - 9393 by default)
+- `$POSTGRES_DJANGO_PASSWORD` (password of `djangoproject` user, specified on stage of setting up a database for application)
+
+Next, please modify `$DJANGOPROJECT_DATA_DIR/conf/secrets.json` in the following way:
 
 ```
-#!/usr/bin/env bash
-
-set -Eeuo pipefail
-
-mkdir -p $DJANGOPROJECT_DATA_DIR/conf
-
-cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
 {
   "secret_key": "$(dd if=/dev/urandom bs=4 count=16 2>/dev/null | base64 | head -c 32)",
   "superfeedr_creds": ["email@example.com", "some_string"],
@@ -258,13 +298,19 @@ cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
   "allowed_hosts": ["$DJANGO_HOST", "www.$DJANGO_HOST"],
   "parent_host": "$DJANGO_HOST"
 }
-EOF
 ```
-As you can see, we changed the host/port of your database on Acra host/port. In this way, all SQL queries issued by your application will be forwarded to the database via Acra component. Also, remember, that in 2nd step we configured Acra to encrypt data in the `blog_entries` table. So, now let's look at how Acra exactly works. Create a blogpost via admin panel of your application: go to admin page, by typing `DJANGO_HOST/admin` in browser:
+
+We changed the host/port of your database to host/port of AcraServer. Next – restart your application.
+
+### Step 5. Test that encryption is working
+
+So, now let's look at how Acra exactly works. 
+
+Create a blogpost via admin panel of your application: go to admin page, by typing `DJANGO_HOST/admin` in browser:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/13.png)
 
-Put `admin` / `admin` as username / password and log in into administrative page:
+Put `admin` / `admin` as username / password and log in into administrative page (yeah, that's default login and password of django example app, who knows how many of production apps are still using these credentials):
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/14.png)
 
@@ -280,23 +326,61 @@ Click 'Save' at the bottom of page. This will create encrypted blog record:
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/17.png)
 
-It will be normally reviewed by website visitors (go to `IP_address/weblog` in browser):
+Visitors of your site see blog posts in plaintext (check this by opening `DJANGO_HOST/weblog` in browser):
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/18.png)
 
-But it is actually encrypted (as you can see the records in the `blog_entries` table of your `djangoproject` database):
+But blog posts are encrypted under the hood. Open `djangoproject` database, open table `blog_entries` and query data:
+
+`PGPASSWORD=$POSTGRES_DJANGO_PASSWORD psql -h $DB_HOST -U djangoproject -p $DB_PORT -c 'select * from blog_entries;'`
 
 ![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/19.png)
 
-So, here is how Acra works.
+So, the Acra works as proxy, encrypting and decrypting data transparently for the application in a way, that hacking the app or the database won't lead to the data compromise – as every data field is encrypted using unique keys. Read more about [how Acra works](https://www.cossacklabs.com/acra/) and how to use it for different types of applications.
 
 
-#### ANSIBLE 
-We provide an Ansible script for automatiс deployment of all infrastructure components of the whole solution.
+If you are in trouble, there is also step-by-step instruction for building djangoproject.com from sources and deploying it on Digital Ocean with Acra integrated. It can be found on [GitHub](https://github.com/cossacklabs/acra-engineering-demo/tree/storojs72/T1230_do_blogpost/do-blogpost/version1).
 
-TBD...
 
-#### Useful links:
+## Automation with Ansible
+ 
+Everything is easier with automation. We made couple of Ansible scripts to make configuration of web app and Acra easier.
 
-- Acra Github: https://github.com/cossacklabs/acra
-- Acra 1-Click Application on Digital Ocean: https://marketplace.digitalocean.com/apps/acra
+So, let's get back to the step where you have 3 droplets in Digital Ocean account: Django web app, Acra 1-Click app and PostgreSQL managed database cluster:
+
+![image](https://github.com/cossacklabs/acra-engineering-demo/blob/storojs72/T1230_do_blogpost/do-blogpost/version1/screenshots/11.png)
+
+To configure your infrastructure automatically, perform next steps (all the commands should be executed on your working computer):
+
+### Step 1. Create database
+
+Run following command to create two users and two databases: **djangoproject** and **code.djangoproject** (run from your local machine):
+
+```
+PGSSLMODE=require PGPASSWORD=<password_to_user_doadmin> psql -h <postgres_host> -p <postgres_port> -U doadmin -d defaultdb
+create user djangoproject with password 'secret';
+create user "code.djangoproject" with password 'secret';
+create database djangoproject;
+create database "code.djangoproject";
+\q
+```
+
+### Step 2. Run script to configure AcraServer
+
+Run following command to configure AcraServer to connect to the database (run from your local machine):
+
+```
+ansible-playbook acra-ansible-script.yml -i <acra_droplet_ip>, --extra-vars "db_host=<postgres_host> db_port=<postgres_port> acra_host=<acra_droplet_ip> acra_port=9393 django_host=<django_droplet_ip>"
+```
+
+### Step 3. Run script to configure web application 
+
+Run following command to configure Django web app to connect to the AcraServer (run from your local machine):
+
+```
+ansible-playbook django-ansible-script.yml -i <django_droplet_ip>, --extra-vars "django_host=<django_droplet_ip> acra_host=<acra_droplet_ip> acra_port=9393 postgres_admin_password=<password_to_user_doadmin> postgres_django_password=secret"
+```
+
+### Step 4. Test that encryption is working
+
+Repeat the sames steps as described above to make sure that blog posts are viewed in plaintext, while storing in a database in encrypted form. 
