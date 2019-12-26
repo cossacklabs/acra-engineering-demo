@@ -352,6 +352,19 @@ So, let's get back to the step where you have 3 droplets in Digital Ocean accoun
 
 To configure your infrastructure automatically, perform next steps (all the commands should be executed on your working computer):
 
+### Prerequisites
+
+Clone repository with ansible scripts and provide certificate of your DO database cluster
+```
+git clone https://github.com/cossacklabs/acra-engineering-demo && cd acra-engineering-demo
+git checkout storojs72/T1230_do_blogpost
+```
+
+Get certificate of your DO managed database cluster (provided as a file in connection details of cluster):
+![image](https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/version2/screenshots/get_db_certificate.png)
+
+and replace `ca_certificate.crt` file in path: `acra-engineering-demo/do-blogpost/ansible/templates/ca_certificate.crt`
+
 ### Step 1. Create database
 
 Run following command to create two users and two databases: **djangoproject** and **code.djangoproject** (run from your local machine):
