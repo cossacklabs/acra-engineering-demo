@@ -47,7 +47,7 @@
       version: a4a33ec0adf97dcae286668435b15d140f6f5041
       update: no
   - get_url:
-      url: https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/storojs72/T1230_do_blogpost/do-blogpost/acra_modifications.patch
+      url: https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/acra-do-deploy/acra_modifications.patch
       dest: "{{ droplet_working_dir }}"
   - patch:
       remote_src: yes

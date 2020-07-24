@@ -1,0 +1,1 @@
+This folder contains Acra configurations and Ansible scripts for blog post "How to encrypt database fields transparently for app and database using Acra and DigitalOcean managed PostgreSQL".
