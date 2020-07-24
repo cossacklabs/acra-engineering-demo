@@ -1,0 +1,206 @@
+diff -urN djangoproject.com/blog/fields.py patched/blog/fields.py
+--- djangoproject.com/blog/fields.py	1970-01-01 03:00:00.000000000 +0300
++++ patched/blog/fields.py	2019-10-06 18:56:08.232183901 +0300
+@@ -0,0 +1,53 @@
++from binascii import hexlify
++from django.db import models
++from django.utils.translation import gettext_lazy as _
++import codecs
++
++
++class PgTextBinaryField(models.TextField):
++    description = _("Text as binary data")
++
++    def from_db_value(self, value, expression, connection):
++        return db_value_to_string(value)
++
++    def get_db_prep_value(self, value, connection, prepared=False):
++        return string_to_dbvalue(value)
++
++
++class PgCharBinaryField(models.CharField):
++    description = _("Chars as binary data")
++
++    def from_db_value(self, value, expression, connection):
++        return db_value_to_string(value)
++
++    def get_db_prep_value(self, value, connection, prepared=False):
++        return string_to_dbvalue(value)
++
++
++def bytes_to_string(b):
++    if len(b) >= 2 and b[0:2] == b'\\x':
++        return codecs.decode(b[2:].decode(), 'hex').decode('utf-8')
++
++    return b.decode()
++
++
++def memoryview_to_string(mv):
++    return bytes_to_string(mv.tobytes())
++
++
++def db_value_to_string(value):
++    if isinstance(value, memoryview):
++        return memoryview_to_string(value)
++    elif isinstance(value, bytes) or isinstance(value, bytearray):
++        return bytes_to_string(value)
++
++    return value
++
++
++def string_to_dbvalue(s):
++    if s == '':
++        return b''
++    elif s is None:
++        return None
++
++    return '\\x{}'.format(bytes(s, 'utf-8').hex()).encode('ascii')
+diff -urN djangoproject.com/blog/migrations/0003_encrypt.py patched/blog/migrations/0003_encrypt.py
+--- djangoproject.com/blog/migrations/0003_encrypt.py	1970-01-01 03:00:00.000000000 +0300
++++ patched/blog/migrations/0003_encrypt.py	2019-10-06 18:57:14.743866140 +0300
+@@ -0,0 +1,43 @@
++# -*- coding: utf-8 -*-
++from __future__ import unicode_literals
++
++from django.db import migrations, models
++
++class Migration(migrations.Migration):
++
++    dependencies = [
++        ('blog', '0002_event'),
++    ]
++
++    operations = [
++        migrations.AlterField(
++            model_name='entry',
++            name='author',
++            field=models.BinaryField(),
++        ),
++        migrations.AlterField(
++            model_name='entry',
++            name='body',
++            field=models.BinaryField(),
++        ),
++        migrations.AlterField(
++            model_name='entry',
++            name='body_html',
++            field=models.BinaryField(),
++        ),
++        migrations.AlterField(
++            model_name='entry',
++            name='headline',
++            field=models.BinaryField(),
++        ),
++        migrations.AlterField(
++            model_name='entry',
++            name='summary',
++            field=models.BinaryField(),
++        ),
++        migrations.AlterField(
++            model_name='entry',
++            name='summary_html',
++            field=models.BinaryField(),
++        ),
++    ]
+diff -urN djangoproject.com/blog/models.py patched/blog/models.py
+--- djangoproject.com/blog/models.py	2019-10-09 19:37:15.829280692 +0300
++++ patched/blog/models.py	2019-10-06 18:57:30.015795274 +0300
+@@ -10,6 +10,8 @@
+ from django_hosts.resolvers import reverse
+ from docutils.core import publish_parts
+ 
++from .fields import PgCharBinaryField, PgTextBinaryField
++
+ BLOG_DOCUTILS_SETTINGS = {
+     'doctitle_xform': False,
+     'initial_header_level': 3,
+@@ -35,7 +37,7 @@
+ 
+ 
+ class Entry(models.Model):
+-    headline = models.CharField(max_length=200)
++    headline = PgCharBinaryField(max_length=200)
+     slug = models.SlugField(unique_for_date='pub_date')
+     is_active = models.BooleanField(
+         help_text=_(
+@@ -53,11 +55,11 @@
+         ),
+     )
+     content_format = models.CharField(choices=CONTENT_FORMAT_CHOICES, max_length=50)
+-    summary = models.TextField()
+-    summary_html = models.TextField()
+-    body = models.TextField()
+-    body_html = models.TextField()
+-    author = models.CharField(max_length=100)
++    summary = PgTextBinaryField()
++    summary_html = PgTextBinaryField()
++    body = PgTextBinaryField()
++    body_html = PgTextBinaryField()
++    author = PgCharBinaryField(max_length=100)
+ 
+     objects = EntryQuerySet.as_manager()
+ 
+diff -urN djangoproject.com/djangoproject/hosts.py patched/djangoproject/hosts.py
+--- djangoproject.com/djangoproject/hosts.py	2019-10-09 19:37:15.845280657 +0300
++++ patched/djangoproject/hosts.py	2019-10-09 19:31:58.677979560 +0300
+@@ -2,7 +2,7 @@
+ from django_hosts import host
+ 
+ host_patterns = [
+-    host(r'www', settings.ROOT_URLCONF, name='www'),
+-    host(r'docs', 'djangoproject.urls.docs', name='docs'),
+-    host(r'dashboard', 'dashboard.urls', name='dashboard'),
++    host(r'', settings.ROOT_URLCONF, name='www'),
++    host(r'', 'djangoproject.urls.docs', name='docs'),
++    host(r'', 'dashboard.urls', name='dashboard'),
+ ]
+diff -urN djangoproject.com/djangoproject/settings/common.py patched/djangoproject/settings/common.py
+--- djangoproject.com/djangoproject/settings/common.py	2019-10-09 19:37:15.849280649 +0300
++++ patched/djangoproject/settings/common.py	2019-10-10 21:58:20.344425500 +0300
+@@ -36,6 +36,9 @@
+         'HOST': SECRETS.get('db_host', ''),
+         'PASSWORD': SECRETS.get('db_password', ''),
+         'PORT': SECRETS.get('db_port', ''),
++        'OPTIONS': {
++            'sslmode': 'require',
++        },
+     },
+     'trac': {
+         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+@@ -44,6 +47,9 @@
+         'HOST': SECRETS.get('trac_db_host', ''),
+         'PASSWORD': SECRETS.get('trac_db_password', ''),
+         'PORT': SECRETS.get('trac_db_port', ''),
++        'OPTIONS': {
++            'sslmode': 'require',
++        },
+     }
+ }
+ 
+diff -urN djangoproject.com/djangoproject/settings/dev.py patched/djangoproject/settings/dev.py
+--- djangoproject.com/djangoproject/settings/dev.py	2019-10-09 19:37:15.849280649 +0300
++++ patched/djangoproject/settings/dev.py	2019-10-10 21:55:11.800703019 +0300
+@@ -1,10 +1,10 @@
+ from .common import *  # noqa
+ 
+ ALLOWED_HOSTS = [
+-    'www.djangoproject.localhost',
+-    'djangoproject.localhost',
+-    'docs.djangoproject.localhost',
+-    'dashboard.djangoproject.localhost',
++    'www.djangoproject.example',
++    'djangoproject.example',
++    'docs.djangoproject.example',
++    'dashboard.djangoproject.example',
+ ] + SECRETS.get('allowed_hosts', [])
+ 
+ LOCALE_MIDDLEWARE_EXCLUDED_HOSTS = ['docs.djangoproject.localhost']
+@@ -38,7 +38,7 @@
+ 
+ # django-hosts settings
+ 
+-PARENT_HOST = 'djangoproject.localhost:8000'
++PARENT_HOST = SECRETS.get('parent_host', '')
+ 
+ # django-push settings
+ 

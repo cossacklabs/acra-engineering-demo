@@ -1,0 +1,12 @@
+{
+  "secret_key": "{{ django_key }}",
+  "superfeedr_creds": ["email@example.com", "some_string"],
+  "db_host": "{{ acra_host }}",
+  "db_password": "{{ postgres_django_password }}",
+  "db_port": "{{ acra_port }}",
+  "trac_db_host": "{{ acra_host }}",
+  "trac_db_password": "{{ postgres_django_password }}",
+  "trac_db_port": "{{ acra_port }}",
+  "allowed_hosts": ["{{ django_host }}", "www.{{ django_host }}"],
+  "parent_host": "{{ django_host }}"
+}

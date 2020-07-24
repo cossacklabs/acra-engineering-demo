@@ -1,0 +1,16 @@
+
+[req]
+distinguished_name=subject
+x509_extensions=v3
+prompt=no
+[subject]
+CN=ca
+O=AcraServer
+OU=RootCA
+
+[v3]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage=critical,keyCertSign,cRLSign
+basicConstraints=critical,CA:true,pathlen:1
+
