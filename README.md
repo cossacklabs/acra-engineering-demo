@@ -38,6 +38,11 @@ Please refer to the [Acra documentation](https://docs.cossacklabs.com/pages/docu
 
 Django-based client application, AcraServer, AcraConnector, PostgreSQL database.
 
+### Follow tutorial on dev.to
+
+[How to encrypt database fields transparently for your app using Acra and DigitalOcean managed PostgreSQL](https://dev.to/cossacklabs/how-to-encrypt-database-fields-transparently-for-your-app-using-acra-and-digitalocean-managed-postgresql-48ce).
+
+
 ## 1. Installation
 
 ### Asymmetric encryption mode
