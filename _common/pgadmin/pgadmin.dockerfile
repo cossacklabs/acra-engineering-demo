@@ -1,4 +1,6 @@
-FROM dpage/pgadmin4:3.6
+FROM dpage/pgadmin4:4.29
+
+USER root
 
 RUN apk update && apk add sqlite
 
