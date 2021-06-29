@@ -68,7 +68,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(acraconnector_connections_total[$win])",
+          "expr": "increase(acraserver_connections_total[$win])",
           "format": "time_series",
           "instant": false,
           "interval": "",
