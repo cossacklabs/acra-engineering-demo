@@ -104,7 +104,6 @@ services:
             --db_host=timescaledb
             --db_port=5432
             --keys_dir=/keys
-            --auth_keys=/keys/httpauth.accounts
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --config_file=/configs/acra-server.yaml
@@ -130,8 +129,7 @@ services:
             GODEBUG: "netdns=go"
         # We use internal networks:
         # - 'connector-server' - for interconnection with AcraServer
-        # - 'webconfig-connector' - for interconnection with AcraWebconfig
-        # and external network 'world' for port exposing
+        # - external network 'world' for port exposing
         networks:
             - connector-server
             - grafana-connector

@@ -145,10 +145,6 @@ Resources that will become available after launch:
     * AcraConnector - play with the encryption system directly:
         tcp://www.djangoproject.example:9494
 
-    * AcraWebConfig - configure AcraServer:
-        http://www.djangoproject.example:8001
-        Default user/password: test/test
-
     * Jaeger - view traces:
         http://www.djangoproject.example:16686
 
@@ -177,17 +173,14 @@ Resources that will become available after launch:
             --print --zone_id=$ZONE_ID
       where $ZONE_ID - zone id, printed on write step
 
-      Before using AcraServer without zones, open AcraWebConfig and
-      disable zone mode.
+      Before using AcraServer without zones, open `python/acra-server-config/acra-server.yaml` and change
+      `zonemode_enable: true` value to `false`..
+
       Run example without zones (write, read):
         docker exec -it python_python_1 \
             python /app/example_without_zone.py --data="some data #1"
         docker exec -it python_python_1 \
             python /app/example_without_zone.py --print
-
-    * AcraWebConfig - configure AcraServer:
-        http://$HOST:8001
-        Default user/password: test/test
 
     * Web interface for PostgreSQL - see how the encrypted data is stored:
         http://$HOST:8008
@@ -252,10 +245,6 @@ Resources that will become available after launch:
 
     * AcraConnector - play with the encryption system directly:
         tcp://www.rubygems.example:9494
-
-    * AcraWebConfig - configure AcraServer:
-        http://www.rubygems.example:8001
-        Default user/password: test/test
 
     * Jaeger - view traces:
         http://www.rubygems.example:16686

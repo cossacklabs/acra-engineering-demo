@@ -143,9 +143,7 @@ There's more to explore:
 
 3. AcraConnector – send some data directly through AcraConnector: [tcp://www.djangoproject.example:9494](tcp://www.djangoproject.example:9494).
 
-4. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://www.djangoproject.example:8001](http://www.djangoproject.example:8001).
-
-5. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
+4. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -270,9 +268,7 @@ So, the data is stored in an encrypted form, but it is transparent for the Pytho
 
 Usage of [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) provides compartmentalisation as different users of the same app will have different encryption keys. However, it's possible to [use AcraServer without Zones](https://docs.cossacklabs.com/pages/documentation-acra/#running-acraserver-in-zone-mode).
 
-1. To disable Zones in AcraWebConfig, open [http://$HOST:8001](http://127.0.0.1:8001) using the default account `test/test` and tap "No" for "zone mode".
-
-<img src="_pics/acra_web_config_python.png" width="800">
+1. To disable Zones open `python/acra-server-config/acra-server.yaml` and change `zonemode_enable: true` value to `false`.
 
 2. Write and read the data:
 
@@ -303,11 +299,9 @@ id  - data                 - raw_data
 
 4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
 
-5. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test/test`: [http://$HOST:8001](http://127.0.0.1:8001).
+5. Jaeger – view traces: [http://$HOST:16686](http://127.0.0.1:16686).
 
-6. Jaeger – view traces: [http://$HOST:16686](http://127.0.0.1:16686).
-
-7. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
+6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -460,9 +454,7 @@ Fields `authors`, `description` and `summary` are encrypted. So, the data is sto
 
 4. AcraConnector – send some data directly through AcraConnector: [tcp://www.rubygems.example:9494](tcp://www.rubygems.example:9494).
 
-5. AcraWebConfig – configure AcraServer remotely (i.e. disable intrusion detection) using the default account `test`/`test`: [http://www.rubygems.example:8001](http://www.rubygems.example:8001).
-
-6. Jaeger – view traces: [http://www.rubygems.example:16686](http://www.rubygems.example:16686).
+5. Jaeger – view traces: [http://www.rubygems.example:16686](http://www.rubygems.example:16686).
 
 ## 3. Show me the code!
 
