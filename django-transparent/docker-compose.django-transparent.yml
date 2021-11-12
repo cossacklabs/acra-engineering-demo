@@ -6,8 +6,8 @@ services:
     # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}_server.pub
     acra-keymaker_server:
         # You can specify a docker image tag in the ACRA_DOCKER_IMAGE_TAG
-        # environment variable or run the default 'latest' images
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        # environment variable or run the default images (last released version)
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         # We do not need a network to generate keys at all
         network_mode: "none"
         environment:
@@ -30,7 +30,7 @@ services:
     # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}.pub
     acra-keymaker_connector:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
@@ -47,7 +47,7 @@ services:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
     # Both keys must be accessible by AcraServer in tranparent mode
     acra-keymaker_writer:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -64,7 +64,7 @@ services:
     # - ./.acrakeys/acra-server/httpauth.accounts
     # - ./.acrakeys/acra-server/auth_key
     acra-authmanager:
-        image: "cossacklabs/acra-authmanager:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        image: "cossacklabs/acra-authmanager:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -114,7 +114,7 @@ services:
 
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always
@@ -157,7 +157,7 @@ services:
 
 
     acra-connector:
-        image: "cossacklabs/acra-connector:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        image: "cossacklabs/acra-connector:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         restart: always
         depends_on:
             - acra-keymaker_server
@@ -201,7 +201,7 @@ services:
     # Optional lightweight HTTP web server for managing AcraServer's
     # certain configuration options
     acra-webconfig:
-        image: "cossacklabs/acra-webconfig:${ACRA_DOCKER_IMAGE_TAG:-latest}"
+        image: "cossacklabs/acra-webconfig:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         restart: on-failure
         depends_on:
             - acra-connector
