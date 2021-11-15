@@ -60,24 +60,6 @@ services:
             --keys_public_output_dir=/keys/acra-server
             --keystore=v1
 
-    # Creating a file with accounts for HTTP access and a key for decrypt it
-    # - ./.acrakeys/acra-server/httpauth.accounts
-    # - ./.acrakeys/acra-server/auth_key
-    acra-authmanager:
-        image: "cossacklabs/acra-authmanager:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        network_mode: "none"
-        environment:
-            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
-        volumes:
-            - ./.acrakeys:/keys
-        command: >-
-            --set
-            --user=${ACRA_HTTPAUTH_USER:-test}
-            --password=${ACRA_HTTPAUTH_PASSWORD:-test}
-            --file=/keys/acra-server/httpauth.accounts
-            --keys_dir=/keys/acra-server/
-
-
     # Postgresql container
     postgresql:
         # Build and run the container based on the official postgresql image
@@ -122,7 +104,6 @@ services:
             - acra-keymaker_server
             - acra-keymaker_connector
             - acra-keymaker_writer
-            - acra-authmanager
             - postgresql
             - jaeger
         environment:
@@ -144,7 +125,6 @@ services:
             --db_host=postgresql
             --db_port=5432
             --keys_dir=/keys
-            --auth_keys=/keys/httpauth.accounts
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
@@ -174,11 +154,9 @@ services:
             GODEBUG: "netdns=go"
         # We use internal networks:
         # - 'connector-server' - for interconnection with AcraServer
-        # - 'webconfig-connector' - for interconnection with AcraWebconfig
         # and external network 'world' for port exposing
         networks:
             - connector-server
-            - webconfig-connector
             - django-connector
             - world
         volumes:
@@ -196,30 +174,6 @@ services:
             --jaeger_agent_endpoint=''
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
-
-
-    # Optional lightweight HTTP web server for managing AcraServer's
-    # certain configuration options
-    acra-webconfig:
-        image: "cossacklabs/acra-webconfig:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        restart: on-failure
-        depends_on:
-            - acra-connector
-        # Open http port
-        ports:
-            - "8001:8000"
-        environment:
-            GODEBUG: "netdns=go"
-        # We use internal 'webconfig-connector' network for AcraConnector and
-        # AcraWebconfig interconnection and external network 'world' for
-        # port exposing
-        networks:
-            - webconfig-connector
-            - world
-        command: >-
-            --destination_host=acra-connector
-            --incoming_connection_host=0.0.0.0
-
 
     django:
         depends_on:
@@ -323,8 +277,6 @@ networks:
     connector-server:
         internal: true
     server-postgresql:
-        internal: true
-    webconfig-connector:
         internal: true
     django-connector:
         internal: true
