@@ -2,6 +2,12 @@
 
 set -Eeuo pipefail
 
+for f in root.crt server.crt server.key; do
+    cp /tmp.ssl/${f} "${PGDATA}/"
+    chown postgres:postgres "${PGDATA}/${f}"
+    chmod 0600 "${PGDATA}/${f}"
+done
+
 set_pg_option() {
     local PG_CONFFILE="$1"
     local OPTION="$2"
@@ -14,6 +20,11 @@ set_pg_option() {
 }
 
 set_pg_option "$PGDATA/postgresql.conf" log_statement all
+set_pg_option "$PGDATA/postgresql.conf" "listen_addresses" "'*'"
+set_pg_option "$PGDATA/postgresql.conf" "ssl" "on"
+set_pg_option "$PGDATA/postgresql.conf" "ssl_ca_file" "'root.crt'"
+set_pg_option "$PGDATA/postgresql.conf" "ssl_cert_file" "'server.crt'"
+set_pg_option "$PGDATA/postgresql.conf" "ssl_key_file" "'server.key'"
 
 # SUPERUSER is required to perform `CREATE EXTENSION` query
 for name in djangoproject code.djangoproject; do

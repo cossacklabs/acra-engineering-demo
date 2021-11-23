@@ -55,6 +55,7 @@ COPY ./configs/models.py.patch /app/blog/
 COPY ./configs/common.py.patch /app/djangoproject/settings/
 COPY ./configs/dev.py.patch /app/djangoproject/settings/
 COPY ./configs/0003_encrypt.py /app/blog/migrations/
+COPY ./configs/ssl /app/blog/ssl
 
 RUN patch \
     /app/blog/models.py \
