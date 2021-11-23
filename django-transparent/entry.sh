@@ -15,8 +15,6 @@ cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
 }
 EOF
 
-export PGSSLMODE=require
-
 echo 'Waiting for PostgreSQL...'
 while ! pg_isready -h $POSTGRES_HOST -p 5432; do
     sleep 1
@@ -24,7 +22,11 @@ done
 
 # Create DB scheme
 PSQL_CONNSTR="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@"\
-"$POSTGRES_HOST:5432/code.djangoproject?sslmode=require"
+"$POSTGRES_HOST:5432/code.djangoproject?sslcert=/app/blog/ssl/acra-client.crt"\
+"&sslkey=/app/blog/ssl/acra-client.key"\
+"&sslrootcert=/app/blog/ssl/root.crt"\
+"&sslmode=verify-full"
+
 /usr/bin/psql $PSQL_CONNSTR < tracdb/trac.sql
 
 /app/manage.py migrate
