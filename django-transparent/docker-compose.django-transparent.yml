@@ -2,31 +2,6 @@ version: "3"
 
 services:
     # Creating keys:
-    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_server
-    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}_server.pub
-    acra-keymaker_server:
-        # You can specify a docker image tag in the ACRA_DOCKER_IMAGE_TAG
-        # environment variable or run the default images (last released version)
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        # We do not need a network to generate keys at all
-        network_mode: "none"
-        environment:
-            # INSECURE!!! You MUST define your own ACRA_SERVER_MASTER_KEY
-            # The default is for testing purposes only
-            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
-        volumes:
-            # Mount the whole ./.acrakeys directory to be able to generate keys
-            # and place them in service subdirectories
-            - ./.acrakeys:/keys
-        # Please specify ACRA_CLIENT_ID environment variable, otherwise it will
-        # be started with the default 'testclientid' client id
-        command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --generate_acraserver_keys
-            --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-server
-            --keystore=v1
-    # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
     # Both keys must be accessible by AcraServer in tranparent mode
@@ -85,7 +60,6 @@ services:
         # was changed through the API
         restart: always
         depends_on:
-            - acra-keymaker_server
             - acra-keymaker_writer
             - postgresql
             - jaeger

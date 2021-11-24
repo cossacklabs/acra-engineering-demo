@@ -7,8 +7,8 @@ This collection has several example application. Each folder contains docker-com
 
 | # | Example | What's inside |
 |---|-------|---------------|
-| 1 | [Asymmetric encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site)  | Django web application with client-side encryption (AcraWriter), AcraServer, AcraConnector, PostgreSQL |
-| 2 | [Transparent encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site) | Django web application with server-side encryption, AcraServer, AcraConnector, PostgreSQL |
+| 1 | [Asymmetric encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site)  | Django web application with client-side encryption (AcraWriter), AcraServer, PostgreSQL |
+| 2 | [Transparent encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site) | Django web application with server-side encryption, AcraServer, PostgreSQL |
 | 3 | [Asymmetric encryption with Zones, python console app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-3-protecting-data-in-a-python-cli-database-application) |  Simple python client application, client-side encryption with Zones support, AcraServer, AcraConnector, PostgreSQL |
 | 4 | [Asymmetric encryption, Ruby on Rails web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-protecting-data-in-a-rails-application) | Ruby on Rails web application, client-side encryption, AcraServer, AcraConnector, PostgreSQL |
 | 5 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-5-protecting-metrics-in-timescaledb) |  TimescaleDB with server-side encryption, AcraServer, AcraConnector |
@@ -22,13 +22,12 @@ This collection has several example application. Each folder contains docker-com
 
 Integrating Acra into any application requires 3 steps:
 
-1. **Generate encryption keys**. For this example, we will generate one storage keypair (for encryption/decryption of the data) and two transport keypairs (for a secure connection between AcraServer and AcraConnector).
+1. **Generate encryption keys**. For this example, we will generate only one storage keypair (for encryption/decryption of the data).
 2. **Encrypt data**
-      1. **client-side encryption (Asymmetric encryption mode)** – we integrate the client-side library AcraWriter into the application (web backend application or mobile application). AcraWriter encrypts the data using storage public key. The application then writes the data to the database. The application reads the decrypted data from AcraConnector.
+      1. **client-side encryption (Asymmetric encryption mode)** – we integrate the client-side library AcraWriter into the application (web backend application or mobile application). AcraWriter encrypts the data using storage public key. The application then writes the data to the database.
       2. **server-side encryption (Transparent encryption mode)** – if AcraServer works in Transparent encryption mode, there's no need to integrate AcraWriter inside the app, just configure AcraServer to encrypt records in specific columns only. You can combine client-side encryption with server-side encryption.
-3. **Deploy server-side infrastructure**: AcraConnector and AcraServer.
-      1. AcraConnector ensures transport protection between the client app and AcraServer. AcraConnector is deployed as close as possible to the client application (ideally, at the same host) and uses its own transport keypair and AcraServer's public key to encrypt the transport.
-      2. AcraServer receives a reading request from application through AcraConnector, makes sure it's legit, fetches the data from the database, decrypts it, and returns to the AcraConnector. AcraServer is a separate container and is connected to the database and AcraConnector. AcraServer uses the storage's private key to decrypt the data and its own transport keypair and AcraConnector's public key to encrypt transport.
+3. **Deploy server-side infrastructure**: AcraServer.
+      1.AcraServer receives a reading request from application through TLS, makes sure it's legit, fetches the data from the database, decrypts it, and returns it back via secured TLS channel. AcraServer is a separate container and is connected to the database. AcraServer uses the storage's private key to decrypt/encrypt the data.
 
 Please refer to the [Acra documentation](https://docs.cossacklabs.com/pages/documentation-acra/#protecting-data-using-acra) for more detailed description and schemes.
 
@@ -36,7 +35,7 @@ Please refer to the [Acra documentation](https://docs.cossacklabs.com/pages/docu
 
 # Examples 1, 2. Protecting data on Django-based web site
 
-Django-based client application, AcraServer, AcraConnector, PostgreSQL database.
+Django-based client application, AcraServer, PostgreSQL database.
 
 ### Follow tutorial on dev.to
 
@@ -75,7 +74,7 @@ This command downloads the code of Django website example, Acra Docker container
 
 Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
 
-Django app writes AcraStructs to the database and **reads the decrypted posts** through AcraConnector and AcraServer (which pretends to be a database).
+Django app writes AcraStructs to the database and **reads the decrypted posts** through AcraServer (which pretends to be a database).
 
 From the users' perspective, the website works as it used to. However, the blog posts are protected now.
 
@@ -83,9 +82,9 @@ From the users' perspective, the website works as it used to. However, the blog 
 
 <p align="center"><img src="_pics/eng_demo_django_transparent_encr.png" alt="Protecting Django web application: Acra architecture (transparent mode)" width="700"></p>
 
-Django app **does not encrypt** the sensitive fields, it just passes data through AcraConnector to AcraServer (which pretends to be a database). AcraServer **encrypts** these sensitive fields and stores them into database.
+Django app **does not encrypt** the sensitive fields, it just passes data to AcraServer through secured TLS channel (which pretends to be a database). AcraServer **encrypts** these sensitive fields and stores them into database.
 
-Django app **reads the decrypted posts** from the database through AcraConnector and AcraServer.
+Django app **reads the decrypted posts** from the database through AcraServer.
 
 From the users' perspective, the website works as it used to. However, the blog posts are protected now.
 
@@ -119,7 +118,7 @@ So, the blog posts are stored encrypted, but it's transparent for site visitors 
 
 ### 2.4 Check the monitoring
 
-Open Grafana dashboards to see the performance stats of AcraServer and AcraConnector. We collect following metrics: the number of decrypted AcraStructs, request and response processing time.
+Open Grafana dashboards to see the performance stats of AcraServer. We collect following metrics: the number of decrypted AcraStructs, request and response processing time.
 
 Grafana is available at [http://www.djangoproject.example:3000](http://www.djangoproject.example:3000).
 
@@ -127,7 +126,7 @@ Grafana is available at [http://www.djangoproject.example:3000](http://www.djang
 
 ### 2.5 View traces
 
-Both AcraServer and AcraConnector can export detailed traces to Jaeger. Use this data to optimize the performance of the entire system.
+AcraServer can export detailed traces to Jaeger. Use this data to optimize the performance of the entire system.
 
 Jaeger is available at [http://www.djangoproject.example:16686](http://www.djangoproject.example:16686).
 
@@ -141,9 +140,7 @@ There's more to explore:
 
 2. Prometheus –  examine the collected metrics: [http://www.djangoproject.example:9090](http://www.djangoproject.example:9090).
 
-3. AcraConnector – send some data directly through AcraConnector: [tcp://www.djangoproject.example:9494](tcp://www.djangoproject.example:9494).
-
-4. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
+3. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
