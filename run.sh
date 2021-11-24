@@ -142,9 +142,6 @@ Resources that will become available after launch:
     * Grafana - sample of dashboards with Acra metrics:
         http://www.djangoproject.example:3000
 
-    * AcraConnector - play with the encryption system directly:
-        tcp://www.djangoproject.example:9494
-
     * Jaeger - view traces:
         http://www.djangoproject.example:16686
 

@@ -6,14 +6,14 @@ cat > $DJANGOPROJECT_DATA_DIR/conf/secrets.json <<EOF
 {
   "secret_key": "$(dd if=/dev/urandom bs=4 count=16 2>/dev/null | base64 | head -c 32)",
   "superfeedr_creds": ["email@example.com", "some_string"],
-  "db_host": "$POSTGRES_HOST",
+  "db_host": "$ACRA_SERVER_HOST",
+  "db_port": "$ACRA_SERVER_PORT",
   "db_password": "$POSTGRES_DJANGO_PASSWORD",
-  "trac_db_host": "$POSTGRES_HOST",
-  "trac_db_password": "$POSTGRES_DJANGO_PASSWORD"
+  "trac_db_host": "$ACRA_SERVER_HOST",
+  "trac_db_password": "$POSTGRES_DJANGO_PASSWORD",
+  "trac_db_port": "$ACRA_SERVER_PORT"
 }
 EOF
-
-export PGSSLMODE=disable
 
 echo 'Waiting for PostgreSQL...'
 while ! pg_isready -h $POSTGRES_HOST -p 5432; do
@@ -22,7 +22,11 @@ done
 
 # Create DB scheme
 PSQL_CONNSTR="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@"\
-"$POSTGRES_HOST:5432/code.djangoproject?sslmode=disable"
+"$POSTGRES_HOST:5432/code.djangoproject?sslcert=/app/blog/ssl/acra-client.crt"\
+"&sslkey=/app/blog/ssl/acra-client.key"\
+"&sslrootcert=/app/blog/ssl/root.crt"\
+"&sslmode=verify-full"
+
 /usr/bin/psql $PSQL_CONNSTR < tracdb/trac.sql
 
 /app/manage.py migrate

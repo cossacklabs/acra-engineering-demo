@@ -1,21 +1,27 @@
---- ./common.py.old	2018-12-18 17:40:35.000000000 +0200
-+++ ./common.py.new	2019-01-01 23:43:13.000000000 +0200
-@@ -36,6 +36,9 @@
+--- ./common.py	2021-11-20 01:05:49.567701571 +0200
++++ ./common.py.new	2021-11-20 00:54:27.238615091 +0200
+@@ -36,6 +36,12 @@
          'HOST': SECRETS.get('db_host', ''),
          'PASSWORD': SECRETS.get('db_password', ''),
          'PORT': SECRETS.get('db_port', ''),
 +        'OPTIONS': {
-+            'sslmode': 'disable',
++            'sslmode': 'verify-full',
++            'sslcert': '/app/blog/ssl/acra-client.crt',
++            'sslkey': '/app/blog/ssl/acra-client.key',
++            'sslrootcert': '/app/blog/ssl/root.crt',
 +        },
      },
      'trac': {
          'ENGINE': 'django.db.backends.postgresql_psycopg2',
-@@ -44,6 +47,9 @@
+@@ -44,6 +50,12 @@
          'HOST': SECRETS.get('trac_db_host', ''),
          'PASSWORD': SECRETS.get('trac_db_password', ''),
          'PORT': SECRETS.get('trac_db_port', ''),
 +        'OPTIONS': {
-+            'sslmode': 'disable',
++            'sslmode': 'verify-full',
++            'sslcert': '/app/blog/ssl/acra-client.crt',
++            'sslkey': '/app/blog/ssl/acra-client.key',
++            'sslrootcert': '/app/blog/ssl/root.crt',
 +        },
      }
  }

@@ -50,11 +50,16 @@ RUN git clone $VCS_URL /app/ \
     && cd /app \
     && git checkout $VCS_REF
 
-COPY ./configs/fields.py /app/blog/
-COPY ./configs/models.py.patch /app/blog/
-COPY ./configs/common.py.patch /app/djangoproject/settings/
-COPY ./configs/dev.py.patch /app/djangoproject/settings/
-COPY ./configs/0003_encrypt.py /app/blog/migrations/
+COPY django-transparent/configs/fields.py /app/blog/
+COPY django-transparent/configs/models.py.patch /app/blog/
+COPY django-transparent/configs/common.py.patch /app/djangoproject/settings/
+COPY django-transparent/configs/dev.py.patch /app/djangoproject/settings/
+COPY django-transparent/configs/0003_encrypt.py /app/blog/migrations/
+COPY _common/ssl/acra-client/acra-client.crt /app/blog/ssl/acra-client.crt
+COPY _common/ssl/acra-client/acra-client.key /app/blog/ssl/acra-client.key
+COPY _common/ssl/root.crt /app/blog/ssl/root.crt
+
+RUN chmod 0600 -R /app/blog/ssl/
 
 RUN patch \
     /app/blog/models.py \
@@ -74,7 +79,7 @@ ENV DJANGOPROJECT_DATA_DIR /app.data
 RUN mkdir -p $DJANGOPROJECT_DATA_DIR/conf
 
 RUN mkdir -p /app/docker
-COPY ./entry.sh /app/docker/
+COPY django-transparent/entry.sh /app/docker/
 RUN chmod +x /app/docker/entry.sh
 
 WORKDIR /app
