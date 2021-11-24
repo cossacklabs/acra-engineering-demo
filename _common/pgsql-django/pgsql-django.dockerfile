@@ -29,4 +29,10 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
+COPY _common/ssl/pgsql/postgresql.crt /tmp.ssl/server.crt
+COPY _common/ssl/pgsql/postgresql.key /tmp.ssl/server.key
+COPY _common/ssl/root.crt /tmp.ssl/root.crt
+RUN chown -R postgres:postgres /tmp.ssl
+
+
 COPY _common/pgsql-django/pgsql-django-configure.sh /docker-entrypoint-initdb.d/
