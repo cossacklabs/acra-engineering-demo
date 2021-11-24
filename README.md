@@ -118,7 +118,7 @@ So, the blog posts are stored encrypted, but it's transparent for site visitors 
 
 ### 2.4 Check the monitoring
 
-Open Grafana dashboards to see the performance stats of AcraServer. We collect following metrics: the number of decrypted AcraStructs, request and response processing time.
+Open Grafana dashboards to see the performance stats of AcraServer. We collect following metrics: the number of decrypted cryptographic containers (AcraStructs and AcraBlocks), request and response processing time.
 
 Grafana is available at [http://www.djangoproject.example:3000](http://www.djangoproject.example:3000).
 
