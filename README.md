@@ -27,7 +27,7 @@ Integrating Acra into any application requires 3 steps:
       1. **client-side encryption (Asymmetric encryption mode)** – we integrate the client-side library AcraWriter into the application (web backend application or mobile application). AcraWriter encrypts the data using storage public key. The application then writes the data to the database.
       2. **server-side encryption (Transparent encryption mode)** – if AcraServer works in Transparent encryption mode, there's no need to integrate AcraWriter inside the app, just configure AcraServer to encrypt records in specific columns only. You can combine client-side encryption with server-side encryption.
 3. **Deploy server-side infrastructure**: AcraServer.
-      1.AcraServer receives a reading request from application through TLS, makes sure it's legit, fetches the data from the database, decrypts it, and returns it back via secured TLS channel. AcraServer is a separate container and is connected to the database. AcraServer uses the storage's private key to decrypt/encrypt the data.
+      1. AcraServer receives a reading request from application through TLS, makes sure it's legit, fetches the data from the database, decrypts it, and returns it back via secured TLS channel. AcraServer is a separate container and is connected to the database. AcraServer uses the storage's private key to decrypt/encrypt the data.
 
 Please refer to the [Acra documentation](https://docs.cossacklabs.com/pages/documentation-acra/#protecting-data-using-acra) for more detailed description and schemes.
 
