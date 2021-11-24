@@ -12,7 +12,7 @@ services:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             - ./.acrakeys:/keys
-            - ./configs/ssl/:/ssl:ro
+            - ../_common/ssl/acra-client/:/ssl:ro
         command: >-
             --client_id=""
             --tls_cert=/ssl/acra-client.crt
@@ -79,7 +79,8 @@ services:
             - ./.acrakeys/acra-server:/keys
             # Directory with configuration, rewriteable
             - ./acra-server-configs:/configs
-            - ./configs/ssl/:/ssl:ro
+            - ../_common/ssl/acra-server/:/ssl
+            - ../_common/ssl/root.crt:/ssl/root.crt
         command: >-
             --db_host=postgresql
             --db_port=5432
@@ -106,8 +107,8 @@ services:
             - acra-keymaker_writer
         # Build and run container from source directory with demo django project
         build:
-            context: ./
-            dockerfile: django.dockerfile
+            context: ../
+            dockerfile: django-transparent/django.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_DJANGO_VCS_URL}
                 VCS_REF: ${COSSACKLABS_DJANGO_VCS_REF}
