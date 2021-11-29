@@ -311,7 +311,7 @@ Let's see how many code lines are necessary to encrypt some data using Acra. We 
 
 ```python
 def get_zone():
-    response = urlopen('{}/getNewZone'.format(ACRA_CONNECTOR_API_ADDRESS))
+    response = urlopen('{}/getNewZone'.format(ACRA_SERVER_API_ADDRESS))
     json_data = response.read().decode('utf-8')
     zone_data = json.loads(json_data)
     return zone_data['id'], b64decode(zone_data['public_key'])

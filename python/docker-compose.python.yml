@@ -117,7 +117,7 @@ services:
             DB_HOST: postgresql
             DB_PORT: 5432
             # Demo script default configuration
-            EXAMPLE_ACRA_CONNECTOR_API_ADDRESS: http://acra-server:9090
+            EXAMPLE_ACRA_SERVER_API_ADDRESS: http://acra-server:9090
             EXAMPLE_HOST: acra-server
             EXAMPLE_PORT: 9393
             EXAMPLE_DB_USER: ${POSTGRES_USER:-postgres}
