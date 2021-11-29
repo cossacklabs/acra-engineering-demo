@@ -11,8 +11,10 @@ services:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             - ./.acrakeys:/keys
+            - ../_common/ssl/acra-client/:/ssl:ro
         command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --client_id=""
+            --tls_cert=/ssl/acra-client.crt
             --generate_acrawriter_keys
             --keys_output_dir=/keys/acra-server
             --keys_public_output_dir=/keys/acra-writer
@@ -20,27 +22,36 @@ services:
 
     # Postgresql container
     postgresql:
-        image: postgres:13
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: _common/pgsql-django/pgsql-django.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         # INSECURE!!! You MUST define your own DB name and credentials
         environment:
             # Admin user
-            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
             POSTGRES_DB: ${POSTGRES_DB:-test}
+            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-test}
         # Open the port outside for demonstration purposes only (connections
         # between containers are performing within isolated networks)
         ports:
             - "5432:5432"
         # We use internal 'server-postgresql' network for AcraServer and
-        # DB interconnection, 'python-postgresql' for interconnection with
-        # Django, 'postgresqlweb-postgresql' for interconnections with web
-        # interface and external network 'world' for port exposing
+        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # with web interface and external network 'world' for port exposing
         networks:
             - server-postgresql
             - python-postgresql
             - postgresqlweb-postgresql
             - world
-
 
     acra-server:
         image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
@@ -56,9 +67,9 @@ services:
             GODEBUG: "netdns=go"
         # We use internal networks:
         # - 'server-postgresql' - for AcraServer and DB interconnection
-        # - 'connector-server' - for AcraServer and AcraConnector interconnection
+        # - 'python-server' - for AcraServer and PythonApp interconnection
         networks:
-            - connector-server
+            - python-server
             - server-postgresql
         volumes:
             # Mount the directory with only the keys for this service. Must be
@@ -66,11 +77,20 @@ services:
             - ./.acrakeys/acra-server:/keys
             # Directory with configuration, rewriteable
             - ./acra-server-config:/config
+            - ../_common/ssl/acra-server/:/ssl
+            - ../_common/ssl/root.crt:/ssl/root.crt
         command: >-
             --db_host=postgresql
             --db_port=5432
             --keys_dir=/keys
             --http_api_enable
+            --tls_auth=4
+            --tls_ca=/ssl/root.crt
+            --tls_cert=/ssl/acra-server.crt
+            --tls_key=/ssl/acra-server.key
+            --tls_client_id_from_cert
+            --tls_identifier_extractor_type=distinguished_name
+            --acraconnector_transport_encryption_disable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --config_file=/config/acra-server.yaml
@@ -82,7 +102,6 @@ services:
     python:
         depends_on:
             - acra-keymaker_writer
-            - acra-connector
             - postgresql
         # Build and run container from source directory with demo django project
         build:
@@ -97,25 +116,24 @@ services:
             # Direct connection to DB
             DB_HOST: postgresql
             DB_PORT: 5432
-            # Connectin through AcraConnector
-            ACRA_CLIENT_ID: ${ACRA_CLIENT_ID:-testclientid}
-            ACRA_CONNECTOR_HOST: acra-connector
-            ACRA_CONNECTOR_PORT: 9494
-            # Demo script default cofiguration
-            EXAMPLE_ACRA_CONNECTOR_API_ADDRESS: http://acra-connector:9191
-            EXAMPLE_HOST: acra-connector
-            EXAMPLE_PORT: 9494
-            EXAMPLE_DB_USER: ${POSTGRES_USER:-test}
+            # Demo script default configuration
+            EXAMPLE_ACRA_CONNECTOR_API_ADDRESS: http://acra-server:9090
+            EXAMPLE_HOST: acra-server
+            EXAMPLE_PORT: 9393
+            EXAMPLE_DB_USER: ${POSTGRES_USER:-postgres}
             EXAMPLE_DB_PASSWORD: ${POSTGRES_PASSWORD:-test}
             EXAMPLE_DB_NAME: ${POSTGRES_DB:-test}
-            EXAMPLE_PUBLIC_KEY: "/app.acrakeys/${ACRA_CLIENT_ID:-testclientid}_storage.pub"
-            EXAMPLE_POSTGRESQL: !!str 'true'
+            EXAMPLE_SSL_MODE: verify-full
+            EXAMPLE_TLS_ROOT_CERT: /ssl/root.crt
+            EXAMPLE_TLS_KEY: /ssl/acra-client.key
+            EXAMPLE_TLS_CERT: /ssl/acra-client.crt
+            PUBLIC_KEY_DIR: "/app.acrakeys"
         # We use internal 'python-postgresql' network for Django and
-        # DB interconnection, 'python-connector' for access to AcraConnector
+        # DB interconnection, 'python-server' for access to AcraServer
         # and external network 'world' for port exposing
         networks:
             - python-postgresql
-            - python-connector
+            - python-server
         volumes:
             - ../../acra/examples/python:/app
             - ./.acrakeys/acra-writer:/app.acrakeys:ro
@@ -145,13 +163,12 @@ services:
         image: prom/prometheus:v2.4.0
         depends_on:
             - acra-server
-            - acra-connector
         ports:
             - "9090:9090"
         volumes:
             - ../_common/prometheus:/app.cfg
         networks:
-            - connector-server
+            - python-server
             - world
         command: >-
             --config.file=/app.cfg/prometheus.yml
@@ -183,19 +200,17 @@ services:
         ports:
             - "16686:16686"
         networks:
-            - connector-server
+            - python-server
             - world
 
 
 networks:
     world:
-    connector-server:
-        internal: true
     server-postgresql:
         internal: true
     python-postgresql:
         internal: true
-    python-connector:
+    python-server:
         internal: true
     postgresqlweb-postgresql:
         internal: true

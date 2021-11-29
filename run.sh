@@ -193,9 +193,6 @@ Resources that will become available after launch:
     * Grafana - sample of dashboards with Acra metrics:
         http://$HOST:3000
 
-    * AcraConnector - play with the encryption system directly:
-        tcp://$HOST:9494
-
     * Jaeger - view traces:
         http://$HOST:16686
 
