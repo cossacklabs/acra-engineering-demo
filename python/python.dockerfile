@@ -56,7 +56,14 @@ RUN mkdir /app.requirements
 COPY ./acra/examples/python/requirements/ /app.requirements/
 RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt
 
-RUN echo -e '#!/bin/sh\n\nwhile true\ndo\n\tsleep 1\ndone\n' > /entry.sh
+RUN mkdir /ssl
+COPY acra-engineering-demo/_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
+COPY acra-engineering-demo/_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
+COPY acra-engineering-demo/_common/ssl/root.crt /ssl/root.crt
+
+RUN chmod 0600 -R /ssl/
+
+COPY acra-engineering-demo/python/entry.sh /entry.sh
 RUN chmod +x /entry.sh
 
 VOLUME /app.acrakeys

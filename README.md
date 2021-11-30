@@ -184,7 +184,7 @@ Those are all the code changes! 🎉
 
 # Example 3. Protecting data in a Python CLI database application
 
-Simple python client application, client-side encryption with zones support, AcraServer, AcraConnector, PostgreSQL database.
+Simple python client application, client-side encryption with zones support, AcraServer, PostgreSQL database.
 
 ## 1. Installation
 
@@ -199,7 +199,7 @@ This command downloads a simple Python application that stores the data in a dat
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/eng_demo_python.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
+<p align="center"><img src="_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
 
 **The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraConnector and AcraServer (that are transparent for the application).
 
@@ -270,14 +270,17 @@ Usage of [Zones](https://docs.cossacklabs.com/pages/documentation-acra/#zones) p
 2. Write and read the data:
 
 ```bash
+
 docker exec -it python_python_1 \
-  python /app/example_without_zone.py --data="secret data without zones"
+  bash -c 'export EXAMPLE_PUBLIC_KEY="$(cat /pub_key_name.txt)" && \
+  python /app/example_without_zone.py --data="secret data without zones"'
 
 $:
 insert data: secret data without zones
 
 docker exec -it python_python_1 \
-  python /app/example_without_zone.py --print
+  bash -c 'export EXAMPLE_PUBLIC_KEY="$(cat /pub_key_name.txt)" && \  
+  python /app/example_without_zone.py --print'
 
 $:
 id  - data                 - raw_data
@@ -294,11 +297,9 @@ id  - data                 - raw_data
 
 3. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
 
-4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
+4. Jaeger – view traces: [http://$HOST:16686](http://127.0.0.1:16686).
 
-5. Jaeger – view traces: [http://$HOST:16686](http://127.0.0.1:16686).
-
-6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
+5. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -310,7 +311,7 @@ Let's see how many code lines are necessary to encrypt some data using Acra. We 
 
 ```python
 def get_zone():
-    response = urlopen('{}/getNewZone'.format(ACRA_CONNECTOR_API_ADDRESS))
+    response = urlopen('{}/getNewZone'.format(ACRA_SERVER_API_ADDRESS))
     json_data = response.read().decode('utf-8')
     zone_data = json.loads(json_data)
     return zone_data['id'], b64decode(zone_data['public_key'])
