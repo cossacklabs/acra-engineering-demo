@@ -1,0 +1,26 @@
+--- ./common.py	2021-12-02 10:56:46.878001835 +0200
++++ common.new.py	2021-12-02 11:33:10.744419449 +0200
+@@ -40,7 +40,10 @@
+         'PASSWORD': SECRETS.get('db_password', ''),
+         'PORT': SECRETS.get('db_port', ''),
+         'OPTIONS': {
+-            'sslmode': 'disable',
++            'sslmode': 'verify-full',
++            'sslcert': '/app/blog/ssl/acra-client.crt',
++            'sslkey': '/app/blog/ssl/acra-client.key',
++            'sslrootcert': '/app/blog/ssl/root.crt',
+         },
+     },
+     'trac': {
+@@ -51,7 +54,10 @@
+         'PASSWORD': SECRETS.get('trac_db_password', ''),
+         'PORT': SECRETS.get('trac_db_port', ''),
+         'OPTIONS': {
+-            'sslmode': 'disable',
++            'sslmode': 'verify-full',
++            'sslcert': '/app/blog/ssl/acra-client.crt',
++            'sslkey': '/app/blog/ssl/acra-client.key',
++            'sslrootcert': '/app/blog/ssl/root.crt',
+         },
+     }
+ }
