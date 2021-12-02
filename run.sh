@@ -305,10 +305,7 @@ acraengdemo_launch_project_django() {
 
     COSSACKLABS_DJANGO_VCS_URL='https://github.com/cossacklabs/djangoproject.com'
     COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
-    acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_DJANGO_VCS_BRANCH $COSSACKLABS_DJANGO_VCS_URL" \
-        "Cloning djangoproject.com"
-    COSSACKLABS_DJANGO_VCS_REF=$(git -C ./djangoproject.com/ rev-parse --verify HEAD)
+    COSSACKLABS_DJANGO_VCS_REF='621e18f928db903d73b84788b3e3c9df9e83dd4c'
 
     COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
 "COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
