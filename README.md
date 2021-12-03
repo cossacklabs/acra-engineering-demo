@@ -1,21 +1,22 @@
 # What is this?
 
-Acra Example applications illustrate the integration of [Acra data protection suite](https://cossacklabs.com/acra/) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
+Acra Engineering Examples illustrate the integration of [Acra data protection suite](https://cossacklabs.com/acra/) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
 
 This collection has several example application. Each folder contains docker-compose file, that describes key management procedures and configurations of Acra.
 
 | # | Example | What's inside |
 |---|-------|---------------|
-| 1 | [Asymmetric encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site)  | Django web application with client-side encryption (AcraWriter), AcraServer, PostgreSQL |
-| 2 | [Transparent encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site) | Django web application with server-side encryption, AcraServer, PostgreSQL |
-| 3 | [Asymmetric encryption with Zones, python console app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-3-protecting-data-in-a-python-cli-database-application) |  Simple python client application, client-side encryption with Zones support, AcraServer, AcraConnector, PostgreSQL |
-| 4 | [Asymmetric encryption, Ruby on Rails web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-protecting-data-in-a-rails-application) | Ruby on Rails web application, client-side encryption, AcraServer, AcraConnector, PostgreSQL |
-| 5 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-5-protecting-metrics-in-timescaledb) |  TimescaleDB with server-side encryption, AcraServer, AcraConnector |
-| 6 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-6-sql-injections-prevention-with-acra)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
-| 7 | [Intrusion detection system, transparent encryption](https://github.com/cossacklabs/acra-engineering-demo/#example-7-intrusion-detection-with-acra)  | Go client application, AcraServer in transparent encryption mode, poison records, PostgreSQL |
-| 8 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-with-acra) | python client application, AcraServer, HAProxy |
-| 9 | Search in encrypted data | [Acra Enterprise Edition](https://www.cossacklabs.com/acra/#pricing) supports search in encrypted data without decrypting it |
+| 1 | [Transparent encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-protecting-data-on-django-based-web-site) |  Django web application, transparent encryption/decryption, AcraServer, PostgreSQL |
+| 2 | [Intrusion detection system, transparent encryption](https://github.com/cossacklabs/acra-engineering-demo/#example-7-intrusion-detection-with-acra) | Go application, transparent encryption/decryption, poison records, PostgreSQL |
+| 3 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-5-protecting-metrics-in-timescaledb) |  TimescaleDB, transparent encryption/decryption, AcraServer |
+| 4 | [Transparent encryption, Django web app, MySQL | Coming soon: Django web application, transparent encryption/decryption, AcraServer, MySQL |
+| 5 | Client-side encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site)  | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL |
+| 6 | [Client-side encryption with Zones, python console app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-3-protecting-data-in-a-python-cli-database-application) |  Simple python client application, client-side encryption with Zones support, decryption on AcraServer, AcraConnector, PostgreSQL |
+| 7 | [Client-side encryption, Ruby on Rails web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-protecting-data-in-a-rails-application) | Ruby on Rails web application, client-side encryption, decryption on AcraServer, AcraConnector, PostgreSQL |
+| 8 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-6-sql-injections-prevention-with-acra)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
+| 9 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-with-acra) | python client application, AcraServer, HAProxy |
+| 10 | [Search in encrypted data](https://docs.cossacklabs.com/acra/security-controls/searchable-encryption/) | Coming soon |
 
 
 # Overview
