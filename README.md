@@ -1,62 +1,51 @@
 # What is this?
 
-Acra Example applications illustrate the integration of [Acra data protection suite](https://cossacklabs.com/acra/) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
+Acra Engineering Examples illustrate the integration of [Acra data protection suite](https://github.com/cossacklabs/acra) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
 
 This collection has several example application. Each folder contains docker-compose file, that describes key management procedures and configurations of Acra.
 
 | # | Example | What's inside |
 |---|-------|---------------|
-| 1 | [Asymmetric encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site)  | Django web application with client-side encryption (AcraWriter), AcraServer, PostgreSQL |
-| 2 | [Transparent encryption, Django web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#examples-1-2-protecting-data-on-django-based-web-site) | Django web application with server-side encryption, AcraServer, PostgreSQL |
-| 3 | [Asymmetric encryption with Zones, python console app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-3-protecting-data-in-a-python-cli-database-application) |  Simple python client application, client-side encryption with Zones support, AcraServer, AcraConnector, PostgreSQL |
-| 4 | [Asymmetric encryption, Ruby on Rails web app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-protecting-data-in-a-rails-application) | Ruby on Rails web application, client-side encryption, AcraServer, AcraConnector, PostgreSQL |
-| 5 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-5-protecting-metrics-in-timescaledb) |  TimescaleDB with server-side encryption, AcraServer, AcraConnector |
-| 6 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-6-sql-injections-prevention-with-acra)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
-| 7 | [Intrusion detection system, transparent encryption](https://github.com/cossacklabs/acra-engineering-demo/#example-7-intrusion-detection-with-acra)  | Go client application, AcraServer in transparent encryption mode, poison records, PostgreSQL |
-| 8 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-8-load-balancing-with-acra) | python client application, AcraServer, HAProxy |
-| 9 | Search in encrypted data | [Acra Enterprise Edition](https://www.cossacklabs.com/acra/#pricing) supports search in encrypted data without decrypting it |
+| 1 | [Transparent encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-1-transparent-encryption-django-postgresql) |  Django web application, transparent encryption/decryption, AcraServer, PostgreSQL |
+| 2 | [Intrusion detection system, transparent encryption, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-2-intrusion-detection-system-transparent-encryption-postgresql) | Go application, transparent encryption/decryption, poison records, PostgreSQL |
+| 3 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-3-transparent-encryption-timescaledb) |  TimescaleDB, transparent encryption/decryption, AcraServer |
+| 4 | [Transparent encryption, MySQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-django-mysql) | Coming soon |
+| 5 | [Client-side encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-5-client-side-encryption-django-postgresql) | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL |
+| 6 | [Client-side encryption with Zones, python app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql) |  Simple python client application, client-side encryption with Zones support, decryption on AcraServer, AcraConnector, PostgreSQL |
+| 7 | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql) | Ruby on Rails web application, client-side encryption, decryption on AcraServer, AcraConnector, PostgreSQL |
+| 8 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-8-sql-injection-prevention-acracensor)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
+| 9 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-9-load-balancing) | python client application, AcraServer, HAProxy |
+| 10 | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-10-search-in-encrypted-data) | Coming soon |
 
 
 # Overview
 
 Integrating Acra into any application requires 3 steps:
 
-1. **Generate encryption keys**. For this example, we will generate only one storage keypair (for encryption/decryption of the data).
-2. **Encrypt data**
-      1. **client-side encryption (Asymmetric encryption mode)** – we integrate the client-side library AcraWriter into the application (web backend application or mobile application). AcraWriter encrypts the data using storage public key. The application then writes the data to the database.
-      2. **server-side encryption (Transparent encryption mode)** – if AcraServer works in Transparent encryption mode, there's no need to integrate AcraWriter inside the app, just configure AcraServer to encrypt records in specific columns only. You can combine client-side encryption with server-side encryption.
-3. **Deploy server-side infrastructure**: AcraServer.
-      1. AcraServer receives a reading request from application through TLS, makes sure it's legit, fetches the data from the database, decrypts it, and returns it back via secured TLS channel. AcraServer is a separate container and is connected to the database. AcraServer uses the storage's private key to decrypt/encrypt the data.
-
-Please refer to the [Acra documentation](https://docs.cossacklabs.com/pages/documentation-acra/#protecting-data-using-acra) for more detailed description and schemes.
+1. **Generate cryptographic keys**. In this examples, we generate only required keys for each example (Master key, and data encryption keys, rarely others). Refer to [Key management](https://docs.cossacklabs.com/acra/security-controls/key-management/) to learn more about keys.
+2. **Configure and deploy services**.
+    1. **transparent encryption** for SQL databases – configure and deploy AcraServer. Configure AcraServer's behavior, set up TLS, connect to the database, select which fields/columns to encrypt. 
+    2. **encryption-as-a-service** for NoSQL databases – configure and deploy AcraTranslator. Configure AcraTranslator's behavior, set up TLS, select gRPC or REST API.
+    3. **client-side encryption** – you can encrypt data in the client application using AcraWriter, then decrypt data on AcraServer or AcraTranslator. 
+3. **Update client-side code**.
+    1. **transparent encryption** for SQL databases – just point client-side app to AcraServer instead of the database. 
+    2. **encryption-as-a-service** for NoSQL databases – call AcraTranslator API from client-side app and encrypt/decrypt fields on AcraTranslator.
+    3. **client-side encryption** – integrate AcraWriter, call it to encrypt fields in the app before sending them to the database. 
+    
+Please refer to the [Acra Data flows](https://docs.cossacklabs.com/acra/acra-in-depth/data-flow/) for more detailed description and schemes.
 
 ---
 
-# Examples 1, 2. Protecting data on Django-based web site
+# Example 1. Transparent encryption, Django, PostgreSQL
 
-Django-based client application, AcraServer, PostgreSQL database.
+Django web application, transparent encryption/decryption, AcraServer, PostgreSQL.
 
-### Follow tutorial on dev.to
-
-[How to encrypt database fields transparently for your app using Acra and DigitalOcean managed PostgreSQL](https://dev.to/cossacklabs/how-to-encrypt-database-fields-transparently-for-your-app-using-acra-and-digitalocean-managed-postgresql-48ce).
-
+Follow [Integrating AcraServer into infrastructure guide](https://docs.cossacklabs.com/acra/guides/integrating-acra-server-into-infrastructure/) or a tutorial on dev.to [How to encrypt database fields transparently for your app using Acra and DigitalOcean managed PostgreSQL](https://dev.to/cossacklabs/how-to-encrypt-database-fields-transparently-for-your-app-using-acra-and-digitalocean-managed-postgresql-48ce).
 
 ## 1. Installation
 
-### Asymmetric encryption mode
-
-Asymmetric encryption mode (client-side encryption): data is encrypted on application side and decrypted on the AcraServer:
-```bash
-curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
-    bash -s -- django
-```
-
-This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, configures Django application to encrypt data, and provides a list of links for you to try.
-
-### Transparent encryption mode
-
-Transparent encryption mode (server-side encryption): data is encrypted and decrypted on the AcraServer:
+Transparent encryption mode (server-side encryption and decryption): data is encrypted and decrypted on the AcraServer:
 ```bash
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- django-transparent
@@ -68,17 +57,6 @@ This command downloads the code of Django website example, Acra Docker container
 
 **The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts. Application stores blog posts in PosgtreSQL database. We encrypt blog posts' content before storing in database, and decrypt when reading from database.
 
-### Asymmetric encryption mode
-
-<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture (asymmetric mode)" width="700"></p>
-
-Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
-
-Django app writes AcraStructs to the database and **reads the decrypted posts** through AcraServer (which pretends to be a database).
-
-From the users' perspective, the website works as it used to. However, the blog posts are protected now.
-
-### Transparent encryption mode
 
 <p align="center"><img src="_pics/eng_demo_django_transparent_encr-no-ac.png" alt="Protecting Django web application: Acra architecture (transparent mode)" width="700"></p>
 
@@ -146,10 +124,183 @@ There's more to explore:
 
 So, was it easy to integrate Acra into Django application? Sure it was!
 
-### Asymmetric encryption mode
+1. AcraServer returns binary data, so [we wrote simple wrapper classes](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/fields.py) to perform encoding and decoding data.
 
-You can [compare our repo to the original repo](
-https://github.com/django/djangoproject.com/compare/master...cossacklabs:master) and see how few changes we introduced:
+2. [We changed original fields types to new ones](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/models.py.patch).
+
+3. Created [database migration file](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/0003_encrypt.py) to convert encrypted fields to binary.
+
+Those are all the code changes! 🎉
+
+---
+
+# Example 2. Intrusion detection system, transparent encryption, PostgreSQL
+
+Learn how to prevent possible intrusions by adding "poison records" special crafted data to your database and filtering potential attackers who try to access them.
+
+What's inside: Go client application, AcraServer in transparent encryption mode (server-side encryption), PostgreSQL database.
+
+Follow the guide: [Acra intrusion detection example](https://github.com/cossacklabs/acra-poison-records-demo).
+
+---
+
+
+# Example 3. Transparent encryption, TimescaleDB
+
+TimescaleDB, AcraServer in Transparent encryption mode, AcraConnector.
+
+## 1. Installation
+
+```bash
+curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
+    bash -s -- timescaledb
+```
+
+This command:
+* downloads AcraServer, AcraConnector, TimescaleDB, Prometheus, Grafana and PgAdmin images
+* build `metricsource` image
+* configures environment and starts demo stand using docker-compose
+
+
+## 2. What's inside
+
+Demo stand based on TimescaleDB, which stores encrypted data. That data produced by `metricsource` container which connected to TimescaleDB through AcraConnector and AcraServer.
+
+At the initial stage, the TimescaleDB database will be filled with randomly generated metric data. Once started, the small daemon running in the `metricsource` container will continue to insert records into the database to simulate real processes.
+
+Grafana also connected through AcraConnector and AcraServer to TimescaleDB and can get unencrypted data to building `Temperature (demo data)` graph.
+
+<p align="center"><img src="_pics/eng_demo_timescaledb_metrics.png" alt="Protecting TimescaleDB metrics: Grafana dashboard" width="700"></p>
+
+Prometheus collects real metrics from AcraConnector and AcraServer. Two dashboards in Grafana: `AcraServer (real data)` and `AcraConnector (real data)` display that data.
+
+### 2.1 Read the data directly from the database
+
+1. Log into web TimescaleDB interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: `test@test.test`/`test`.
+
+2. Go to the `Servers > postgresql > databases > test > Schemas > public > Tables > versions` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table.
+Fields `device` and `unit_id` are encrypted. So, the data is stored in an encrypted form, but it is transparent for the Grafana.
+
+## 2.2 Play with stand
+
+You can easily interact with TimescaleDB through AcraConnector and AcraServer:
+```bash
+docker exec -it timescaledb_metricsource_1 \
+    psql postgres://postgres:test@acra-connector:9494/test?sslmode=disable
+```
+or directly:
+```bash
+docker exec -it -u postgres timescaledb_timescaledb_1 \
+    psql test
+```
+
+### 3. Other available resources
+
+1. TimescaleDB - connect to the database using the admin account `postgres`/`test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
+
+2. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
+
+3. Prometheus – examine the collected metrics: [http://$HOST:9090](http://127.0.0.1:9090).
+
+4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
+
+---
+
+# Example 4. Transparent encryption, Django, MySQL
+
+Django web application, transparent encryption/decryption, AcraServer, MySQL.
+
+Follow [Integrating AcraServer into infrastructure guide](https://docs.cossacklabs.com/acra/guides/integrating-acra-server-into-infrastructure/).
+
+----
+
+# Example 5. Client-side encryption, Django, PostgreSQL
+
+Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL
+
+Follow [Integrating AcraServer into infrastructure guide](https://docs.cossacklabs.com/acra/guides/integrating-acra-server-into-infrastructure/).
+
+## 1. Installation
+
+Client-side encryption and Acra-side decryption: data is encrypted on the application side and decrypted on the AcraServer:
+```bash
+curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
+    bash -s -- django
+```
+
+This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, configures Django application to encrypt data, and provides a list of links for you to try.
+
+## 2. What's inside
+
+**The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts. Application stores blog posts in PosgtreSQL database. We encrypt blog posts' content before storing in database, and decrypt when reading from database.
+
+<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture (asymmetric mode)" width="700"></p>
+
+Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
+
+Django app writes AcraStructs to the database and **reads the decrypted posts** through AcraServer (which pretends to be a database).
+
+From the users' perspective, the website works as it used to. However, the blog posts are protected now.
+
+### 2.1 Update etc/hosts
+
+Please add a temporary entry to the hosts file:
+
+```bash
+echo "$SERVER_IP www.djangoproject.example" >> /etc/hosts
+```
+
+where `SERVER_IP` is the IP address of the server that is running the Acra Engineering Demo (if you run the demo on your machine, set it to `127.0.0.1`). Updating the hosts file is required because we will run the protected djangoproject site locally. You can remove this line when you stop needed to access the demo site.
+
+### 2.2 Add a new post
+
+1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. Add a blog post to the Blogs/Entries:
+
+<img src="_pics/web_django_posts.png" width="600">
+
+2. Open the blog posts' feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
+
+### 2.3 Connect to the database from the web
+
+Everything worked well! Now, let's check the content of the database.
+
+Log into the web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test@test.test`/`test`. Find your blog post in  `Servers > postgresql > databases > djangoproject > Schemas > public > Tables > blog_entries` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table. Download and read the content – it's encrypted.
+
+<img src="_pics/db_django.png" width="900">
+
+So, the blog posts are stored encrypted, but it's transparent for site visitors and admins.
+
+### 2.4 Check the monitoring
+
+Open Grafana dashboards to see the performance stats of AcraServer. We collect following metrics: the number of decrypted cryptographic containers (AcraStructs and AcraBlocks), request and response processing time.
+
+Grafana is available at [http://www.djangoproject.example:3000](http://www.djangoproject.example:3000).
+
+<img src="_pics/django_monitoring.png" width="900">
+
+### 2.5 View traces
+
+AcraServer can export detailed traces to Jaeger. Use this data to optimize the performance of the entire system.
+
+Jaeger is available at [http://www.djangoproject.example:16686](http://www.djangoproject.example:16686).
+
+<img src="_pics/jaeger_traces.png" width="900">
+
+### 2.6 Other available resources
+
+There's more to explore:
+
+1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://www.djangoproject.example:5432](postgresql://www.djangoproject.example:5432).
+
+2. Prometheus –  examine the collected metrics: [http://www.djangoproject.example:9090](http://www.djangoproject.example:9090).
+
+3. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
+
+## 3. Show me the code!
+
+So, was it easy to integrate Acra into Django application? Sure it was!
+
+You can [compare our repo to the original repo](https://github.com/django/djangoproject.com/compare/master...cossacklabs:master) and see how few changes we introduced:
 
 1. We've added Acra storage public key ([L278](https://github.com/django/djangoproject.com/compare/master...cossacklabs:master#diff-6bcf911294def277f06abfe682ce5d7bR278)) necessary for AcraWriter to encrypt the data:
 ```
@@ -170,21 +321,13 @@ author = acrawriter.django.CharField(max_length=100)
 
 3. We've also [run a database migration](https://github.com/django/djangoproject.com/compare/master...cossacklabs:master#diff-677329e0253d6cbba693e1ae0deda5b6) that changed the fields' format from `string` to `binary` to store the encrypted data.
 
-### Transparent encryption mode
-
-1. AcraServer returns binary data, so [we wrote simple wrapper classes](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/fields.py) to perform encoding and decoding data.
-
-2. [We changed original fields types to new ones](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/models.py.patch).
-
-3. Created [database migration file](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django-transparent/configs/0003_encrypt.py) to convert encrypted fields to binary.
-
 Those are all the code changes! 🎉
 
 ---
 
-# Example 3. Protecting data in a Python CLI database application
+# Example 6. Client-side encryption, Zones, python app, PostgreSQL
 
-Simple python client application, client-side encryption with zones support, AcraServer, PostgreSQL database.
+Python client application, client-side encryption with zones support, AcraServer, PostgreSQL database.
 
 ## 1. Installation
 
@@ -352,7 +495,7 @@ These are all the code changes! 🎉
 
 ---
 
-# Example 4. Protecting data in a Rails application
+# Example 7. Client-side encryption, Ruby on Rails app, PostgreSQL
 
 Ruby on Rails web application, client-side encryption, AcraServer, AcraConnector, PostgreSQL database.
 
@@ -509,70 +652,7 @@ These are all the code changes! 🎉
 
 ---
 
-# Example 5. Protecting metrics in TimescaleDB
-
-TimescaleDB, AcraServer in Transparent encryption mode, AcraConnector.
-
-## 1. Installation
-
-### Transparent encryption mode
-
-```bash
-curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
-    bash -s -- timescaledb
-```
-
-This command:
-* downloads AcraServer, AcraConnector, TimescaleDB, Prometheus, Grafana and PgAdmin images
-* build `metricsource` image
-* configures environment and starts demo stand using docker-compose
-
-
-## 2. What's inside
-
-Demo stand based on TimescaleDB, which stores encrypted data. That data produced by `metricsource` container which connected to TimescaleDB through AcraConnector and AcraServer.
-
-At the initial stage, the TimescaleDB database will be filled with randomly generated metric data. Once started, the small daemon running in the `metricsource` container will continue to insert records into the database to simulate real processes.
-
-Grafana also connected through AcraConnector and AcraServer to TimescaleDB and can get unencrypted data to building `Temperature (demo data)` graph.
-
-<p align="center"><img src="_pics/eng_demo_timescaledb_metrics.png" alt="Protecting TimescaleDB metrics: Grafana dashboard" width="700"></p>
-
-Prometheus collects real metrics from AcraConnector and AcraServer. Two dashboards in Grafana: `AcraServer (real data)` and `AcraConnector (real data)` display that data.
-
-### 2.1 Read the data directly from the database
-
-1. Log into web TimescaleDB interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: `test@test.test`/`test`.
-
-2. Go to the `Servers > postgresql > databases > test > Schemas > public > Tables > versions` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table.
-Fields `device` and `unit_id` are encrypted. So, the data is stored in an encrypted form, but it is transparent for the Grafana.
-
-## 2.2 Play with stand
-
-You can easily interact with TimescaleDB through AcraConnector and AcraServer:
-```bash
-docker exec -it timescaledb_metricsource_1 \
-    psql postgres://postgres:test@acra-connector:9494/test?sslmode=disable
-```
-or directly:
-```bash
-docker exec -it -u postgres timescaledb_timescaledb_1 \
-    psql test
-```
-
-### 3. Other available resources
-
-1. TimescaleDB - connect to the database using the admin account `postgres`/`test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
-
-2. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
-
-3. Prometheus – examine the collected metrics: [http://$HOST:9090](http://127.0.0.1:9090).
-
-4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
-
----
-
-# Example 6. SQL injections prevention with Acra
+# Example 8. SQL injection prevention, AcraCensor
 
 Learn how to configure AcraCensor – SQL firewall – to allow or deny specific queries and make your application more steady against SQL injections.
 
@@ -582,17 +662,7 @@ Follow the guide: [Acra firewall example](https://github.com/cossacklabs/acra-ce
 
 ---
 
-# Example 7. Intrusion detection with Acra
-
-Learn how to prevent possible intrusions by adding "poison records" special crafted data to your database and filtering potential attackers who try to access them.
-
-What's inside: Go client application, AcraServer in transparent encryption mode (server-side encryption), PostgreSQL database.
-
-Follow the guide: [Acra intrusion detection example](https://github.com/cossacklabs/acra-poison-records-demo).
-
----
-
-# Example 8. Load balancing with Acra
+# Example 9. Load balancing
 
 Learn how to build high availability and balanced infrastructures for AcraServer based on HAProxy.
 
@@ -602,15 +672,22 @@ Follow the guide: [Acra load balancing example](https://github.com/cossacklabs/a
 
 ---
 
+# Example 10. Search in encrypted data
+
+Learn how to use [searchable encryption](https://docs.cossacklabs.com/acra/security-controls/searchable-encryption/) and search through encrypted data without decryption.
+
+Coming soon.
+
+---
+
 # Further steps
 
 Let us know if you have any questions by dropping an email to [dev@cossacklabs.com](mailto:dev@cossacklabs.com).
 
-1. [Acra features](https://cossacklabs.com/acra/) – check full features set and available licenses.
-2. [Acra Community Edition](https://github.com/cossacklabs/acra) – Acra Community Edition repository contains tons of examples and documentation.
-3. Deploy your own Acra infrastructure using [pre-defined Docker-compose files](https://github.com/cossacklabs/acra/tree/master/docker).
-4. [Acra Live Demo](https://www.cossacklabs.com/acra/#acralivedemo) – is a web-based demo of a typical web-infrastructure protected by Acra and deployed on our servers for your convenience. It illustrates the other features of Acra, i.e. SQL firewall, intrusion detection, database rollback, and so on.
+1. [Acra website](https://cossacklabs.com/acra/) – learn about all Acra features, defense in depth, how it's better than "just TLS" and available licenses.
+2. [Acra Community Edition](https://github.com/cossacklabs/acra) – Acra Community Edition repository.
+3. [Acra docs](https://docs.cossacklabs.com/acra/what-is-acra/) – all Acra docs and guides.
 
 # Need help?
 
-Need help in configuring Acra? Our support is available for [Acra Pro and Acra Enterprise versions](https://www.cossacklabs.com/acra/#pricing).
+Need help in configuring Acra? Read more about [support options and Acra Enterprise Edition](https://www.cossacklabs.com/acra/#pricing).
