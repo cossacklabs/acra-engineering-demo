@@ -1,4 +1,7 @@
-FROM alpine:3.8
+FROM alpine:3.10
+# alpine version is limited specially because of issue related with psycopg2
+# https://github.com/psycopg/psycopg2/issues/854 and python 3.8
+# alpine:3.10+ forces python 3.8.+ to be installed
 
 # Product version
 ARG VERSION
