@@ -22,14 +22,17 @@ This collection has several example application. Each folder contains docker-com
 
 Integrating Acra into any application requires 3 steps:
 
-1. **Generate encryption keys**. For this example, we will generate only one storage keypair (for encryption/decryption of the data).
-2. **Encrypt data**
-      1. **client-side encryption (Asymmetric encryption mode)** – we integrate the client-side library AcraWriter into the application (web backend application or mobile application). AcraWriter encrypts the data using storage public key. The application then writes the data to the database.
-      2. **server-side encryption (Transparent encryption mode)** – if AcraServer works in Transparent encryption mode, there's no need to integrate AcraWriter inside the app, just configure AcraServer to encrypt records in specific columns only. You can combine client-side encryption with server-side encryption.
-3. **Deploy server-side infrastructure**: AcraServer.
-      1. AcraServer receives a reading request from application through TLS, makes sure it's legit, fetches the data from the database, decrypts it, and returns it back via secured TLS channel. AcraServer is a separate container and is connected to the database. AcraServer uses the storage's private key to decrypt/encrypt the data.
-
-Please refer to the [Acra documentation](https://docs.cossacklabs.com/pages/documentation-acra/#protecting-data-using-acra) for more detailed description and schemes.
+1. **Generate cryptographic keys**. In this examples, we generate only required keys for each example (Master key, and data encryption keys, rarely others). Refer to [Key management](https://docs.cossacklabs.com/acra/security-controls/key-management/) to learn more about keys.
+2. **Configure and deploy services**.
+    1. **transparent encryption** for SQL databases – configure and deploy AcraServer. Configure AcraServer's behavior, set up TLS, connect to the database, select which fields/columns to encrypt. 
+    2. **encryption-as-a-service** for NoSQL databases – configure and deploy AcraTranslator. Configure AcraTranslator's behavior, set up TLS, select gRPC or REST API.
+    3. **client-side encryption** – you can encrypt data in the client application using AcraWriter, then decrypt data on AcraServer or AcraTranslator. 
+3. **Update client-side code**.
+    1. **transparent encryption** for SQL databases – just point client-side app to AcraServer instead of the database. 
+    2. **encryption-as-a-service** for NoSQL databases – call AcraTranslator API from client-side app and encrypt/decrypt fields on AcraTranslator.
+    3. **client-side encryption** – integrate AcraWriter, call it to encrypt fields in the app before sending them to the database. 
+    
+Please refer to the [Acra Data flows](https://docs.cossacklabs.com/acra/acra-in-depth/data-flow/) for more detailed description and schemes.
 
 ---
 
