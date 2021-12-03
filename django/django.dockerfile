@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.15
 
 # Product version
 ARG VERSION
@@ -38,7 +38,7 @@ EXPOSE 8000
 RUN apk update
 
 RUN apk add --no-cache bash python3 postgresql-dev postgresql-client npm \
-        libxslt-dev jpeg-dev
+        libxslt-dev jpeg-dev py3-pip
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
