@@ -1,6 +1,6 @@
 # What is this?
 
-Acra Engineering Examples illustrate the integration of [Acra data protection suite](https://cossacklabs.com/acra/) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
+Acra Engineering Examples illustrate the integration of [Acra data protection suite](https://github.com/cossacklabs/acra) into your existing application. Protecting the data is completely transparent for the users and requires minimal changes in the infrastructure.
 
 
 This collection has several example application. Each folder contains docker-compose file, that describes key management procedures and configurations of Acra.
