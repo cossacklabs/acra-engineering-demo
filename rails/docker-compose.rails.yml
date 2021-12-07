@@ -2,47 +2,6 @@ version: "3"
 
 services:
     # Creating keys:
-    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_server
-    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}_server.pub
-    acra-keymaker_server:
-        # You can specify a docker image tag in the ACRA_DOCKER_IMAGE_TAG
-        # environment variable or run the default images (last released version)
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        # We do not need a network to generate keys at all
-        network_mode: "none"
-        environment:
-            # INSECURE!!! You MUST define your own ACRA_SERVER_MASTER_KEY and ACRA_CONNECTOR_MASTER_KEY
-            # The default is for testing purposes only
-            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
-        volumes:
-            # Mount the whole ./.acrakeys directory to be able to generate keys
-            # and place them in service subdirectories
-            - ./.acrakeys:/keys
-        # Please specify ACRA_CLIENT_ID environment variable, otherwise it will
-        # be started with the default 'testclientid' client id
-        command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --generate_acraserver_keys
-            --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-connector
-            --keystore=v1
-    # Creating keys:
-    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}
-    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}.pub
-    acra-keymaker_connector:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        network_mode: "none"
-        environment:
-            ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
-        volumes:
-            - ./.acrakeys:/keys
-        command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --generate_acraconnector_keys
-            --keys_output_dir=/keys/acra-connector
-            --keys_public_output_dir=/keys/acra-server
-            --keystore=v1
-    # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
     acra-keymaker_writer:
@@ -52,8 +11,10 @@ services:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             - ./.acrakeys:/keys
+            - ../_common/ssl/acra-client/:/ssl:ro
         command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --client_id=""
+            --tls_cert=/ssl/acra-client.crt
             --generate_acrawriter_keys
             --keys_output_dir=/keys/acra-server
             --keys_public_output_dir=/keys/acra-writer
@@ -61,21 +22,31 @@ services:
 
     # Postgresql container
     postgresql:
-        image: postgres:13
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: _common/pgsql-django/pgsql-django.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         # INSECURE!!! You MUST define your own DB name and credentials
         environment:
             # Admin user
-            POSTGRES_USER: ${POSTGRES_USER:-rubygems}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rubygems}
-            POSTGRES_DB: ${POSTGRES_DB:-rubygems}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-test}
         # Open the port outside for demonstration purposes only (connections
         # between containers are performing within isolated networks)
         ports:
             - "5432:5432"
         # We use internal 'server-postgresql' network for AcraServer and
-        # DB interconnection, 'python-postgresql' for interconnection with
-        # Django, 'postgresqlweb-postgresql' for interconnections with web
-        # interface and external network 'world' for port exposing
+        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # with web interface and external network 'world' for port exposing
         networks:
             - server-postgresql
             - postgresqlweb-postgresql
@@ -88,8 +59,6 @@ services:
         # was changed through the API
         restart: always
         depends_on:
-            - acra-keymaker_server
-            - acra-keymaker_connector
             - acra-keymaker_writer
             - postgresql
             - jaeger
@@ -98,9 +67,9 @@ services:
             GODEBUG: "netdns=go"
         # We use internal networks:
         # - 'server-postgresql' - for AcraServer and DB interconnection
-        # - 'connector-server' - for AcraServer and AcraConnector interconnection
+        # - 'rubygems-server' - for AcraServer and RUbyGems interconnection
         networks:
-            - connector-server
+            - rubygems-server
             - server-postgresql
         volumes:
             # Mount the directory with only the keys for this service. Must be
@@ -108,11 +77,20 @@ services:
             - ./.acrakeys/acra-server:/keys
             # Directory with configuration, rewriteable
             - ./.acraconfigs/acra-server:/config
+            - ../_common/ssl/acra-server/:/ssl
+            - ../_common/ssl/root.crt:/ssl/root.crt
         command: >-
             --db_host=postgresql
             --db_port=5432
             --keys_dir=/keys
             --http_api_enable
+            --tls_auth=4
+            --tls_ca=/ssl/root.crt
+            --tls_cert=/ssl/acra-server.crt
+            --tls_key=/ssl/acra-server.key
+            --tls_client_id_from_cert
+            --tls_identifier_extractor_type=distinguished_name
+            --acraconnector_transport_encryption_disable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --config_file=/config/acra-server.yaml
@@ -120,78 +98,44 @@ services:
             --jaeger_agent_endpoint=''
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
             -v
+            -d
 
-
-    acra-connector:
-        image: "cossacklabs/acra-connector:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        restart: always
-        depends_on:
-            - acra-keymaker_server
-            - acra-keymaker_connector
-            - acra-server
-            - jaeger
-        # Open the port outside only for demonstration purposes only
-        # (connections between containers are performing within isolated
-        # networks)
-        ports:
-            - "9494:5432"
-        environment:
-            ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
-            GODEBUG: "netdns=go"
-        # We use internal networks:
-        # - 'connector-server' - for interconnection with AcraServer
-        # - external network 'world' for port exposing
-        networks:
-            - connector-server
-            - rubygems-connector
-            - world
-        volumes:
-            # Mount the directory with only the keys for this service
-            - ./.acrakeys/acra-connector:/keys:ro
-        command: >-
-            --acraserver_connection_host=acra-server
-            --keys_dir=/keys
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --incoming_connection_string=tcp://0.0.0.0:5432
-            --http_api_enable
-            --incoming_connection_api_string=tcp://0.0.0.0:9191
-            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9499
-            --tracing_jaeger_enable
-            --jaeger_agent_endpoint=''
-            --jaeger_collector_endpoint=http://jaeger:14268/api/traces
-            -v
 
     rubygems:
         depends_on:
             - acra-keymaker_writer
-            - acra-connector
             - memcached
             - elasticsearch
         # Build and run container from source directory with demo django project
         build:
-            context: ../../rubygems.org/
-            dockerfile: docker/rubygems.dockerfile
+            context: ../../
+            dockerfile: ./acra-engineering-demo/rails/rails.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_RUBYGEMS_VCS_URL}
                 VCS_REF: ${COSSACKLABS_RUBYGEMS_VCS_REF}
                 VCS_BRANCH: ${COSSACKLABS_RUBYGEMS_VCS_BRANCH}
                 BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         environment:
-            POSTGRES_HOST: acra-connector
-            POSTGRES_USER: ${POSTGRES_USER:-rubygems}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rubygems}
-            POSTGRES_DB: ${POSTGRES_DB:-rubygems}
-            ACRA_CLIENT_ID: ${ACRA_CLIENT_ID:-testclientid}
+            ACRA_SERVER_HOST: acra-server
+            ACRA_SERVER_PORT: 9393
+            POSTGRES_HOST: postgresql
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+            PUBLIC_KEY_DIR: "/app.acrakeys"
             RUBYGEMS_VERSION: 3.1.5
             ELASTICSEARCH_URL: elasticsearch:9200
             MEMCACHED_ENDPOINT: memcached:11211
+            TLS_CLIENT_KEY: /app/ssl/acra-client.key
+            TLS_CLIENT_CERT: /app/ssl/acra-client.crt
+            TLS_ROOT_CERT: /app/ssl/root.crt
         # Open http port
         ports:
             - "8000:3000"
-        # We use internal 'rubygems-connector' for access to AcraConnector
+        # We use internal 'rubygems-server' for access to AcraServer
         # and external network 'world' for port exposing
         networks:
-            - rubygems-connector
+            - rubygems-server
             - world
             - rubygems-elasticsearch
             - rubygems-memcached
@@ -225,9 +169,9 @@ services:
             PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
             POSTGRES_HOST: postgresql
-            POSTGRES_USER: ${POSTGRES_USER:-rubygems}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rubygems}
-            POSTGRES_DB: ${POSTGRES_DB:-rubygems}
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
         ports:
             - "8008:80"
         networks:
@@ -239,13 +183,12 @@ services:
         image: prom/prometheus:v2.4.0
         depends_on:
             - acra-server
-            - acra-connector
         ports:
             - "9090:9090"
         volumes:
             - ../_common/prometheus:/app.cfg
         networks:
-            - connector-server
+            - rubygems-server
             - world
         command: >-
             --config.file=/app.cfg/prometheus.yml
@@ -277,17 +220,15 @@ services:
         ports:
             - "16686:16686"
         networks:
-            - connector-server
+            - rubygems-server
             - world
 
 
 networks:
     world:
-    connector-server:
+    rubygems-server:
         internal: true
     server-postgresql:
-        internal: true
-    rubygems-connector:
         internal: true
     postgresqlweb-postgresql:
         internal: true
