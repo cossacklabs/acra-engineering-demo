@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
+set -Eeo pipefail
 
 for f in root.crt server.crt server.key; do
     cp /tmp.ssl/${f} "${PGDATA}/"
@@ -26,10 +26,13 @@ set_pg_option "$PGDATA/postgresql.conf" "ssl_ca_file" "'root.crt'"
 set_pg_option "$PGDATA/postgresql.conf" "ssl_cert_file" "'server.crt'"
 set_pg_option "$PGDATA/postgresql.conf" "ssl_key_file" "'server.key'"
 
-# SUPERUSER is required to perform `CREATE EXTENSION` query
-for name in djangoproject code.djangoproject; do
-    psql -v ON_ERROR_STOP=1 --username postgres <<EOSQL
-CREATE USER "$name" WITH SUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '$POSTGRES_DJANGO_PASSWORD' ;
-CREATE DATABASE "$name" OWNER "$name" ;
+# SUPERUSER is required for django to perform `CREATE EXTENSION` query
+if [[ ! -z "$POSTGRES_DJANGO_PASSWORD" ]]; then
+    for name in djangoproject code.djangoproject; do
+        psql -v ON_ERROR_STOP=1 --username postgres <<EOSQL
+    CREATE USER "$name" WITH SUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '$POSTGRES_DJANGO_PASSWORD' ;
+    CREATE DATABASE "$name" OWNER "$name" ;
 EOSQL
-done
+    done
+fi
+

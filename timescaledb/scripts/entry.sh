@@ -3,7 +3,7 @@
 export PGSSLCERT=/scripts/acra-client.crt
 export PGSSLKEY=/scripts/acra-client.key
 export PGSSLROOTCERT=/scripts/root.crt
-export PGSSLMODE=require
+export PGSSLMODE=verify-full
 export PGUSER=${POSTGRES_USER:-postgres}
 export POSTGRESQL_CONNSTR="postgres://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
 

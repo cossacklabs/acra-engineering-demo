@@ -5,7 +5,7 @@ services:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
     # Both keys must be accessible by AcraServer in tranparent mode
-    acra-keymaker_writer:
+    acra-keymaker_client:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
@@ -28,7 +28,7 @@ services:
         # requirements
         build:
             context: ../
-            dockerfile: _common/pgsql-django/pgsql-django.dockerfile
+            dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
@@ -41,7 +41,7 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
             # Same password for both django accounts:
             # 'djangoproject' and 'code.djangoproject'
-            # (see pgsql-django-configure.sh)
+            # (see pgsql-configure.sh)
             POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
         # Open the port outside for demonstration purposes only (connections
         # between containers are performing within isolated networks)
@@ -62,7 +62,7 @@ services:
         # was changed through the API
         restart: always
         depends_on:
-            - acra-keymaker_writer
+            - acra-keymaker_client
             - postgresql
             - jaeger
         environment:
@@ -104,7 +104,7 @@ services:
 
     django:
         depends_on:
-            - acra-keymaker_writer
+            - acra-keymaker_client
         # Build and run container from source directory with demo django project
         build:
             context: ../

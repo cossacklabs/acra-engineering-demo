@@ -35,4 +35,4 @@ COPY _common/ssl/root.crt /tmp.ssl/root.crt
 RUN chown -R postgres:postgres /tmp.ssl
 
 
-COPY _common/pgsql-django/pgsql-django-configure.sh /docker-entrypoint-initdb.d/
+COPY _common/pgsql-playground/pgsql-configure.sh /docker-entrypoint-initdb.d/

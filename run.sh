@@ -354,11 +354,7 @@ acraengdemo_launch_project_python() {
 acraengdemo_launch_project_rails() {
     COSSACKLABS_RUBYGEMS_VCS_URL='https://github.com/cossacklabs/rubygems.org'
     COSSACKLABS_RUBYGEMS_VCS_BRANCH=${COSSACKLABS_RUBYGEMS_VCS_BRANCH:-master}
-    acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_RUBYGEMS_VCS_BRANCH $COSSACKLABS_RUBYGEMS_VCS_URL" \
-        "Cloning rubygems.org"
-    COSSACKLABS_RUBYGEMS_VCS_REF=$(git -C ./rubygems.org/ rev-parse --verify HEAD)
-    acraengdemo_add_cleanup_cmd "rm -rf ./rubygems.org" "remove cloned \"rubygems.org\" repository"
+    COSSACKLABS_RUBYGEMS_VCS_REF='05c7338a5ecc89c7562bbe0a2d869d4e8ba601b5'
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_RUBYGEMS_VCS_URL=\"$COSSACKLABS_RUBYGEMS_VCS_URL\" "\
