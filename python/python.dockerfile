@@ -53,17 +53,17 @@ RUN cd /root/themis \
     && make pythemis_install
 
 RUN mkdir /app.requirements
-COPY ${COSSACKLABS_ACRAENGDEMO_DIR}/acra/examples/python/requirements/ /app.requirements/
+COPY ./acra/examples/python/requirements/ /app.requirements/
 RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt
 
 RUN mkdir /ssl
-COPY ${COSSACKLABS_ACRAENGDEMO_DIR}/_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
-COPY ${COSSACKLABS_ACRAENGDEMO_DIR}/_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
-COPY ${COSSACKLABS_ACRAENGDEMO_DIR}/_common/ssl/root.crt /ssl/root.crt
+COPY ./_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
+COPY ./_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
+COPY ./_common/ssl/root.crt /ssl/root.crt
 
 RUN chmod 0600 -R /ssl/
 
-COPY ${COSSACKLABS_ACRAENGDEMO_DIR}/python/entry.sh /entry.sh
+COPY ./python/entry.sh /entry.sh
 RUN chmod +x /entry.sh
 
 VOLUME /app.acrakeys

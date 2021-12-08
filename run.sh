@@ -280,11 +280,14 @@ Resources that will become available after launch:
 acraengdemo_git_clone_acraengdemo() {
     COSSACKLABS_ACRAENGDEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
     COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH:-master}
-    acraengdemo_cmd \
+    if [ -d "acra-engineering-demo" ]; then
+      git -C ./acra-engineering-demo/ "$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH";
+    else
+      acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_ACRAENGDEMO_VCS_BRANCH $COSSACKLABS_ACRAENGDEMO_VCS_URL" \
         "Cloning acra-engineering-demo"
+    fi;
     COSSACKLABS_ACRAENGDEMO_VCS_REF=$(git -C ./acra-engineering-demo/ rev-parse --verify HEAD)
-    COSSACKLABS_ACRAENGDEMO_DIR="$(pwd)/acra-engineering-demo"
 }
 
 acraengdemo_run_compose() {
@@ -296,7 +299,7 @@ acraengdemo_run_compose() {
     acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE pull" 'Pull fresh images'
 
     acraengdemo_add_cleanup_cmd \
-        "docker-compose -f $PROJECT_DIR/$DC_FILE down" \
+        "docker-compose -f $DC_FILE down" \
         'stop docker-compose'
     acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE up" 'Starting docker-compose'
 }
@@ -330,9 +333,13 @@ acraengdemo_launch_project_django-transparent() {
 acraengdemo_launch_project_python() {
     COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra'
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
-    acraengdemo_cmd \
+    if [ -d "acra" ]; then
+      git -C ./acra/ checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+    else
+      acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
         "Cloning Acra"
+    fi;
     COSSACKLABS_ACRA_VCS_REF=$(git -C ./acra/ rev-parse --verify HEAD)
     acraengdemo_add_cleanup_cmd "rm -rf ./acra" "remove cloned \"acra\" repository"
 
@@ -389,7 +396,6 @@ acraengdemo_launch_project() {
     COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
 "COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
 "COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
-"COSSACKLABS_ACRAENGDEMO_DIR=\"$PROJECT_DIR\" "\
 "COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" "
 
     eval "acraengdemo_info_$demo_project_name"
