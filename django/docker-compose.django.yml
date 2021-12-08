@@ -27,7 +27,7 @@ services:
         # requirements
         build:
             context: ../
-            dockerfile: _common/pgsql-django/pgsql-django.dockerfile
+            dockerfile: ../_common/pgsql-playground/pgsql-django.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
@@ -40,7 +40,7 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
             # Same password for both django accounts:
             # 'djangoproject' and 'code.djangoproject'
-            # (see pgsql-django-configure.sh)
+            # (see pgsql-configure.sh)
             POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
         # Open the port outside for demonstration purposes only (connections
         # between containers are performing within isolated networks)
