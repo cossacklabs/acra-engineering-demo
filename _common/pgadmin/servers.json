@@ -1,9 +1,9 @@
 {
   "Servers": {
     "1": {
-      "Name": "TimescaleDB",
+      "Name": "PostgreSQL",
       "Host": "postgresql",
-      "Group": "Acra - TimescaleDB example",
+      "Group": "Acra - Postgresql example",
       "Port": 5432,
       "MaintenanceDB": "postgres",
       "Username": "postgres",

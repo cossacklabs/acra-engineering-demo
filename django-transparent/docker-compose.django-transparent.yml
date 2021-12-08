@@ -135,11 +135,18 @@ services:
 
 
     postgresqlweb:
+        image: dpage/pgadmin4:6.2
+        volumes:
+            - ../_common/ssl/acra-client/:/ssl
+            - ../_common/ssl/root.crt:/home/pgadmin/.postgresql/root.crt
+            # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
+            # but we mount it to be consistent
+            - ../_common/ssl/root.crt:/ssl/root.crt
+            # place pre-configured file with settings to timescale
+            # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
+            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
         depends_on:
             - postgresql
-        build:
-            context: ../_common/pgadmin/
-            dockerfile: pgadmin.dockerfile
         environment:
             PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}

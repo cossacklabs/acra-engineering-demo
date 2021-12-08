@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -eo pipefail
 
 acraengdemo_raise() {
     echo -e "\\nERROR: $*\\n" >&2
@@ -284,10 +284,11 @@ acraengdemo_git_clone_acraengdemo() {
         "git clone --depth 1 -b $COSSACKLABS_ACRAENGDEMO_VCS_BRANCH $COSSACKLABS_ACRAENGDEMO_VCS_URL" \
         "Cloning acra-engineering-demo"
     COSSACKLABS_ACRAENGDEMO_VCS_REF=$(git -C ./acra-engineering-demo/ rev-parse --verify HEAD)
+    COSSACKLABS_ACRAENGDEMO_DIR="$(pwd)/acra-engineering-demo"
 }
 
 acraengdemo_run_compose() {
-    DC_FILE="acra-engineering-demo/$demo_project_name/docker-compose.$demo_project_name.yml"
+    DC_FILE="$PROJECT_DIR/$demo_project_name/docker-compose.$demo_project_name.yml"
 
     acraengdemo_add_cleanup_cmd \
         'docker image prune --all --force --filter "label=com.cossacklabs.product.name=acra-engdemo"' \
@@ -301,87 +302,66 @@ acraengdemo_run_compose() {
 }
 
 acraengdemo_launch_project_django() {
-    acraengdemo_git_clone_acraengdemo
-
     COSSACKLABS_DJANGO_VCS_URL='https://github.com/cossacklabs/djangoproject.com'
     COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
     COSSACKLABS_DJANGO_VCS_REF='621e18f928db903d73b84788b3e3c9df9e83dd4c'
 
-    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
 "COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
-"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "\
-"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "
 
     acraengdemo_run_compose
 }
 
 acraengdemo_launch_project_django-transparent() {
-    acraengdemo_git_clone_acraengdemo
-
     COSSACKLABS_DJANGO_VCS_URL='https://github.com/django/djangoproject.com'
     COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
     COSSACKLABS_DJANGO_VCS_REF='60753aa0013f67eb4aa42a1aca1451d0ac9dab81'
 
-    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
 "COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
-"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "\
-"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+"COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "
 
     acraengdemo_run_compose
 }
 
 acraengdemo_launch_project_python() {
-    acraengdemo_git_clone_acraengdemo
-
     COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra'
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
     acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
         "Cloning Acra"
     COSSACKLABS_ACRA_VCS_REF=$(git -C ./acra/ rev-parse --verify HEAD)
+    acraengdemo_add_cleanup_cmd "rm -rf ./acra" "remove cloned \"acra\" repository"
 
-    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
 "COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_ACRA_VCS_BRANCH\" "\
-"COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "\
-"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+"COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "
 
     acraengdemo_run_compose
 }
 
 acraengdemo_launch_project_rails() {
-    acraengdemo_git_clone_acraengdemo
-
     COSSACKLABS_RUBYGEMS_VCS_URL='https://github.com/cossacklabs/rubygems.org'
     COSSACKLABS_RUBYGEMS_VCS_BRANCH=${COSSACKLABS_RUBYGEMS_VCS_BRANCH:-master}
     acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_RUBYGEMS_VCS_BRANCH $COSSACKLABS_RUBYGEMS_VCS_URL" \
         "Cloning rubygems.org"
     COSSACKLABS_RUBYGEMS_VCS_REF=$(git -C ./rubygems.org/ rev-parse --verify HEAD)
+    acraengdemo_add_cleanup_cmd "rm -rf ./rubygems.org" "remove cloned \"rubygems.org\" repository"
 
-    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
-"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_RUBYGEMS_VCS_URL=\"$COSSACKLABS_RUBYGEMS_VCS_URL\" "\
 "COSSACKLABS_RUBYGEMS_VCS_BRANCH=\"$COSSACKLABS_RUBYGEMS_VCS_BRANCH\" "\
-"COSSACKLABS_RUBYGEMS_VCS_REF=\"$COSSACKLABS_RUBYGEMS_VCS_REF\" "\
-"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\""
+"COSSACKLABS_RUBYGEMS_VCS_REF=\"$COSSACKLABS_RUBYGEMS_VCS_REF\" "
 
     acraengdemo_run_compose
 }
 
 acraengdemo_launch_project_timescaledb() {
-    acraengdemo_git_clone_acraengdemo
-
-    COMPOSE_ENV_VARS=''
     acraengdemo_run_compose
 }
 
@@ -390,12 +370,27 @@ acraengdemo_launch_project() {
         acraengdemo_raise "unknown demo project '$demo_project_name'."
 
     echo -e "\\n## Selected demo project: $demo_project_name"
+    if [ -d ".git" ]; then
+      echo -e "\\n== Work in current directory\\n"
+      PROJECT_DIR="$(pwd)"
+      COSSACKLABS_ACRAENGDEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
+      COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH:-master}
+      COSSACKLABS_ACRAENGDEMO_VCS_REF=$(git rev-parse --verify HEAD)
+    else
+      echo -e "\\n== Create temporary directory\\n>> mktemp -d"
+      PROJECT_DIR="$(mktemp -d)"
+      echo "++ Created directory $PROJECT_DIR"
+      acraengdemo_add_cleanup_cmd "rm -rf $PROJECT_DIR" "remove temporary directory"
+      acraengdemo_cmd "cd $PROJECT_DIR" 'Go into project dir'
+      acraengdemo_git_clone_acraengdemo
+    fi;
 
-    echo -e "\\n== Create temporary directory\\n>> mktemp -d"
-    PROJECT_DIR="$(mktemp -d)"
-    echo "++ Created directory $PROJECT_DIR"
-    acraengdemo_add_cleanup_cmd "rm -rf $PROJECT_DIR" "remove temporary directory"
-    acraengdemo_cmd "cd $PROJECT_DIR" 'Go into project dir'
+    # assign default env variables for compose file
+    COMPOSE_ENV_VARS="COSSACKLABS_ACRAENGDEMO_VCS_URL=\"$COSSACKLABS_ACRAENGDEMO_VCS_URL\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=\"$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRAENGDEMO_VCS_REF=\"$COSSACKLABS_ACRAENGDEMO_VCS_REF\" "\
+"COSSACKLABS_ACRAENGDEMO_DIR=\"$PROJECT_DIR\" "\
+"COSSACKLABS_ACRAENGDEMO_BUILD_DATE=\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" "
 
     eval "acraengdemo_info_$demo_project_name"
     eval "acraengdemo_launch_project_$demo_project_name"
@@ -433,8 +428,6 @@ acraengdemo_post() {
             echo "${CLEANUP_CMDS[$i]}" >> "$FILE_CLEANUP"
         done
     fi
-    echo '# Self-deleting' >> "$FILE_CLEANUP"
-    echo 'rm -- "$0"' >> "$FILE_CLEANUP"
 
     echo -e '\nAll these commands were saved to the script:'
     echo -e "\\t$FILE_CLEANUP"

@@ -132,8 +132,6 @@ services:
 
     postgresqlweb:
         image: dpage/pgadmin4:6.2
-        depends_on:
-            - timescaledb
         volumes:
             - ../_common/ssl/acra-client/:/ssl
             - ../_common/ssl/root.crt:/home/pgadmin/.postgresql/root.crt
@@ -152,6 +150,8 @@ services:
             POSTGRES_DB: ${POSTGRES_DB:-test}
         ports:
             - "8008:80"
+        depends_on:
+            - timescaledb
         networks:
             - postgresqlweb-timescaledb
             - world
