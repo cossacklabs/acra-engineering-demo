@@ -3,7 +3,7 @@
 set -euo pipefail
 
 echo 'Waiting for DB...'
-while ! pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -d $POSTGRES_DB -U $POSTGRES_USER; do
+while ! pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -d $POSTGRES_DB; do
     sleep 1
 done
 

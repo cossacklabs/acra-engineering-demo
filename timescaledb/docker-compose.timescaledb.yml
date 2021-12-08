@@ -2,67 +2,37 @@ version: "3"
 
 services:
     # Creating keys:
-    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_server
-    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}_server.pub
-    acra-keymaker_server:
-        # You can specify a docker image tag in the ACRA_DOCKER_IMAGE_TAG
-        # environment variable or run the default images (last released version)
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        # We do not need a network to generate keys at all
-        network_mode: "none"
-        environment:
-            # INSECURE!!! You MUST define your own ACRA_SERVER_MASTER_KEY and ACRA_CONNECTOR_MASTER_KEY
-            # The default is for testing purposes only
-            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
-        volumes:
-            # Mount the whole ./.acrakeys directory to be able to generate keys
-            # and place them in service subdirectories
-            - ./.acrakeys:/keys
-        # Please specify ACRA_CLIENT_ID environment variable, otherwise it will
-        # be started with the default 'testclientid' client id
-        command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --generate_acraserver_keys
-            --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-connector
-            --keystore=v1
-    # Creating keys:
-    # - ./.acrakeys/acra-connector/${ACRA_CLIENT_ID}
-    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}.pub
-    acra-keymaker_connector:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        network_mode: "none"
-        environment:
-            ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
-        volumes:
-            - ./.acrakeys:/keys
-        command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --generate_acraconnector_keys
-            --keys_output_dir=/keys/acra-connector
-            --keys_public_output_dir=/keys/acra-server
-            --keystore=v1
-    # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
     # Both keys must be accessible by AcraServer in tranparent mode
-    acra-keymaker_writer:
+    acra-keymaker_client:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
             - ./.acrakeys:/keys
+            - ../_common/ssl/acra-client/acra-client.crt:/ssl/acra-client.crt
         command: >-
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
+            --client_id=""
+            --tls_cert=/ssl/acra-client.crt
             --generate_acrawriter_keys
             --keys_output_dir=/keys/acra-server
             --keys_public_output_dir=/keys/acra-server
             --keystore=v1
 
-
     timescaledb:
-        image: timescale/timescaledb:latest-pg12
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: _common/timescaledb/timescaledb.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         environment:
             POSTGRES_USER: ${POSTGRES_USER:-postgres}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
@@ -70,10 +40,14 @@ services:
         ports:
             - "5432:5432"
         networks:
-            - server-timescaledb
-            - postgresqlweb-timescaledb
-            - world
-
+            server-timescaledb:
+              # re-use ssl/pgsql/postgresql.crt with dns name 'postgresql'
+              aliases:
+                - "postgresql"
+            postgresqlweb-timescaledb:
+                aliases:
+                    - "postgresql"
+            world:
 
     acra-server:
         image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
@@ -81,9 +55,7 @@ services:
         # was changed through the API
         restart: always
         depends_on:
-            - acra-keymaker_server
-            - acra-keymaker_connector
-            - acra-keymaker_writer
+            - acra-keymaker_client
             - timescaledb
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -93,89 +65,62 @@ services:
         # - 'connector-server' - for AcraServer and AcraConnector interconnection
         networks:
             - server-timescaledb
-            - connector-server
+            - metricsource-server
+            - grafana-server
+            - prometheus-server
+        ports:
+            - "9393:9393"
         volumes:
             # Mount the directory with only the keys for this service. Must be
             # rewriteable in case of using API, otherwise should be read-only.
-            - ./.acrakeys/acra-server:/keys
+            - ./.acrakeys/acra-server:/keys:ro
             # Directory with configuration, rewriteable
             - ./acra-server-configs:/configs
+            - ../_common/ssl/acra-server/:/ssl
+            - ../_common/ssl/root.crt:/ssl/root.crt
         command: >-
-            --db_host=timescaledb
+            --db_host=postgresql
             --db_port=5432
             --keys_dir=/keys
             --http_api_enable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
+            --incoming_connection_string=tcp://0.0.0.0:9393
             --config_file=/configs/acra-server.yaml
             --encryptor_config_file=/configs/encryptor_config.yaml
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
+            --tls_auth=4
+            --tls_ca=/ssl/root.crt
+            --tls_cert=/ssl/acra-server.crt
+            --tls_key=/ssl/acra-server.key
+            --tls_client_id_from_cert
+            --tls_identifier_extractor_type=distinguished_name
+            --acraconnector_transport_encryption_disable
             -v
-
-
-    acra-connector:
-        image: "cossacklabs/acra-connector:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
-        restart: always
-        depends_on:
-            - acra-keymaker_server
-            - acra-keymaker_connector
-            - acra-server
-        # Open the port outside only for demonstration purposes only
-        # (connections between containers are performing within isolated
-        # networks)
-        ports:
-            - "9494:9494"
-        environment:
-            ACRA_MASTER_KEY: ${ACRA_CONNECTOR_MASTER_KEY:-MElBVnhEeTd3b29JMFVVcnhGMXJPT3BxZUVwWW5wS3E=}
-            GODEBUG: "netdns=go"
-        # We use internal networks:
-        # - 'connector-server' - for interconnection with AcraServer
-        # - external network 'world' for port exposing
-        networks:
-            - connector-server
-            - grafana-connector
-            - metricsource-connector
-            - world
-        volumes:
-            # Mount the directory with only the keys for this service
-            - ./.acrakeys/acra-connector:/keys:ro
-        command: >-
-            --acraserver_connection_host=acra-server
-            --keys_dir=/keys
-            --client_id=${ACRA_CLIENT_ID:-testclientid}
-            --incoming_connection_string=tcp://0.0.0.0:9494
-            --http_api_enable
-            --incoming_connection_api_string=tcp://0.0.0.0:9191
-            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9499
-            -v
-
 
     metricsource:
         depends_on:
-            - acra-connector
+            - acra-server
         build:
-            context: ../timescaledb/
-            dockerfile: metricsource.dockerfile
+            context: ../
+            dockerfile: timescaledb/metricsource.dockerfile
         environment:
-            POSTGRES_HOST: acra-connector
-            POSTGRES_PORT: 9494
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_HOST: acra-server
+            POSTGRES_PORT: 9393
             POSTGRES_DB: ${POSTGRES_DB:-test}
         networks:
-            - metricsource-connector
+            - metricsource-server
 
 
     prometheus:
-        image: prom/prometheus:v2.4.0
+        image: prom/prometheus:v2.31.1
         depends_on:
             - acra-server
-            - acra-connector
         ports:
             - "9090:9090"
         volumes:
             - ../_common/prometheus:/app.cfg
         networks:
-            - connector-server
+            - prometheus-server
             - grafana-prometheus
             - world
         command: >-
@@ -186,15 +131,22 @@ services:
 
 
     postgresqlweb:
+        image: dpage/pgadmin4:6.2
         depends_on:
             - timescaledb
-        build:
-            context: ../_common/pgadmin/
-            dockerfile: pgadmin.dockerfile
+        volumes:
+            - ../_common/ssl/acra-client/:/ssl
+            - ../_common/ssl/root.crt:/home/pgadmin/.postgresql/root.crt
+            # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
+            # but we mount it to be consistent
+            - ../_common/ssl/root.crt:/ssl/root.crt
+            # place pre-configured file with settings to timescale
+            # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
+            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
         environment:
             PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
-            POSTGRES_HOST: timescaledb
+            POSTGRES_HOST: postgresql
             POSTGRES_USER: ${POSTGRES_USER:-postgres}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
             POSTGRES_DB: ${POSTGRES_DB:-test}
@@ -204,11 +156,10 @@ services:
             - postgresqlweb-timescaledb
             - world
 
-
     grafana:
-        image: grafana/grafana:5.4.3
+        image: grafana/grafana:8.3.0
         depends_on:
-            - acra-connector
+            - acra-server
         environment:
             GF_AUTH_ANONYMOUS_ENABLED: !!str 'true'
             GF_PATHS_PROVISIONING: '/app.cfg/provisioning'
@@ -217,7 +168,7 @@ services:
         volumes:
             - ./grafana:/app.cfg
         networks:
-            - grafana-connector
+            - grafana-server
             - grafana-prometheus
             - world
 
@@ -226,13 +177,13 @@ networks:
     world:
     server-timescaledb:
         internal: true
-    connector-server:
-        internal: true
     postgresqlweb-timescaledb:
         internal: true
-    grafana-connector:
+    grafana-server:
         internal: true
-    metricsource-connector:
+    metricsource-server:
+        internal: true
+    prometheus-server:
         internal: true
     grafana-prometheus:
         internal: true

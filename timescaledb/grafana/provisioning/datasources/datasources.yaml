@@ -13,7 +13,7 @@ datasources:
 - name: postgresql
   type: postgres
   access: proxy
-  url: acra-connector:9494
+  url: acra-server:9393
   database: test
   user: postgres
   secureJsonData:

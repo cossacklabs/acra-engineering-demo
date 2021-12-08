@@ -1,0 +1,16 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "TimescaleDB",
+      "Host": "postgresql",
+      "Group": "Acra - TimescaleDB example",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "SSLMode": "verify-full",
+      "SSLCert": "/ssl/acra-client.crt",
+      "SSLKey": "/ssl/acra-client.key",
+      "SSLRootCert": "/ssl/root.crt"
+    }
+  }
+}
