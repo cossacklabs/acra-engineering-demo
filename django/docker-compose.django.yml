@@ -27,7 +27,7 @@ services:
         # requirements
         build:
             context: ../
-            dockerfile: ../_common/pgsql-playground/pgsql-django.dockerfile
+            dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
