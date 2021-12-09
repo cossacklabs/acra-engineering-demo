@@ -319,8 +319,8 @@ acraengdemo_launch_project_django() {
 
 acraengdemo_launch_project_django-transparent() {
     COSSACKLABS_DJANGO_VCS_URL='https://github.com/django/djangoproject.com'
-    COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
-    COSSACKLABS_DJANGO_VCS_REF='60753aa0013f67eb4aa42a1aca1451d0ac9dab81'
+    COSSACKLABS_DJANGO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-main}
+    COSSACKLABS_DJANGO_VCS_REF='67d1afa8fb8e1a1b2263989fbd8d3d3a8ae5b4c5'
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
