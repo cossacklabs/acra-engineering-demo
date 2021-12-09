@@ -614,7 +614,7 @@ Fields `authors`, `description` and `summary` are encrypted. So, the data is sto
 
 1. PostgreSQL – connect directly to the database using the admin account `rubygems`/`rubygems`: [postgresql://www.rubygems.example:5432](postgresql://localhost:5432).
 
-2. pgAdmin - connect directly to the database using WebUI and user account `login:test@test.test`/`password:test`: [http://localhost:8008](http://localhost:8008)
+2. pgAdmin - connect directly to the database using WebUI and user account login:`test@test.test`/password:`test`: [http://localhost:8008](http://localhost:8008)
 
 3. Prometheus –  examine the collected metrics: [http://localhost:9090](http://localhost:9090).
 
