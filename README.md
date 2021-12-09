@@ -12,8 +12,8 @@ This collection has several example application. Each folder contains docker-com
 | 3 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-3-transparent-encryption-timescaledb) |  TimescaleDB, transparent encryption/decryption, AcraServer |
 | 4 | [Transparent encryption, MySQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-django-mysql) | Coming soon |
 | 5 | [Client-side encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-5-client-side-encryption-django-postgresql) | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL |
-| 6 | [Client-side encryption with Zones, python app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql) |  Simple python client application, client-side encryption with Zones support, decryption on AcraServer, AcraConnector, PostgreSQL |
-| 7 | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql) | Ruby on Rails web application, client-side encryption, decryption on AcraServer, AcraConnector, PostgreSQL |
+| 6 | [Client-side encryption with Zones, python app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql) |  Simple python client application, client-side encryption with Zones support, decryption on AcraServer, PostgreSQL |
+| 7 | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql) | Ruby on Rails web application, client-side encryption, decryption on AcraServer, PostgreSQL |
 | 8 | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-8-sql-injection-prevention-acracensor)  | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall) |
 | 9 | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-9-load-balancing) | python client application, AcraServer, HAProxy |
 | 10 | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-10-search-in-encrypted-data) | Coming soon |
@@ -51,7 +51,8 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- django-transparent
 ```
 
-This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, configures AcraServer to encrypt data, and provides a list of links for you to try.
+This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, Prometheus, 
+Grafana, pgAdmin images and sets up the environment, configures AcraServer to encrypt data, and provides a list of links for you to try.
 
 ## 2. What's inside
 
@@ -114,11 +115,17 @@ Jaeger is available at [http://www.djangoproject.example:16686](http://www.djang
 
 There's more to explore:
 
-1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://www.djangoproject.example:5432](postgresql://www.djangoproject.example:5432).
+1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://localhost:5432](postgresql://localhost:5432).
 
-2. Prometheus –  examine the collected metrics: [http://www.djangoproject.example:9090](http://www.djangoproject.example:9090).
+2. pgAdmin - connect directly to the database using WebUI and user account `login:test@test.test`/`password:test`: [http://localhost:8008](http://localhost:8008)
 
-3. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
+3. Prometheus –  examine the collected metrics: [http://localhost:9090](http://localhost:9090).
+
+4. Grafana – see the dashboards with Acra metrics: [http://localhost:3000](http://localhost:3000).
+
+5. Jaeger – view traces: [http://localhost:16686](http://localhost:16686).
+
+6. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -147,7 +154,7 @@ Follow the guide: [Acra intrusion detection example](https://github.com/cossackl
 
 # Example 3. Transparent encryption, TimescaleDB
 
-TimescaleDB, AcraServer in Transparent encryption mode, AcraConnector.
+TimescaleDB, AcraServer in Transparent encryption mode.
 
 ## 1. Installation
 
@@ -157,36 +164,43 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
 ```
 
 This command:
-* downloads AcraServer, AcraConnector, TimescaleDB, Prometheus, Grafana and PgAdmin images
+* downloads AcraServer, TimescaleDB, Prometheus, Grafana and PgAdmin images
 * build `metricsource` image
 * configures environment and starts demo stand using docker-compose
 
 
 ## 2. What's inside
 
-Demo stand based on TimescaleDB, which stores encrypted data. That data produced by `metricsource` container which connected to TimescaleDB through AcraConnector and AcraServer.
+Demo stand based on TimescaleDB, which stores encrypted data. That data produced by `metricsource` container which connected to TimescaleDB through AcraServer.
 
 At the initial stage, the TimescaleDB database will be filled with randomly generated metric data. Once started, the small daemon running in the `metricsource` container will continue to insert records into the database to simulate real processes.
 
-Grafana also connected through AcraConnector and AcraServer to TimescaleDB and can get unencrypted data to building `Temperature (demo data)` graph.
+Grafana also connected through AcraServer to TimescaleDB and can get unencrypted data to building `Temperature (demo data)` graph.
 
 <p align="center"><img src="_pics/eng_demo_timescaledb_metrics.png" alt="Protecting TimescaleDB metrics: Grafana dashboard" width="700"></p>
 
-Prometheus collects real metrics from AcraConnector and AcraServer. Two dashboards in Grafana: `AcraServer (real data)` and `AcraConnector (real data)` display that data.
+Prometheus collects real metrics from AcraServer and show it on the dashboard `AcraServer (real data)`.
+
+Grafana shows dashboard with metrics collected from AcraServer and Prometheus.
 
 ### 2.1 Read the data directly from the database
 
-1. Log into web TimescaleDB interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: `test@test.test`/`test`.
+1. Log into web TimescaleDB interface [http://localhost:8008](http://localhost:8008) using user/password: `test@test.test`/`test`.
 
 2. Go to the `Servers > postgresql > databases > test > Schemas > public > Tables > versions` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table.
 Fields `device` and `unit_id` are encrypted. So, the data is stored in an encrypted form, but it is transparent for the Grafana.
 
 ## 2.2 Play with stand
 
-You can easily interact with TimescaleDB through AcraConnector and AcraServer:
+You can easily interact with TimescaleDB through AcraServer:
 ```bash
-docker exec -it timescaledb_metricsource_1 \
-    psql postgres://postgres:test@acra-connector:9494/test?sslmode=disable
+docker exec -it \
+  -ePGSSLMODE='verify-full'\
+  -ePGSSLROOTCERT='scripts/root.crt'\
+  -ePGSSLKEY='/scripts/acra-client.key'\
+  -ePGSSLCERT='/scripts/acra-client.crt'\
+  timescaledb_metricsource_1 \
+  psql  'postgres://postgres:test@acra-server:9393/test'
 ```
 or directly:
 ```bash
@@ -198,11 +212,13 @@ docker exec -it -u postgres timescaledb_timescaledb_1 \
 
 1. TimescaleDB - connect to the database using the admin account `postgres`/`test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
 
-2. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
+2. pgAdmin - connect directly to the database using WebUI and user account `login:test@test.test`/`password:test`: [http://localhost:8008](http://localhost:8008)
 
-3. Prometheus – examine the collected metrics: [http://$HOST:9090](http://127.0.0.1:9090).
+3. Grafana – see the dashboards with Acra metrics: [http://localhost:3000](http://localhost:3000).
 
-4. AcraConnector – send some data directly through AcraConnector: [tcp://$HOST:9494](tcp://127.0.0.1:9494).
+4. Prometheus – examine the collected metrics: [http://localhost:9090](http://localhost:9090).
+
+5. AcraServer – send some data directly through AcraServer: [tcp://localhost:9393](tcp://localhost:9393).
 
 ---
 
@@ -228,7 +244,8 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- django
 ```
 
-This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, sets up the environment, configures Django application to encrypt data, and provides a list of links for you to try.
+This command downloads the code of Django website example, Acra Docker containers, PostgreSQL database, Prometheus,
+Grafana, pgAdmin images and sets up the environment, configures Django application to encrypt data, and provides a list of links for you to try.
 
 ## 2. What's inside
 
@@ -274,7 +291,7 @@ So, the blog posts are stored encrypted, but it's transparent for site visitors 
 
 Open Grafana dashboards to see the performance stats of AcraServer. We collect following metrics: the number of decrypted cryptographic containers (AcraStructs and AcraBlocks), request and response processing time.
 
-Grafana is available at [http://www.djangoproject.example:3000](http://www.djangoproject.example:3000).
+Grafana is available at [http://localhost:3000](http://localhost:3000).
 
 <img src="_pics/django_monitoring.png" width="900">
 
@@ -282,7 +299,7 @@ Grafana is available at [http://www.djangoproject.example:3000](http://www.djang
 
 AcraServer can export detailed traces to Jaeger. Use this data to optimize the performance of the entire system.
 
-Jaeger is available at [http://www.djangoproject.example:16686](http://www.djangoproject.example:16686).
+Jaeger is available at [http://localhost:16686](http://localhost:16686).
 
 <img src="_pics/jaeger_traces.png" width="900">
 
@@ -290,11 +307,17 @@ Jaeger is available at [http://www.djangoproject.example:16686](http://www.djang
 
 There's more to explore:
 
-1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://www.djangoproject.example:5432](postgresql://www.djangoproject.example:5432).
+1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://localhost:5432](postgresql://localhost:5432).
 
-2. Prometheus –  examine the collected metrics: [http://www.djangoproject.example:9090](http://www.djangoproject.example:9090).
+2. pgAdmin - connect directly to the database using WebUI and user account `login:test@test.test`/`password:test`: [http://localhost:8008](http://localhost:8008)
 
-3. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
+3. Prometheus –  examine the collected metrics: [http://localhost:9090](http://localhost:9090).
+
+4. Grafana – see the dashboards with Acra metrics: [http://localhost:3000](http://localhost:3000).
+
+5. Jaeger – view traces: [http://localhost:16686](http://localhost:16686).
+
+6. [Docker-compose.django.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/django/docker-compose.django.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -344,7 +367,7 @@ This command downloads a simple Python application that stores the data in a dat
 
 <p align="center"><img src="_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
 
-**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraConnector and AcraServer (that are transparent for the application).
+**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraServer (that are transparent for the application).
 
 ### 2.1 Write data
 
@@ -393,8 +416,7 @@ As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintex
 
 ### 2.4 Connect to the database from the web
 
-1. Log into web PostgreSQL interface [http://$HOST:8008](http://127.0.0.1:8008) using user/password: `test@test.test`/`test`.
-`$HOST` is the IP address of the server where Acra Engineering Demo is running (if you run the demo on your machine, set it to "127.0.0.1").
+1. Log into web PostgreSQL interface [http://localhost:8008](http://localhost:8008) using user/password: `test@test.test`/`test`.
 
 2. Find the table and the data rows.
 
@@ -434,15 +456,17 @@ id  - data                 - raw_data
 
 ### 2.5 Other available resources
 
-1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://$HOST:5432](postgresql://127.0.0.1:5432).
+1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://localhost:5432](postgresql://localhost:5432).
 
-2. Prometheus – examine the collected metrics: [http://$HOST:9090](http://127.0.0.1:9090).
+2. pgAdmin - connect directly to the database using WebUI and user account `login:test@test.test`/`password:test`: [http://localhost:8008](http://localhost:8008)
 
-3. Grafana – see the dashboards with Acra metrics: [http://$HOST:3000](http://127.0.0.1:3000).
+3. Prometheus –  examine the collected metrics: [http://localhost:9090](http://localhost:9090).
 
-4. Jaeger – view traces: [http://$HOST:16686](http://127.0.0.1:16686).
+4. Grafana – see the dashboards with Acra metrics: [http://localhost:3000](http://localhost:3000).
 
-5. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
+5. Jaeger – view traces: [http://localhost:16686](http://localhost:16686).
+
+6. [Docker-compose.python.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
@@ -497,7 +521,7 @@ These are all the code changes! 🎉
 
 # Example 7. Client-side encryption, Ruby on Rails app, PostgreSQL
 
-Ruby on Rails web application, client-side encryption, AcraServer, AcraConnector, PostgreSQL database.
+Ruby on Rails web application, client-side encryption, AcraServer, PostgreSQL database.
 
 ## 1. Installation
 
@@ -506,12 +530,13 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- rails
 ```
 
-This command downloads a Rails application that stores data in a database, Acra Docker containers, PostgreSQL database, sets up the environment, and provides a list of links for you to try.
+This command downloads a Rails application that stores data in a database, Acra Docker containers, PostgreSQL database, Prometheus,
+Grafana, pgAdmin. Additionally, downloads a memcached and Elastic as project dependencies, sets up the environment, and provides a list of links for you to try.
 
 ## 2. What's inside
 
 
-**The client application** is a [rubygems.org fork](https://github.com/cossacklabs/rubygems.org) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraConnector and AcraServer (that are transparent for the application).
+**The client application** is a [rubygems.org fork](https://github.com/cossacklabs/rubygems.org) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraServer (that are transparent for the application).
 
 ### 2.1 Prepare
 
@@ -587,15 +612,17 @@ Fields `authors`, `description` and `summary` are encrypted. So, the data is sto
 
 ### 2.5 Other available resources
 
-1. PostgreSQL – connect directly to the database using the admin account `rubygems`/`rubygems`: [postgresql://www.rubygems.example:5432](postgresql://www.rubygems.example:5432).
+1. PostgreSQL – connect directly to the database using the admin account `rubygems`/`rubygems`: [postgresql://www.rubygems.example:5432](postgresql://localhost:5432).
 
-2. Prometheus – examine the collected metrics: [http://www.rubygems.example:9090](http://www.rubygems.example:9090).
+2. pgAdmin - connect directly to the database using WebUI and user account login:`test@test.test`/password:`test`: [http://localhost:8008](http://localhost:8008)
 
-3. Grafana – see the dashboards with Acra metrics: [http://www.rubygems.example:3000](http://www.rubygems.example:3000).
+3. Prometheus –  examine the collected metrics: [http://localhost:9090](http://localhost:9090).
 
-4. AcraConnector – send some data directly through AcraConnector: [tcp://www.rubygems.example:9494](tcp://www.rubygems.example:9494).
+4. Grafana – see the dashboards with Acra metrics: [http://localhost:3000](http://localhost:3000).
 
-5. Jaeger – view traces: [http://www.rubygems.example:16686](http://www.rubygems.example:16686).
+5. Jaeger – view traces: [http://localhost:16686](http://localhost:16686).
+   
+6. AcraServer – send some data directly through AcraServer: [tcp://www.rubygems.example:9393](tcp://localhost:9494).
 
 ## 3. Show me the code!
 
@@ -656,7 +683,7 @@ These are all the code changes! 🎉
 
 Learn how to configure AcraCensor – SQL firewall – to allow or deny specific queries and make your application more steady against SQL injections.
 
-What's inside: OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor.
+What's inside: OWASP Mutillidae vulnerable web application, AcraServer, AcraCensor.
 
 Follow the guide: [Acra firewall example](https://github.com/cossacklabs/acra-censor-demo).
 
