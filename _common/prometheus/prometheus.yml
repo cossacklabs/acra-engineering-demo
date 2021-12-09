@@ -13,6 +13,3 @@ scrape_configs:
   - job_name: 'acra-server'
     static_configs:
       - targets: ['acra-server:9399']
-  - job_name: 'acra-connector'
-    static_configs:
-      - targets: ['acra-connector:9499']

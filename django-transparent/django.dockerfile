@@ -1,7 +1,4 @@
-FROM alpine:3.10
-# alpine version is limited specially because of issue related with psycopg2
-# https://github.com/psycopg/psycopg2/issues/854 and python 3.8
-# alpine:3.10+ forces python 3.8.+ to be installed
+FROM alpine:3.15.0
 
 # Product version
 ARG VERSION
@@ -40,7 +37,7 @@ EXPOSE 8000
 # Install packages
 RUN apk update
 
-RUN apk add --no-cache bash python3 postgresql-dev postgresql-client npm \
+RUN apk add --no-cache bash python3 py3-pip postgresql-dev postgresql-client npm \
         libxslt-dev jpeg-dev
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN ln -s /usr/bin/python3 /usr/bin/python

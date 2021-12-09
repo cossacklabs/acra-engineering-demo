@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM alpine:3.15.0
 
 # Product version
 ARG VERSION
@@ -34,7 +34,7 @@ RUN echo 'root:!' | chpasswd -e
 
 RUN apk update
 
-RUN apk add --no-cache bash python3 postgresql-dev postgresql-client py3-pip
+RUN apk add --no-cache bash python3 py3-pip postgresql-dev postgresql-client
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -57,13 +57,13 @@ COPY ./acra/examples/python/requirements/ /app.requirements/
 RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt
 
 RUN mkdir /ssl
-COPY acra-engineering-demo/_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
-COPY acra-engineering-demo/_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
-COPY acra-engineering-demo/_common/ssl/root.crt /ssl/root.crt
+COPY ./_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
+COPY ./_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
+COPY ./_common/ssl/root.crt /ssl/root.crt
 
 RUN chmod 0600 -R /ssl/
 
-COPY acra-engineering-demo/python/entry.sh /entry.sh
+COPY ./python/entry.sh /entry.sh
 RUN chmod +x /entry.sh
 
 VOLUME /app.acrakeys

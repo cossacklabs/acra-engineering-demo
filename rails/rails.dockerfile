@@ -101,9 +101,9 @@ RUN mkdir -p /app
 WORKDIR /app
 
 RUN mkdir /ssl
-COPY acra-engineering-demo/_common/ssl/acra-client/acra-client.crt /app/ssl/acra-client.crt
-COPY acra-engineering-demo/_common/ssl/acra-client/acra-client.key /app/ssl/acra-client.key
-COPY acra-engineering-demo/_common/ssl/root.crt /app/ssl/root.crt
+COPY ./_common/ssl/acra-client/acra-client.crt /app/ssl/acra-client.crt
+COPY ./_common/ssl/acra-client/acra-client.key /app/ssl/acra-client.key
+COPY ./_common/ssl/root.crt /app/ssl/root.crt
 
 RUN chmod 0600 -R /app/ssl/
 
@@ -119,6 +119,6 @@ COPY --from=build /usr/lib/libsoter.so /usr/lib/libsoter.so
 
 EXPOSE 3000
 
-COPY acra-engineering-demo/rails/entry.sh /app/docker/
+COPY ./rails/entry.sh /app/docker/
 RUN chmod +x /app/docker/entry.sh
 ENTRYPOINT ["/app/docker/entry.sh"]

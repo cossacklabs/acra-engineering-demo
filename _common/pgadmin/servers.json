@@ -1,0 +1,16 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "PostgreSQL",
+      "Host": "postgresql",
+      "Group": "Acra - Postgresql example",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "SSLMode": "verify-full",
+      "SSLCert": "/ssl/acra-client.crt",
+      "SSLKey": "/ssl/acra-client.key",
+      "SSLRootCert": "/ssl/root.crt"
+    }
+  }
+}

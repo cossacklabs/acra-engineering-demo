@@ -104,8 +104,8 @@ services:
             - postgresql
         # Build and run container from source directory with demo django project
         build:
-            context: ../../
-            dockerfile: acra-engineering-demo/python/python.dockerfile
+            context: ../
+            dockerfile: ./python/python.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
@@ -139,11 +139,18 @@ services:
 
 
     postgresqlweb:
+        image: dpage/pgadmin4:6.2
+        volumes:
+            - ../_common/ssl/acra-client/:/ssl
+            - ../_common/ssl/root.crt:/home/pgadmin/.postgresql/root.crt
+          # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
+          # but we mount it to be consistent
+            - ../_common/ssl/root.crt:/ssl/root.crt
+          # place pre-configured file with settings to timescale
+          # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
+            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
         depends_on:
             - postgresql
-        build:
-            context: ../_common/pgadmin/
-            dockerfile: pgadmin.dockerfile
         environment:
             PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
             PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
