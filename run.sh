@@ -386,6 +386,7 @@ acraengdemo_launch_project() {
       acraengdemo_add_cleanup_cmd "rm -rf $PROJECT_DIR" "remove temporary directory"
       acraengdemo_cmd "cd $PROJECT_DIR" 'Go into project dir'
       acraengdemo_git_clone_acraengdemo
+      PROJECT_DIR="${PROJECT_DIR}/acra-engineering-demo"
     fi;
 
     # assign default env variables for compose file
