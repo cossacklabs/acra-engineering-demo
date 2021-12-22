@@ -103,7 +103,7 @@ WORKDIR /app
 RUN mkdir /ssl
 COPY ./_common/ssl/acra-client/acra-client.crt /app/ssl/acra-client.crt
 COPY ./_common/ssl/acra-client/acra-client.key /app/ssl/acra-client.key
-COPY ./_common/ssl/root.crt /app/ssl/root.crt
+COPY ./_common/ssl/ca/ca.crt /app/ssl/root.crt
 
 RUN chmod 0600 -R /app/ssl/
 

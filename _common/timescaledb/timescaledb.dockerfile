@@ -29,9 +29,9 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
-COPY _common/ssl/pgsql/postgresql.crt /tmp.ssl/server.crt
-COPY _common/ssl/pgsql/postgresql.key /tmp.ssl/server.key
-COPY _common/ssl/root.crt /tmp.ssl/root.crt
+COPY _common/ssl/postgresql/postgresql.crt /tmp.ssl/server.crt
+COPY _common/ssl/postgresql/postgresql.key /tmp.ssl/server.key
+COPY _common/ca/ca.crt /tmp.ssl/root.crt
 RUN chown -R postgres:postgres /tmp.ssl
 
 

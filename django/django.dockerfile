@@ -65,7 +65,7 @@ RUN git clone $VCS_URL /app/ \
 COPY django/configs/common.py.patch /app/djangoproject/settings/
 COPY _common/ssl/acra-client/acra-client.crt /app/blog/ssl/acra-client.crt
 COPY _common/ssl/acra-client/acra-client.key /app/blog/ssl/acra-client.key
-COPY _common/ssl/root.crt /app/blog/ssl/root.crt
+COPY _common/ssl/ca/ca.crt /app/blog/ssl/root.crt
 
 RUN chmod 0600 -R /app/blog/ssl/
 
