@@ -77,7 +77,7 @@ services:
             # Directory with configuration, rewriteable
             - ./acra-server-config:/config
             - ../_common/ssl/acra-server/:/ssl
-            - ../_common/ssl/root.crt:/ssl/root.crt
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
         command: >-
             --db_host=postgresql
             --db_port=5432
@@ -142,10 +142,10 @@ services:
         image: dpage/pgadmin4:6.2
         volumes:
             - ../_common/ssl/acra-client/:/ssl
-            - ../_common/ssl/root.crt:/home/pgadmin/.postgresql/root.crt
+            - ../_common/ssl/ca/ca.crt:/home/pgadmin/.postgresql/root.crt
           # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
           # but we mount it to be consistent
-            - ../_common/ssl/root.crt:/ssl/root.crt
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
           # place pre-configured file with settings to timescale
           # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
             - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
