@@ -383,7 +383,7 @@ acraengdemo_launch_project_django-transparent() {
 }
 
 acraengdemo_launch_project_python() {
-    COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra'
+    COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
     if [ -d "acra" ]; then
       git -C ./acra/ checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
@@ -404,7 +404,7 @@ acraengdemo_launch_project_python() {
 }
 
 acraengdemo_launch_project_python-mysql() {
-    COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra'
+    COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
     if [ -d "acra" ]; then
       git -C ./acra/ checkout "$COSSACKLABS_ACRA_VCS_BRANCH";

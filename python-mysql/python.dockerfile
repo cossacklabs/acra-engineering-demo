@@ -53,7 +53,7 @@ RUN cd /root/themis \
     && make pythemis_install
 
 RUN mkdir /app.requirements
-COPY ./acra/examples/python/requirements/ /app.requirements/
+COPY ../acra/examples/python/requirements/ /app.requirements/
 RUN pip3 install --no-cache-dir -r /app.requirements/mysql.txt
 
 RUN mkdir /ssl
