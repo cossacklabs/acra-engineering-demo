@@ -10,7 +10,7 @@ This collection has several example application. Each folder contains docker-com
 | 1 | [Transparent encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-1-transparent-encryption-django-postgresql) |  Django web application, transparent encryption/decryption, AcraServer, PostgreSQL |
 | 2 | [Intrusion detection system, transparent encryption, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-2-intrusion-detection-system-transparent-encryption-postgresql) | Go application, transparent encryption/decryption, poison records, PostgreSQL |
 | 3 | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-3-transparent-encryption-timescaledb) |  TimescaleDB, transparent encryption/decryption, AcraServer |
-| 4 | [Transparent encryption, MySQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-client-side-encryption-zones-python-app-mysql) | MySQL, transparent encryption/masking/tokenization, Python, AcraServer |
+| 4 | [Transparent encryption, MySQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-zones-python-app-mysql) | MySQL, transparent encryption/masking/tokenization, Python, AcraServer |
 | 5 | [Client-side encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-5-client-side-encryption-django-postgresql) | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL |
 | 6 | [Client-side encryption with Zones, python app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql) |  Simple python client application, client-side encryption with Zones support, decryption on AcraServer, PostgreSQL |
 | 7 | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql) | Ruby on Rails web application, client-side encryption, decryption on AcraServer, PostgreSQL |
@@ -222,7 +222,7 @@ docker exec -it -u postgres timescaledb_timescaledb_1 \
 
 ---
 
-# Example 4. Client-side encryption, Zones, Python app, MySQL
+# Example 4. Transparent encryption, Zones, Python app, MySQL
 
 Python client application, client-side encryption with zones support, AcraServer, MySQL database.
 
