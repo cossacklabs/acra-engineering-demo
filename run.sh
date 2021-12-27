@@ -330,7 +330,7 @@ Resources that will become available after launch:
 }
 
 acraengdemo_git_clone_acraengdemo() {
-    COSSACKLABS_ACRAENGDEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
+    COSSACKLABS_ACRAENGDEMO_VCS_URL=${COSSACKLABS_ACRAENGDEMO_VCS_URL:-'https://github.com/cossacklabs/acra-engineering-demo'}
     COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH:-master}
     if [ -d "acra-engineering-demo" ]; then
       git -C ./acra-engineering-demo/ "$COSSACKLABS_ACRAENGDEMO_VCS_BRANCH";
@@ -414,7 +414,7 @@ acraengdemo_launch_project_python-mysql() {
         "Cloning Acra"
     fi;
     COSSACKLABS_ACRA_VCS_REF=$(git -C ./acra/ rev-parse --verify HEAD)
-    acraengdemo_add_cleanup_cmd "rm -rf ./acra" "remove cloned \"acra\" repository"
+    acraengdemo_add_cleanup_cmd "rm -rf ${PROJECT_DIR}/acra" "remove cloned \"acra\" repository"
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
