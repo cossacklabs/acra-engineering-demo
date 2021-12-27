@@ -224,24 +224,27 @@ docker exec -it -u postgres timescaledb_timescaledb_1 \
 
 # Example 4. Transparent encryption, Zones, Python app, MySQL
 
-Python client application, transparent encryption/decryption with zones support, AcraServer, MySQL database.
+Python client application, transparent encryption/decryption/masking/tokenization with zones support, AcraServer, MySQL database.
 
 ## 1. Installation
 
-### Asymmetric encryption mode
+### Transparent encryption mode
 
 ```bash
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
     bash -s -- python-mysql
 ```
 
-This command downloads a simple Python application that stores the data in a database, Acra Docker containers, PostgreSQL database, sets up the environment, configures python application to connect to Acra, and provides a list of links for you to try.
+This command downloads a simple Python application that stores the data in a database, Acra Docker containers, MySQL 
+database, sets up the environment, configures python application to connect to Acra, and provides a list of links for you to try.
 
 ## 2. What's inside
 
 <p align="center"><img src="_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
 
-**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application talks with the database via Acra, Acra **encrypts** the data before sending it to a database, and decrypts the data when the app reads it from the database.
+**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) 
+that works with a database. The application talks with the database via Acra, Acra **encrypts** the data before sending 
+it to a database, and decrypts the data when the app reads it from the database. Same it does transparently with tokenized data.
 
 ### 2.1 Generate new zone
 
@@ -316,11 +319,12 @@ FROM test
 3
 id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_email
 1   - DDDDDDDDYuWpBtCtrjpHyHta - %%%""""""""UEC2-EzP30dH5aI}1pb@1!gFK '&T@ - -560604022 - -3330418728144437366 - ccxIvgP0iLp - ?a - 98LK9@sigT2.net
+...
 ```
 
 As expected, `data` and `masking` looks encrypted and `token_*` replaced with random values.
 
-### 2.4 Connect to the database from the web
+### 2.7 Connect to the database from the web
 
 1. Log into web MySQL phpmyadmin interface [http://localhost:8088](http://localhost:8088).
 
@@ -332,7 +336,7 @@ As expected, `data` and `masking` looks encrypted and `token_*` replaced with ra
 
 So, the data are protected and it is transparent for the Python application.
 
-### 2.5 Encrypt the data without Zones
+### 2.8 Encrypt the data without Zones
 
 Usage of [Zones](https://docs.cossacklabs.com/acra/security-controls/zones/) provides compartmentalisation as different users of the same app will have different encryption keys.
 However, it's possible to use AcraServer without Zones.
@@ -373,7 +377,7 @@ bash-5.1# python3 extended_example_without_zone.py --host=acra-server --port=939
 > Note: First 3 entries are encrypted and tokenized from previous example with zones and last 3 are new one encrypted
 > in mode without zones.
 
-### 2.6 Other available resources
+### 2.9 Other available resources
 
 1. MySQL – connect directly to the database using the admin account `test/test`: [mysql://localhost:3306](mysql://localhost:3306).
 
@@ -408,7 +412,6 @@ def get_zone():
 
 ```python
 def write_data(data, connection):
-   # here we encrypt our data and wrap into AcraStruct
    with open(data, 'r') as f:
       data = json.load(f)
    print("data: {}".format(data))
