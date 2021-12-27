@@ -15,7 +15,7 @@ ARG BUILD_DATE
 LABEL org.label-schema.schema-version="1.0" \
     org.label-schema.vendor="Cossack Labs" \
     org.label-schema.url="https://cossacklabs.com" \
-    org.label-schema.name="AcraEngineeringDemo - django - djangoproject" \
+    org.label-schema.name="AcraEngineeringDemo - python" \
     org.label-schema.description="AcraEngineeringDemo demonstrates features of main components of Acra Suite" \
     org.label-schema.version=$VERSION \
     org.label-schema.vcs-url=$VCS_URL \
@@ -25,20 +25,16 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.product.version=$VERSION \
     com.cossacklabs.product.vcs-ref=$VCS_REF \
     com.cossacklabs.product.vcs-branch=$VCS_BRANCH \
-    com.cossacklabs.product.component="acra-engdemo-django-djangoproject" \
+    com.cossacklabs.product.component="acra-engdemo-python" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
 # Fix CVE-2019-5021
 RUN echo 'root:!' | chpasswd -e
 
-EXPOSE 8000
-
-# Install packages
 RUN apk update
 
-RUN apk add --no-cache bash python3 py3-pip postgresql-dev postgresql-client npm \
-        libxslt-dev jpeg-dev
+RUN apk add --no-cache bash python3 py3-pip mariadb-dev mariadb-client
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -50,44 +46,28 @@ RUN echo -e '#!/bin/sh\n\nexit 0\n' > /usr/local/sbin/ldconfig
 RUN chmod +x /usr/local/sbin/ldconfig
 
 RUN cd /root \
-    && git clone -b stable https://github.com/cossacklabs/themis
+    && git clone --depth 1 -b stable https://github.com/cossacklabs/themis
 RUN cd /root/themis \
     && make \
     && make install \
     && make pythemis_install
 
-# Fetch and patch django
-RUN mkdir /app
-RUN git clone $VCS_URL /app/ \
-    && cd /app \
-    && git checkout $VCS_REF
+RUN mkdir /app.requirements
+COPY ./acra/examples/python/requirements/ /app.requirements/
+RUN pip3 install --no-cache-dir -r /app.requirements/mysql.txt
 
-COPY django/configs/common.py.patch /app/djangoproject/settings/
-COPY django-transparent/configs/dev.py.patch /app/djangoproject/settings/
-COPY _common/ssl/acra-client/acra-client.crt /app/blog/ssl/acra-client.crt
-COPY _common/ssl/acra-client/acra-client.key /app/blog/ssl/acra-client.key
-COPY _common/ssl/ca/ca.crt /app/blog/ssl/root.crt
+RUN mkdir /ssl
+COPY ./_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
+COPY ./_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
+COPY ./_common/ssl/ca/ca.crt /ssl/root.crt
 
-RUN chmod 0600 -R /app/blog/ssl/
+RUN chmod 0600 -R /ssl/
 
-RUN patch \
-    /app/djangoproject/settings/common.py \
-    /app/djangoproject/settings/common.py.patch
+COPY ./python/entry.sh /entry.sh
+RUN chmod +x /entry.sh
 
-RUN patch \
-    /app/djangoproject/settings/dev.py \
-    /app/djangoproject/settings/dev.py.patch
-
-# Install python modules
-RUN pip3 install --no-cache-dir -r /app/requirements/dev.txt
-RUN cd /app && npm install
-
-ENV DJANGOPROJECT_DATA_DIR /app.data
-RUN mkdir -p $DJANGOPROJECT_DATA_DIR/conf
-
-RUN mkdir -p /app/docker
-COPY django/entry.sh /app/docker/
-RUN chmod +x /app/docker/entry.sh
+VOLUME /app.acrakeys
+VOLUME /app
 
 WORKDIR /app
-ENTRYPOINT ["/app/docker/entry.sh"]
+ENTRYPOINT ["/entry.sh"]

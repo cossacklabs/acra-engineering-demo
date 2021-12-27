@@ -15,6 +15,6 @@ COPY ./_common/ssl/acra-client/acra-client.crt /scripts/
 COPY ./_common/ssl/acra-client/acra-client.key /scripts/
 
 RUN chmod +x /scripts/*.sh
-RUN chmod 0600 /scripts/*.key
+RUN chmod 0400 /scripts/*.key
 
 ENTRYPOINT /scripts/entry.sh

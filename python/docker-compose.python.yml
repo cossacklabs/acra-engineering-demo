@@ -4,7 +4,7 @@ services:
     # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
-    acra-keymaker_writer:
+    acra-keymaker_client:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
@@ -15,9 +15,8 @@ services:
         command: >-
             --client_id=""
             --tls_cert=/ssl/acra-client.crt
-            --generate_acrawriter_keys
             --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-writer
+            --keys_public_output_dir=/keys/acra-server
             --keystore=v1
 
     # Postgresql container
@@ -58,7 +57,7 @@ services:
         # was changed through the API
         restart: always
         depends_on:
-            - acra-keymaker_writer
+            - acra-keymaker_client
             - postgresql
             - jaeger
         environment:
@@ -100,7 +99,7 @@ services:
 
     python:
         depends_on:
-            - acra-keymaker_writer
+            - acra-keymaker_client
             - postgresql
         # Build and run container from source directory with demo django project
         build:

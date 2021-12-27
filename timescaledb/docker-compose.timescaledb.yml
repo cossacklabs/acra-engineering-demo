@@ -68,6 +68,7 @@ services:
             - metricsource-server
             - grafana-server
             - prometheus-server
+            - world
         ports:
             - "9393:9393"
         volumes:
@@ -96,6 +97,8 @@ services:
             --tls_identifier_extractor_type=distinguished_name
             --acraconnector_transport_encryption_disable
             -v
+            --tls_ocsp_from_cert=ignore
+            --tls_crl_from_cert=ignore
 
     metricsource:
         depends_on:
