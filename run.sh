@@ -385,15 +385,15 @@ acraengdemo_launch_project_django-transparent() {
 acraengdemo_launch_project_python() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
-    if [ -d "acra" ]; then
-      git -C ./acra/ checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+    if [ -d "${PROJECT_DIR}/acra" ]; then
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
     else
       acraengdemo_cmd \
         "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
         "Cloning Acra"
     fi;
-    COSSACKLABS_ACRA_VCS_REF=$(git -C ./acra/ rev-parse --verify HEAD)
-    acraengdemo_add_cleanup_cmd "rm -rf ./acra" "remove cloned \"acra\" repository"
+    COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
+    acraengdemo_add_cleanup_cmd "rm -rf ${PROJECT_DIR}/acra" "remove cloned \"acra\" repository"
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
@@ -406,14 +406,16 @@ acraengdemo_launch_project_python() {
 acraengdemo_launch_project_python-mysql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
-    if [ -d "acra" ]; then
-      git -C ./acra/ checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+    if [ -d "${PROJECT_DIR}/acra" ]
+    then
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
     else
+      # we should clone into folder with acra-eng-demo to allow mount files from acra/examples/python folder
       acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
+        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra" \
         "Cloning Acra"
     fi;
-    COSSACKLABS_ACRA_VCS_REF=$(git -C ./acra/ rev-parse --verify HEAD)
+    COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
     acraengdemo_add_cleanup_cmd "rm -rf ${PROJECT_DIR}/acra" "remove cloned \"acra\" repository"
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
@@ -449,7 +451,7 @@ acraengdemo_launch_project() {
     if [ -d ".git" ]; then
       echo -e "\\n== Work in current directory\\n"
       PROJECT_DIR="$(pwd)"
-      COSSACKLABS_ACRAENGDEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
+      COSSACKLABS_ACRAENGDEMO_VCS_URL=${COSSACKLABS_ACRAENGDEMO_VCS_URL:-'https://github.com/cossacklabs/acra-engineering-demo'}
       COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH:-master}
       COSSACKLABS_ACRAENGDEMO_VCS_REF=$(git rev-parse --verify HEAD)
     else

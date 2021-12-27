@@ -83,8 +83,8 @@ services:
             - ./acra-server-config/acra-server.yaml:/config/acra-server.yaml
             - ../_common/ssl/acra-server/:/ssl
             - ../_common/ssl/ca/ca.crt:/ssl/root.crt
-            - ../../acra/examples/python/encryptor_config_without_zone.yaml:/config/encryptor_config_without_zone.yaml
-            - ../../acra/examples/python/encryptor_config_with_zone.yaml:/config/encryptor_config_with_zone.yaml
+            - ../acra/examples/python/encryptor_config_without_zone.yaml:/config/encryptor_config_without_zone.yaml
+            - ../acra/examples/python/encryptor_config_with_zone.yaml:/config/encryptor_config_with_zone.yaml
         command: >-
             --mysql_enable
             --db_host=mysql
@@ -141,7 +141,7 @@ services:
             - python-server
             - python-mysql
         volumes:
-            - ../../acra/examples/python:/app
+            - ../acra/examples/python:/app
 
     phpmyadmin:
         build:

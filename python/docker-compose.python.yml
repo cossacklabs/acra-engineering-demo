@@ -133,7 +133,7 @@ services:
             - python-postgresql
             - python-server
         volumes:
-            - ../../acra/examples/python:/app
+            - ../acra/examples/python:/app
             - ./.acrakeys/acra-writer:/app.acrakeys:ro
 
 
