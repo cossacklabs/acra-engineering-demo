@@ -224,7 +224,7 @@ docker exec -it -u postgres timescaledb_timescaledb_1 \
 
 # Example 4. Transparent encryption, Zones, Python app, MySQL
 
-Python client application, client-side encryption with zones support, AcraServer, MySQL database.
+Python client application, transparent encryption/decryption with zones support, AcraServer, MySQL database.
 
 ## 1. Installation
 
@@ -235,13 +235,13 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- python-mysql
 ```
 
-This command downloads a simple Python application that stores the data in a database, Acra Docker containers, PostgreSQL database, sets up the environment, configures python application to encrypt data, and provides a list of links for you to try.
+This command downloads a simple Python application that stores the data in a database, Acra Docker containers, PostgreSQL database, sets up the environment, configures python application to connect to Acra, and provides a list of links for you to try.
 
 ## 2. What's inside
 
 <p align="center"><img src="_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
 
-**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraServer (that are transparent for the application).
+**The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application talks with the database via Acra, Acra **encrypts** the data before sending it to a database, and decrypts the data when the app reads it from the database.
 
 ### 2.1 Generate new zone
 
