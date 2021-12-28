@@ -1,33 +1,34 @@
 version: "3"
 
+volumes:
+    acra-server:
+
 services:
     # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
-    acra-keymaker_writer:
+    acra-keymaker_client:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
-            - ./.acrakeys:/keys
+            - acra-server:/keys
             - ../_common/ssl/acra-client/:/ssl:ro
         command: >-
             --client_id=""
             --tls_cert=/ssl/acra-client.crt
-            --generate_acrawriter_keys
             --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-writer
+            --keys_public_output_dir=/keys/acra-server
             --keystore=v1
 
-    # Postgresql container
-    postgresql:
+    mysql:
         # Build and run the container based on the official postgresql image
         # with an additional configuration in accordance with djangoproject
         # requirements
         build:
             context: ../
-            dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
+            dockerfile: _common/mysql-playground/mysql-playground.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
@@ -36,24 +37,22 @@ services:
         # INSECURE!!! You MUST define your own DB name and credentials
         environment:
             # Admin user
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
-            # Same password for both django accounts:
-            # 'djangoproject' and 'code.djangoproject'
-            # (see pgsql-configure.sh)
-            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
+            MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+            MYSQL_USER: ${MYSQL_USER:-test}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-test}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-test}
         # Open the port outside for demonstration purposes only (connections
         # between containers are performing within isolated networks)
         ports:
-            - "5432:5432"
+            - "3306:3306"
         # We use internal 'server-postgresql' network for AcraServer and
         # DB interconnection, 'postgresqlweb-postgresql' for interconnections
         # with web interface and external network 'world' for port exposing
         networks:
-            - server-postgresql
-            - postgresqlweb-postgresql
+            - server-mysql
+            - python-mysql
             - world
-
+            - webui-mysql
 
     acra-server:
         image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
@@ -61,30 +60,37 @@ services:
         # was changed through the API
         restart: always
         depends_on:
-            - acra-keymaker_writer
-            - postgresql
-            - jaeger
+            - acra-keymaker_client
+            - mysql
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
             GODEBUG: "netdns=go"
         # We use internal networks:
         # - 'server-postgresql' - for AcraServer and DB interconnection
-        # - 'django-server' - for AcraServer and Django interconnection
+        # - 'python-server' - for AcraServer and PythonApp interconnection
         networks:
-            - django-server
-            - server-postgresql
+            - python-server
+            - server-mysql
+            - world
+        ports:
+            - "9393:9393"
         volumes:
             # Mount the directory with only the keys for this service. Must be
             # rewriteable in case of using API, otherwise should be read-only.
-            - ./.acrakeys/acra-server:/keys
+            #- keystore/acra-server:/keys
+            - acra-server:/data
             # Directory with configuration, rewriteable
-            - ./.acraconfigs/acra-server:/config
+            - ./acra-server-config/acra-server.yaml:/config/acra-server.yaml
             - ../_common/ssl/acra-server/:/ssl
             - ../_common/ssl/ca/ca.crt:/ssl/root.crt
+            - ../acra/examples/python/encryptor_config_without_zone.yaml:/config/encryptor_config_without_zone.yaml
+            - ../acra/examples/python/encryptor_config_with_zone.yaml:/config/encryptor_config_with_zone.yaml
         command: >-
-            --db_host=postgresql
-            --db_port=5432
-            --keys_dir=/keys
+            --mysql_enable
+            --db_host=mysql
+            --db_port=3306
+            --token_db=/data/token.db
+            --keys_dir=/data/acra-server
             --http_api_enable
             --tls_auth=4
             --tls_ca=/ssl/root.crt
@@ -94,73 +100,70 @@ services:
             --tls_identifier_extractor_type=distinguished_name
             --acraconnector_transport_encryption_disable
             --incoming_connection_api_string=tcp://0.0.0.0:9090
-            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
+            --incoming_connection_string=tcp://0.0.0.0:9393
+            -v
+            --tls_ocsp_from_cert=ignore
+            --tls_crl_from_cert=ignore
             --config_file=/config/acra-server.yaml
+            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --tracing_jaeger_enable
             --jaeger_agent_endpoint=''
             --jaeger_collector_endpoint=http://jaeger:14268/api/traces
-            -v
 
-    django:
+    python:
         depends_on:
-            - acra-keymaker_writer
+            - acra-keymaker_client
         # Build and run container from source directory with demo django project
         build:
             context: ../
-            dockerfile: django/django.dockerfile
+            dockerfile: ./python-mysql/python.dockerfile
             args:
-                VCS_URL: ${COSSACKLABS_DJANGO_VCS_URL}
-                VCS_REF: ${COSSACKLABS_DJANGO_VCS_REF}
-                VCS_BRANCH: ${COSSACKLABS_DJANGO_VCS_BRANCH}
+                VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRA_VCS_BRANCH}
                 BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         environment:
-            POSTGRES_HOST: postgresql
-            ACRA_SERVER_HOST: acra-server
-            ACRA_SERVER_PORT: 9393
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
-            POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
-            DJANGO_ADMIN_LOGIN: ${DJANGO_ADMIN_LOGIN:-admin}
-            DJANGO_ADMIN_PASSWORD: ${DJANGO_ADMIN_PASSWORD:-admin}
-            PUBLIC_KEY_DIR: "/app.acrakeys"
-        # Open http port
-        ports:
-            - "8000:8000"
-        # We use internal 'django-server' for access to AcraServer
+            EXAMPLE_HOST: acra-server
+            EXAMPLE_PORT: 3306
+            EXAMPLE_MYSQL: 'true'
+            EXAMPLE_DB_USER: ${POSTGRES_USER:-test}
+            EXAMPLE_DB_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            EXAMPLE_DB_NAME: ${POSTGRES_DB:-test}
+            EXAMPLE_SSL_MODE: verify-full
+            EXAMPLE_TLS_ROOT_CERT: /ssl/root.crt
+            EXAMPLE_TLS_KEY: /ssl/acra-client.key
+            EXAMPLE_TLS_CERT: /ssl/acra-client.crt
+            EXAMPLE_ACRA_SERVER_API_ADDRESS: http://acra-server:9090
+        # We use internal 'python-postgresql' network for Django and
+        # DB interconnection, 'python-server' for access to AcraServer
         # and external network 'world' for port exposing
         networks:
-            - django-server
-            - world
+            - python-server
+            - python-mysql
         volumes:
-            - ./.acrakeys/acra-writer:/app.acrakeys:ro
+            - ../acra/examples/python:/app
 
-
-    postgresqlweb:
-        depends_on:
-            - postgresql
-        image: dpage/pgadmin4:6.2
-        volumes:
-            - ../_common/ssl/acra-client/:/ssl
-            - ../_common/ssl/ca/ca.crt:/home/pgadmin/.postgresql/root.crt
-          # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
-          # but we mount it to be consistent
-            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
-          # place pre-configured file with settings to timescale
-          # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
-            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
-        environment:
-            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
-            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
-            POSTGRES_HOST: postgresql
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
-            POSTGRES_DB: ${POSTGRES_DB:-djangoproject}
-        ports:
-            - "8008:80"
+    phpmyadmin:
+        build:
+            context: ../
+            dockerfile: ./_common/phpmyadmin/phpmyadmin.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRA_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         networks:
-            - postgresqlweb-postgresql
+            - webui-mysql
             - world
-
+        depends_on:
+            - mysql
+        ports:
+            - 8080:80
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=mysql
+            - PMA_USER=test
+            - PMA_PASSWORD=test
 
     prometheus:
         image: prom/prometheus:v2.4.0
@@ -171,7 +174,7 @@ services:
         volumes:
             - ../_common/prometheus:/app.cfg
         networks:
-            - django-server
+            - python-server
             - world
         command: >-
             --config.file=/app.cfg/prometheus.yml
@@ -203,18 +206,19 @@ services:
         ports:
             - "16686:16686"
         networks:
-            - django-server
+            - python-server
             - world
 
 
 networks:
     world:
-    django-server:
+    python-server:
         internal: true
-    server-postgresql:
+    server-mysql:
         internal: true
-    postgresqlweb-postgresql:
+    python-mysql:
+        internal: true
+    webui-mysql:
         internal: true
     grafana-prometheus:
         internal: true
-

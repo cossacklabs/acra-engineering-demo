@@ -1,4 +1,4 @@
-FROM timescale/timescaledb:latest-pg14
+FROM phpmyadmin:5.1.1
 
 # Product version
 ARG VERSION
@@ -15,7 +15,7 @@ ARG BUILD_DATE
 LABEL org.label-schema.schema-version="1.0" \
     org.label-schema.vendor="Cossack Labs" \
     org.label-schema.url="https://cossacklabs.com" \
-    org.label-schema.name="AcraEngineeringDemo - timescale" \
+    org.label-schema.name="AcraEngineeringDemo - python-mysql" \
     org.label-schema.description="AcraEngineeringDemo demonstrates features of main components of Acra Suite" \
     org.label-schema.version=$VERSION \
     org.label-schema.vcs-url=$VCS_URL \
@@ -25,14 +25,12 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.product.version=$VERSION \
     com.cossacklabs.product.vcs-ref=$VCS_REF \
     com.cossacklabs.product.vcs-branch=$VCS_BRANCH \
-    com.cossacklabs.product.component="acra-engdemo-timescale" \
+    com.cossacklabs.product.component="acra-engdemo-python-mysql" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
-COPY _common/ssl/postgresql/postgresql.crt /tmp.ssl/server.crt
-COPY _common/ssl/postgresql/postgresql.key /tmp.ssl/server.key
-COPY _common/ssl/ca/ca.crt /tmp.ssl/root.crt
-RUN chown -R postgres:postgres /tmp.ssl
-
-
-COPY _common/timescaledb/pgsql-configure.sh /docker-entrypoint-initdb.d/
+COPY ./_common/ssl/acra-client/acra-client.crt /tmp.ssl/acra-client.crt
+COPY ./_common/ssl/acra-client/acra-client.key /tmp.ssl/acra-client.key
+COPY ./_common/ssl/ca/ca.crt /tmp.ssl/root.crt
+COPY ./_common/phpmyadmin/config.user.inc.php /etc/phpmyadmin/config.user.inc.php
+RUN chown -R www-data:www-data /tmp.ssl

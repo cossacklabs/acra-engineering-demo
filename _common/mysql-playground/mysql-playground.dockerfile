@@ -1,5 +1,4 @@
-FROM timescale/timescaledb:latest-pg14
-
+FROM mariadb:10.7.1
 # Product version
 ARG VERSION
 ENV VERSION ${VERSION:-0.0.0}
@@ -15,7 +14,7 @@ ARG BUILD_DATE
 LABEL org.label-schema.schema-version="1.0" \
     org.label-schema.vendor="Cossack Labs" \
     org.label-schema.url="https://cossacklabs.com" \
-    org.label-schema.name="AcraEngineeringDemo - timescale" \
+    org.label-schema.name="AcraEngineeringDemo - django - postgres" \
     org.label-schema.description="AcraEngineeringDemo demonstrates features of main components of Acra Suite" \
     org.label-schema.version=$VERSION \
     org.label-schema.vcs-url=$VCS_URL \
@@ -25,14 +24,15 @@ LABEL org.label-schema.schema-version="1.0" \
     com.cossacklabs.product.version=$VERSION \
     com.cossacklabs.product.vcs-ref=$VCS_REF \
     com.cossacklabs.product.vcs-branch=$VCS_BRANCH \
-    com.cossacklabs.product.component="acra-engdemo-timescale" \
+    com.cossacklabs.product.component="acra-engdemo-django-postgres" \
     com.cossacklabs.docker.container.build-date=$BUILD_DATE \
     com.cossacklabs.docker.container.type="product"
 
-COPY _common/ssl/postgresql/postgresql.crt /tmp.ssl/server.crt
-COPY _common/ssl/postgresql/postgresql.key /tmp.ssl/server.key
-COPY _common/ssl/ca/ca.crt /tmp.ssl/root.crt
-RUN chown -R postgres:postgres /tmp.ssl
+# Original init script expects empty /var/lib/mysql so we initially place
+# certificates to the intermediate directory
+COPY _common/ssl/mysql/mysql.crt /tmp.ssl/mysql.crt
+COPY _common/ssl/mysql/mysql.key /tmp.ssl/mysql.key
+COPY _common/ssl/ca/ca.crt /tmp.ssl/ca.crt
+RUN chown -R mysql:mysql /tmp.ssl && chmod 0400 /tmp.ssl/mysql.key
 
-
-COPY _common/timescaledb/pgsql-configure.sh /docker-entrypoint-initdb.d/
+COPY _common/mysql-playground/mariadb-ssl.cnf /etc/mysql/mariadb.conf.d/
