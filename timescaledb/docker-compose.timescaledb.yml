@@ -4,9 +4,9 @@ services:
     # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
-    # Both keys must be accessible by AcraServer in tranparent mode
+    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage_sym
     acra-keymaker_client:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.91.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -17,6 +17,7 @@ services:
             --client_id=""
             --tls_cert=/ssl/acra-client.crt
             --generate_acrawriter_keys
+            --generate_symmetric_storage_key
             --keys_output_dir=/keys/acra-server
             --keys_public_output_dir=/keys/acra-server
             --keystore=v1
@@ -50,7 +51,7 @@ services:
             world:
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.90.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.91.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always

@@ -196,7 +196,7 @@ You can easily interact with TimescaleDB through AcraServer:
 ```bash
 docker exec -it \
   -ePGSSLMODE='verify-full'\
-  -ePGSSLROOTCERT='scripts/root.crt'\
+  -ePGSSLROOTCERT='scripts/ca.crt'\
   -ePGSSLKEY='/scripts/acra-client.key'\
   -ePGSSLCERT='/scripts/acra-client.crt'\
   timescaledb_metricsource_1 \
@@ -266,7 +266,7 @@ application generates Zones using AcraServer HTTP API, then it uses Zone public 
 Set ZoneID `DDDDDDDDPfBoWiixeMTUuEOk` instead of existing in `./acra/examples/python/encryptor_config_with_zone.yaml`:
 
 ```bash
-sed -i 's/DDDDDDDDsgIvBnaXlbMgdyte/DDDDDDDDPfBoWiixeMTUuEOk/g' ./acra/examples/python/encryptor_config_with_zone.yaml
+sed -i 's/DDDDDDDDHHNqiSYFXkpxopYZ/DDDDDDDDPfBoWiixeMTUuEOk/g' ./acra/examples/python/extended_encryptor_config_with_zone.yaml
 ```
 
 ### 2.3 Restart acra-server to use updated config
@@ -291,7 +291,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
 ```bash
 docker exec -it python-mysql_python_1 \
-  python3 extended_example_without_zone.py --host=acra-server --port=9393 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
+  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
   
 $:
 Fetch data by query {}
@@ -318,7 +318,7 @@ Fetch data by query {}
 FROM test
 3
 id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_email
-1   - DDDDDDDDYuWpBtCtrjpHyHta - %%%""""""""UEC2-EzP30dH5aI}1pb@1!gFK '&T@ - -560604022 - -3330418728144437366 - ccxIvgP0iLp - ?a - 98LK9@sigT2.net
+1   - DDDDDDDDYuWpBtCtrjpHyHta - %%%""""L@'/e_>I6躁iH 1Rz#X.5@@f+hRgjp�$~@oxշ '&T@ - -560604022 - -3330418728144437366 - ccxIvgP0iLp - ?a - 98LK9@sigT2.net
 ...
 ```
 
@@ -326,7 +326,7 @@ As expected, `data` and `masking` looks encrypted and `token_*` replaced with ra
 
 ### 2.7 Connect to the database from the web
 
-1. Log into web MySQL phpmyadmin interface [http://localhost:8088](http://localhost:8088).
+1. Log into web MySQL phpmyadmin interface [http://localhost:8080](http://localhost:8080).
 
 2. Find the table and the data rows.
 
@@ -381,7 +381,7 @@ bash-5.1# python3 extended_example_without_zone.py --host=acra-server --port=939
 
 1. MySQL – connect directly to the database using the admin account `test/test`: [mysql://localhost:3306](mysql://localhost:3306).
 
-2. phpmyadmin - connect directly to the database using WebUI : [http://localhost:8088](http://localhost:8080)
+2. phpmyadmin - connect directly to the database using WebUI : [http://localhost:8080](http://localhost:8080)
 
 3. Prometheus –  examine the collected metrics: [http://localhost:9090](http://localhost:9090).
 

@@ -63,7 +63,6 @@ RUN git clone $VCS_URL /app/ \
     && git checkout $VCS_REF
 
 COPY django/configs/common.py.patch /app/djangoproject/settings/
-COPY django-transparent/configs/dev.py.patch /app/djangoproject/settings/
 COPY _common/ssl/acra-client/acra-client.crt /app/blog/ssl/acra-client.crt
 COPY _common/ssl/acra-client/acra-client.key /app/blog/ssl/acra-client.key
 COPY _common/ssl/ca/ca.crt /app/blog/ssl/root.crt
@@ -73,10 +72,6 @@ RUN chmod 0600 -R /app/blog/ssl/
 RUN patch \
     /app/djangoproject/settings/common.py \
     /app/djangoproject/settings/common.py.patch
-
-RUN patch \
-    /app/djangoproject/settings/dev.py \
-    /app/djangoproject/settings/dev.py.patch
 
 # Install python modules
 RUN pip3 install --no-cache-dir -r /app/requirements/dev.txt

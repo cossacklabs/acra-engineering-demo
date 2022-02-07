@@ -1,3 +1,6 @@
+defaults:
+  crypto_envelope: acrablock
+
 schemas:
 - table: "blog_entries"
   encrypted:
