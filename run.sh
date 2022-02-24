@@ -351,7 +351,7 @@ acraengdemo_run_compose() {
     acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE pull" 'Pull fresh images'
 
     acraengdemo_add_cleanup_cmd \
-        "docker-compose -f $DC_FILE down" \
+        "docker-compose -f $DC_FILE down -v" \
         'stop docker-compose'
     acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE up --build" 'Starting docker-compose'
 }
@@ -384,7 +384,7 @@ acraengdemo_launch_project_django-transparent() {
 
 acraengdemo_launch_project_python() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.92.0}
     if [ -d "${PROJECT_DIR}/acra" ]; then
       git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
     else
@@ -405,7 +405,7 @@ acraengdemo_launch_project_python() {
 
 acraengdemo_launch_project_python-mysql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.92.0}
     if [ -d "${PROJECT_DIR}/acra" ]
     then
       git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";

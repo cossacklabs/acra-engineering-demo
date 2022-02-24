@@ -1,0 +1,36 @@
+--- ./models.py.old	2018-12-18 17:40:35.000000000 +0200
++++ ./models.py.new	2018-12-20 13:19:44.000000000 +0200
+@@ -10,6 +10,8 @@
+ from django_hosts.resolvers import reverse
+ from docutils.core import publish_parts
+
++from .fields import PgCharBinaryField, PgTextBinaryField
++
+ BLOG_DOCUTILS_SETTINGS = {
+     'doctitle_xform': False,
+     'initial_header_level': 3,
+@@ -35,7 +37,7 @@
+
+
+ class Entry(models.Model):
+-    headline = models.CharField(max_length=200)
++    headline = PgCharBinaryField(max_length=200)
+     slug = models.SlugField(unique_for_date='pub_date')
+     is_active = models.BooleanField(
+         help_text=_(
+@@ -53,11 +55,11 @@
+         ),
+     )
+     content_format = models.CharField(choices=CONTENT_FORMAT_CHOICES, max_length=50)
+-    summary = models.TextField()
+-    summary_html = models.TextField()
+-    body = models.TextField()
+-    body_html = models.TextField()
+-    author = models.CharField(max_length=100)
++    summary = PgTextBinaryField()
++    summary_html = PgTextBinaryField()
++    body = PgTextBinaryField()
++    body_html = PgTextBinaryField()
++    author = PgCharBinaryField(max_length=100)
+
+     objects = EntryQuerySet.as_manager()

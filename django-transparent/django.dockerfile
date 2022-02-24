@@ -50,6 +50,8 @@ RUN git clone $VCS_URL /app/ \
     && cd /app \
     && git checkout $VCS_REF
 
+COPY django-transparent/configs/fields.py /app/blog/
+COPY django-transparent/configs/models.py.patch /app/blog/
 COPY django-transparent/configs/common.py.patch /app/djangoproject/settings/
 COPY django-transparent/configs/dev.py.patch /app/djangoproject/settings/
 COPY django-transparent/configs/0003_encrypt.py /app/blog/migrations/
@@ -59,6 +61,9 @@ COPY _common/ssl/ca/ca.crt /app/blog/ssl/root.crt
 
 RUN chmod 0600 -R /app/blog/ssl/
 
+RUN patch \
+    /app/blog/models.py \
+    /app/blog/models.py.patch
 RUN patch \
     /app/djangoproject/settings/common.py \
     /app/djangoproject/settings/common.py.patch
