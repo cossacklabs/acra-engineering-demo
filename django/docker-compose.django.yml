@@ -5,7 +5,7 @@ services:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
     acra-keymaker_writer:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.91.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.92.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -56,7 +56,7 @@ services:
 
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.91.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.92.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always
@@ -73,6 +73,9 @@ services:
         networks:
             - django-server
             - server-postgresql
+            - world
+        ports:
+            - "9393:9393"
         volumes:
             # Mount the directory with only the keys for this service. Must be
             # rewriteable in case of using API, otherwise should be read-only.
@@ -92,8 +95,6 @@ services:
             --tls_key=/ssl/acra-server.key
             --tls_client_id_from_cert
             --tls_identifier_extractor_type=distinguished_name
-            --acraconnector_transport_encryption_disable
-            --poison_detect_enable=false
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --config_file=/config/acra-server.yaml
