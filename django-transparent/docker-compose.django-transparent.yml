@@ -6,7 +6,7 @@ services:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage.pub
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage_sym
     acra-keymaker_client:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.92.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.93.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -57,7 +57,7 @@ services:
 
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.92.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.93.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always
@@ -123,7 +123,6 @@ services:
             POSTGRES_USER: ${POSTGRES_USER:-postgres}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
             POSTGRES_DJANGO_PASSWORD: ${POSTGRES_DJANGO_PASSWORD:-r8d8iS3mDAYF}
-            ACRA_CLIENT_ID: ${ACRA_CLIENT_ID:-testclientid}
             DJANGO_ADMIN_LOGIN: ${DJANGO_ADMIN_LOGIN:-admin}
             DJANGO_ADMIN_PASSWORD: ${DJANGO_ADMIN_PASSWORD:-admin}
         # Open http port
