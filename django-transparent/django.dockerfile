@@ -50,7 +50,6 @@ RUN git clone $VCS_URL /app/ \
     && cd /app \
     && git checkout $VCS_REF
 
-COPY django-transparent/configs/fields.py /app/blog/
 COPY django-transparent/configs/common.py.patch /app/djangoproject/settings/
 COPY django-transparent/configs/dev.py.patch /app/djangoproject/settings/
 COPY django-transparent/configs/0003_encrypt.py /app/blog/migrations/

@@ -107,6 +107,7 @@ services:
     django:
         depends_on:
             - acra-keymaker_client
+            - acra-server
         # Build and run container from source directory with demo django project
         build:
             context: ../
@@ -134,6 +135,7 @@ services:
             - django-server
             - world
 
+        restart: on-failure
 
     postgresqlweb:
         image: dpage/pgadmin4:6.2
