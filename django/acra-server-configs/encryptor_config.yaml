@@ -1,0 +1,36 @@
+defaults:
+  crypto_envelope: acrablock
+
+schemas:
+- table: "blog_entries"
+  columns:
+    - id
+    - headline
+    - slug
+    - is_active
+    - pub_date
+    - content_format
+    - summary
+    - summary_html
+    - body
+    - body_html
+    - author
+  encrypted:
+  - column: "author"
+    data_type: "bytes"
+    default_data_value: "dW5rbm93bg=="
+  - column: "body"
+    data_type: "bytes"
+    default_data_value: "Tm8gcGVybWlzc2lvbg=="
+  - column: "body_html"
+    data_type: "bytes"
+    default_data_value: "Tm8gcGVybWlzc2lvbg=="
+  - column: "headline"
+    data_type: "bytes"
+    default_data_value: "Tm8gcGVybWlzc2lvbg=="
+  - column: "summary"
+    data_type: "bytes"
+    default_data_value: "Tm8gcGVybWlzc2lvbg=="
+  - column: "summary_html"
+    data_type: "bytes"
+    default_data_value: "Tm8gcGVybWlzc2lvbg=="
