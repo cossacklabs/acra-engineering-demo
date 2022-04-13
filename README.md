@@ -411,7 +411,7 @@ def get_zone():
 2. The app reads JSON data and writes the data to the database as usual:
 
 ```python
-def write_data(data, connection, table=test_table):
+def write_data(data, connection):
    # here we encrypt our data and wrap into AcraStruct
    with open(data, 'r') as f:
       data = json.load(f)
@@ -421,10 +421,9 @@ def write_data(data, connection, table=test_table):
       rows = [data]
    for row in rows:
       for k in ('data_str', 'data_i64', 'data_i32', 'email', 'token_bytes', 'masking'):
-         if k in row:
-            row[k] = row[k].encode('ascii')
+         row[k] = row[k].encode('ascii')
       connection.execute(
-         table.insert(), row)
+         test_table.insert(), row)
 ```
 
 3. Nothing changes when reading the data from the database:
