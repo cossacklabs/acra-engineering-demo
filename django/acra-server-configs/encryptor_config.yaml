@@ -1,5 +1,6 @@
 defaults:
   crypto_envelope: acrablock
+  reencrypting_to_acrablocks: true
 
 schemas:
 - table: "blog_entries"
