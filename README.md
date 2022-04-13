@@ -291,7 +291,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
 ```bash
 docker exec -it python-mysql_python_1 \
-  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print
+  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print  --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
   
 $:
 Fetch data by query {}
@@ -310,7 +310,7 @@ To make sure that the data is stored in an encrypted form, read it directly from
 
 ```bash
 docker exec -it python-mysql_python_1 \
-  python3 extended_example_without_zone.py --host=mysql --port=3306 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
+  python3 extended_example_with_zone.py --host=mysql --port=3306 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
 
 $:
 Fetch data by query {}
