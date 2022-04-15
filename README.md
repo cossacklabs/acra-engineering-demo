@@ -756,7 +756,7 @@ Grafana, pgAdmin. Additionally, downloads a memcached and Elastic as project dep
 
 1. Sign up with any fictional account at [sign_up page](http://www.rubygems.example:8000/sign_up) of the app. That credentials will be used later when uploading gem.
 
-2. Verify your email on [special page](http://www.rubygems.example:8000/rails/mailers/mailer/email_confirmation) for development purposes
+2. Verify your fictional email on a [special page](http://www.rubygems.example:8000/rails/mailers/mailer/email_confirmation) for development purposes.
 
 3. Sign in via `gem` CLI tool with credentials used in the step 2:
 
