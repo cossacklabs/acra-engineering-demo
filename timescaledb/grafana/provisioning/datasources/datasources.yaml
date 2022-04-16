@@ -1,26 +1,31 @@
 apiVersion: 1
 
 datasources:
-- name: prometheus
-  type: prometheus
-  orgId: 1
-  access: proxy
-  url: http://prometheus:9090
-  isDefault: true
-  editable: false
-  jsonData:
-    timeInterval: 15s
-- name: postgresql
-  type: postgres
-  access: proxy
-  url: acra-server:9393
-  database: test
-  user: postgres
-  secureJsonData:
-    password: test
-  jsonData:
-    sslmode: disable
-    postgresVersion: 1000
-    timescaledb: true
-  orgId: 1
-  isDefault: false
+  - name: prometheus
+    type: prometheus
+    orgId: 1
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s
+
+  - name: postgresql
+    type: postgres
+    access: proxy
+    url: acra-server:9393
+    database: test
+    user: postgres
+    jsonData:
+      postgresVersion: 1000
+      timescaledb: true
+      tlsAuth: true
+      tlsAuthWithCACert: true
+      sslRootCertFile: /ssl/root.crt
+      sslCertFile: /ssl/acra-client.crt
+      sslKeyFile: /ssl/acra-client.key
+    secureJsonData:
+      password: test
+    orgId: 1
+    isDefault: false

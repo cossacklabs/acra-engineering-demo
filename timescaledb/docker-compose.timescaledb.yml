@@ -161,6 +161,8 @@ services:
 
     grafana:
         image: grafana/grafana:8.3.0
+        # Dirty hack: run as root to deal with permissions
+        user: root
         depends_on:
             - acra-server
         environment:
@@ -170,6 +172,8 @@ services:
             - "3000:3000"
         volumes:
             - ./grafana:/app.cfg
+            - ../_common/ssl/acra-client:/ssl/:ro
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
         networks:
             - grafana-server
             - grafana-prometheus
