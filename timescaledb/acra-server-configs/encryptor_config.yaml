@@ -2,7 +2,16 @@ defaults:
   crypto_envelope: acrablock
 
 schemas:
-- table: cpu_temp
-  encrypted:
-  - column: device
-  - column: unit_id
+  - table: cpu_temp
+    columns:
+      - ts
+      - device
+      - unit_id
+      - temp
+
+    encrypted:
+      - column: device
+        data_type: str
+
+      - column: unit_id
+        data_type: int32
