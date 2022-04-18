@@ -14,4 +14,4 @@ schemas:
         data_type: str
 
       - column: unit_id
-        data_type: int32
+        data_type: str

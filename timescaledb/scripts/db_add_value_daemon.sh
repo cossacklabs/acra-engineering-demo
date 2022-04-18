@@ -9,7 +9,7 @@ do
     UNIT_ID=$(($RANDOM % 10))
 
     psql $POSTGRESQL_CONNSTR <<EOF
-INSERT INTO cpu_temp(ts, device, unit_id, temp) VALUES ('$DATE', '$DEVICE', $UNIT_ID, $RANDOM / 2500 + 25);
+INSERT INTO cpu_temp(ts, device, unit_id, temp) VALUES ('$DATE', '$DEVICE', '$UNIT_ID', $RANDOM / 2500 + 25);
 EOF
     sleep 2
 done
