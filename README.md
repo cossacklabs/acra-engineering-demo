@@ -611,7 +611,22 @@ id  - zone - data - raw_data
 
 The output contains Zone Id, the decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
 
-### 2.3 Read the data directly from the database
+### 2.3 Read data with invalid zone
+
+Read the data using an invalid ZoneId. AcraServer will not decrypt the data and return the default data from `/app/encryptor_config_with_zone.yaml` config:
+
+```bash
+docker exec -it python_python_1 \
+  python /app/example_with_zone.py --print --zone_id=DDDDDDDDFidFDxORlrleaU
+
+$:
+use zone_id:  DDDDDDDDEEaNtNHSbdOISJM
+id  - zone - data - raw_data
+1   - DDDDDDDDEEaNtNHSbdOISJM - test-data - top secret data
+```
+
+
+### 2.4 Read the data directly from the database
 
 To make sure that the data is stored in an encrypted form, read it directly from the database:
 
@@ -627,7 +642,7 @@ id  - zone - data - raw_data
 
 As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintext so nothing changes.
 
-### 2.4 Connect to the database from the web
+### 2.5 Connect to the database from the web
 
 1. Log into web PostgreSQL interface [http://localhost:8008](http://localhost:8008) using user/password: `test@test.test`/`test`.
 
@@ -639,15 +654,19 @@ As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintex
 
 So, the data is stored in an encrypted form, but it is transparent for the Python application.
 
-### 2.5 Encrypt the data without Zones
+### 2.6 Encrypt the data without Zones
 
 Usage of [Zones](https://docs.cossacklabs.com/acra/security-controls/zones/) provides compartmentalisation as different users of the same app will have different encryption keys. However, it's possible to [use AcraServer without Zones](https://docs.cossacklabs.com/pages/documentation-acra/#running-acraserver-in-zone-mode).
 
 1. To disable Zones open `python/acra-server-config/acra-server.yaml` and change `zonemode_enable: true` value to `false`.
+1. To disable Zones open `python/acra-server-config/acra-server.yaml` and change `zonemode_enable: true` value to `false`,
+   `encryptor_config_file: "/app/encryptor_config_with_zone.yaml"` to `encryptor_config_file: "/app/encryptor_config_without_zone.yaml`
+   and restart `acra-server`.
 
-2. Write and read the data:
+3. Write and read the data:
 
 ```bash
+docker restart python_acra-server_1
 
 docker exec -it python_python_1 \
   bash -c 'export EXAMPLE_PUBLIC_KEY="$(cat /pub_key_name.txt)" && \
@@ -667,7 +686,7 @@ id  - data                 - raw_data
 
 > Note: AcraServer decrypts either AcraStructs with Zones or without Zones at the same time. Sending different kinds of AcraStructs without changing the mode will lead to decryption errors.
 
-### 2.5 Other available resources
+### 2.7 Other available resources
 
 1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://localhost:5432](postgresql://localhost:5432).
 
