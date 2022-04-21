@@ -85,9 +85,9 @@ Add a blog post to the Blogs/Entries:
 
 <img src="_pics/web_django_posts.png" width="600">
 
-You can go to Dashboard cabinet [http://www.djangoproject.example:8000/admin/dashboard/category/](http://www.djangoproject.example:8000/admin/dashboard/category/)
+You can go to Dashboard window [http://www.djangoproject.example:8000/admin/dashboard/category/](http://www.djangoproject.example:8000/admin/dashboard/category/)
 
-And add a new Dashboard window:
+And add a new Dashboard category:
 
 <img src="_pics/web_django_dashboard.png" width="600">
 
