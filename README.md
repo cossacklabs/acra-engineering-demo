@@ -77,23 +77,41 @@ echo "$SERVER_IP www.djangoproject.example" >> /etc/hosts
 
 where `SERVER_IP` is the IP address of the server that is running the Acra Engineering Demo (if you run the demo on your machine, set it to `127.0.0.1`). Updating the hosts file is required because we will run the protected djangoproject site locally. You can remove this line when you stop needed to access the demo site.
 
-### 2.2 Add a new post
+### 2.2 Add a new post / category
 
-1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. Add a blog post to the Blogs/Entries:
+1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. 
+
+Add a blog post to the Blogs/Entries:
 
 <img src="_pics/web_django_posts.png" width="600">
 
+You can go to Dashboard cabinet [http://www.djangoproject.example:8000/admin/dashboard/category/](http://www.djangoproject.example:8000/admin/dashboard/category/)
+
+And add a new Dashboard window:
+
+<img src="_pics/web_django_dashboard.png" width="600">
+
 2. Open the blog posts' feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
+
+   Also, you can open the dashboard category' feed [http://www.djangoproject.example:8000/admin/dashboard/category/](http://www.djangoproject.example:8000/admin/dashboard/category/) and see your newly created category:
 
 ### 2.3 Connect to the database from the web
 
 Everything worked well! Now, let's check the content of the database.
 
-Log into the web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test@test.test`/`test`. Find your blog post in  `Servers > postgresql > databases > djangoproject > Schemas > public > Tables > blog_entries` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table. Download and read the content – it's encrypted.
+Log into the web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test@test.test`/`test`. 
 
-<img src="_pics/db_django.png" width="900">
+Find your blog post in  `Servers > postgresql > databases > djangoproject > Schemas > public > Tables > blog_entries` and open context menu with right-click. 
 
-So, the blog posts are stored encrypted, but it's transparent for site visitors and admins.
+Dashboard categories are in `Servers > postgresql > databases > djangoproject > Schemas > public > Tables > dashboard_category`.
+
+Select `View/Edit Data > All rows` and now you can see content of the table. Download and read the content – it's encrypted.
+
+<img src="_pics/db_django.png" width="1200">
+
+<img src="_pics/db_django_dashboards.png" width="1200">
+
+So, the blog posts/dashboard categories are stored encrypted, but it's transparent for site visitors and admins.
 
 ### 2.4 Check the monitoring
 

@@ -53,6 +53,7 @@ RUN git clone $VCS_URL /app/ \
 COPY django-transparent/configs/common.py.patch /app/djangoproject/settings/
 COPY django-transparent/configs/dev.py.patch /app/djangoproject/settings/
 COPY django-transparent/configs/0003_encrypt.py /app/blog/migrations/
+COPY django-transparent/configs/0003_dashboard_category_encrypt.py /app/dashboard/migrations/
 COPY _common/ssl/acra-client/acra-client.crt /app/blog/ssl/acra-client.crt
 COPY _common/ssl/acra-client/acra-client.key /app/blog/ssl/acra-client.key
 COPY _common/ssl/ca/ca.crt /app/blog/ssl/root.crt

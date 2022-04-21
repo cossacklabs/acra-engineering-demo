@@ -34,3 +34,13 @@ schemas:
   - column: "summary_html"
     data_type: "str"
     default_data_value: "error"
+
+- table: "dashboard_category"
+  columns:
+    - id
+    - name
+    - position
+  encrypted:
+    - column: "position"
+      data_type: "int32"
+      default_data_value: 0
