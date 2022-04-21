@@ -611,7 +611,7 @@ id  - zone - data - raw_data
 
 The output contains Zone Id, the decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
 
-### 2.3 Read data with invalid zone
+### 2.3 Read data with invalid Zone
 
 Read the data using an invalid ZoneId. AcraServer will not decrypt the data and return the default data from `/app/encryptor_config_with_zone.yaml` config:
 
