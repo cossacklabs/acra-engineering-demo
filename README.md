@@ -309,7 +309,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
 ```bash
 docker exec -it python-mysql_python_1 \
-  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
+  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print  --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
   
 $:
 Fetch data by query {}
@@ -328,7 +328,7 @@ To make sure that the data is stored in an encrypted form, read it directly from
 
 ```bash
 docker exec -it python-mysql_python_1 \
-  python3 extended_example_without_zone.py --host=mysql --port=3306 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
+  python3 extended_example_with_zone.py --host=mysql --port=3306 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
 
 $:
 Fetch data by query {}
@@ -360,7 +360,7 @@ Usage of [Zones](https://docs.cossacklabs.com/acra/security-controls/zones/) pro
 However, it's possible to use AcraServer without Zones.
 
 1. To disable Zones open `python-mysql/acra-server-config/acra-server.yaml` and change `zonemode_enable: true` value to `false`,
-   `encryptor_config_file: "/config/encryptor_config_with_zone.yaml"` to `encryptor_config_file: "/config/encryptor_config_without_zone.yaml"`
+   `encryptor_config_file: "/config/extended_encryptor_config_with_zone.yaml"` to `encryptor_config_file: "/config/extended_encryptor_config_without_zone.yaml"`
    and restart `acra-server`.
 
 2. Write and read the data:
@@ -430,6 +430,7 @@ def get_zone():
 
 ```python
 def write_data(data, connection):
+   # here we encrypt our data and wrap into AcraStruct
    with open(data, 'r') as f:
       data = json.load(f)
    print("data: {}".format(data))
@@ -437,7 +438,7 @@ def write_data(data, connection):
    if isinstance(data, dict):
       rows = [data]
    for row in rows:
-      for k in ('data', 'token_bytes', 'masking'):
+      for k in ('data_str', 'data_i64', 'data_i32', 'email', 'token_bytes', 'masking'):
          row[k] = row[k].encode('ascii')
       connection.execute(
          test_table.insert(), row)
