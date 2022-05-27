@@ -775,7 +775,15 @@ Grafana, pgAdmin. Additionally, downloads a memcached and Elastic as project dep
 
 1. Sign up with any fictional account at [sign_up page](http://www.rubygems.example:8000/sign_up) of the app. That credentials will be used later when uploading gem.
 
-2. The application we are deploying is gem storage, so we have to build gem that we will use in testing.
+2. Verify your fictional email on a [special page](http://www.rubygems.example:8000/rails/mailers/mailer/email_confirmation) for development purposes.
+
+3. Sign in via `gem` CLI tool with credentials used in the step 2:
+
+```
+gem signin --host=http://www.rubygems.example:8000
+```
+
+4. Use already built gem `rails/my-example-gem-0.1.0.gem` or build your own:
 
 ```bash
 bundle gem my-example-gem

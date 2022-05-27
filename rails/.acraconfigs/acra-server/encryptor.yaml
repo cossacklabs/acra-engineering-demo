@@ -1,0 +1,62 @@
+defaults:
+  crypto_envelope: acrablock
+  reencrypting_to_acrablocks: true
+
+schemas:
+  - table: dependencies
+    columns:
+      - id
+      - requirements
+      - created_at
+      - updated_at
+      - rubygem_id
+      - version_id
+      - scope
+      - unresolved_name
+    encrypted:
+      - column: unresolved_name
+        data_type: bytes
+        # "Tm8gcGVybWlzc2lvbg==" == "No permission"
+        default_data_value: "Tm8gcGVybWlzc2lvbg=="
+
+  - table: versions
+    columns:
+      - id
+      - authors
+      - description
+      - "number"
+      - rubygem_id
+      - built_at
+      - updated_at
+      - summary
+      - platform
+      - created_at
+      - indexed
+      - prerelease
+      - "position"
+      - latest
+      - full_name
+      - size
+      - licenses
+      - requirements
+      - required_ruby_version
+      - sha256
+      - metadata
+      - yanked_at
+      - required_rubygems_version
+      - info_checksum
+      - yanked_info_checksum
+      - pusher_id
+      - cert_chain
+      - canonical_number
+    encrypted:
+    - column: authors
+      data_type: bytes
+      # "SGlkZGVuIGF1dGhvcg==" == "Hidden author"
+      default_data_value: "SGlkZGVuIGF1dGhvcg=="
+    - column: description
+      data_type: bytes
+      default_data_value: "Tm8gcGVybWlzc2lvbg=="
+    - column: summary
+      data_type: bytes
+      default_data_value: "Tm8gcGVybWlzc2lvbg=="
