@@ -205,6 +205,55 @@ Resources that will become available after launch:
     acraengdemo_press_any_key
 }
 
+
+acraengdemo_info_cockroachdb() {
+    echo '
+Resources that will become available after launch:
+
+    * Container with environment prepared for the python example. Folder with
+      example scripts will be mounted to container, so you will be able to
+      modify these scripts without stopping docker compose.
+
+      Run example with zones (write, read):
+        docker exec -it cockroachdb_python_1 \
+            python /app/example_with_zone.py --data="some data"
+        docker exec -it cockroachdb_python_1 \
+            python /app/example_with_zone.py \
+            --print --zone_id=$ZONE_ID
+      where $ZONE_ID - zone id, printed on write step
+
+      Before using AcraServer without zones, open `cockroachdb/acra-server-config/acra-server.yaml` and change
+      `zonemode_enable: true` value to `false`..
+
+      Run example without zones (write, read):
+        docker exec -it cockroachdb_python_1 \
+            python /app/example_without_zone.py --data="some data #1"
+        docker exec -it cockroachdb_python_1 \
+            python /app/example_without_zone.py --print
+
+    * CockroachDB - also you can connect to DB directly:
+        postgresql://$HOST:26257
+        Default user `root` and Database `defaultdb`
+
+    * Prometheus - examine the collected metrics:
+        http://$HOST:9090
+
+    * Grafana - sample of dashboards with Acra metrics:
+        http://$HOST:3000
+
+    * Jaeger - view traces:
+        http://$HOST:16686
+
+
+    where are HOST is the IP address of the server with running Acra
+    Engineering Demo. If you run this demo on the same host, from
+    which you will connect, use "localhost".
+
+'
+    acraengdemo_press_any_key
+}
+
+
 acraengdemo_info_python-mysql() {
     echo '
 Resources that will become available after launch:
@@ -403,6 +452,27 @@ acraengdemo_launch_project_python() {
     acraengdemo_run_compose
 }
 
+acraengdemo_launch_project_cockroachdb() {
+    COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-master}
+    if [ -d "${PROJECT_DIR}/acra" ]; then
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+    else
+      acraengdemo_cmd \
+        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
+        "Cloning Acra"
+    fi;
+    COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
+    acraengdemo_add_cleanup_cmd "rm -rf ${PROJECT_DIR}/acra" "remove cloned \"acra\" repository"
+
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
+"COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
+"COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_ACRA_VCS_BRANCH\" "\
+"COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project_python-mysql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.93.0}
@@ -513,7 +583,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb )
+    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb cockroachdb )
 }
 
 acraengdemo_run() {

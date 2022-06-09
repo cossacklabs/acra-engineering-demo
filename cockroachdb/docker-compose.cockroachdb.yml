@@ -1,0 +1,207 @@
+version: "3"
+
+services:
+    acra-keymaker_writer:
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.93.0}"
+        network_mode: "none"
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-t14/alGiPpS5mOH5R2zOQ8gjUcSQ3b+6l0qD31V+yZE=}
+        volumes:
+            - ./.acrakeys:/keys
+            - ../_common/cockroachdb/certs/:/certs
+        command: >-
+            --client_id=""
+            --tls_cert=/certs/client.root.crt
+            --generate_acrawriter_keys
+            --generate_symmetric_storage_key
+            --keys_output_dir=/keys/acra-server
+            --keys_public_output_dir=/keys/acra-writer
+            --keystore=v1    
+
+    roach1:
+        image: cockroachdb/cockroach:v21.2.3
+        environment:
+            GODEBUG: netdns=go
+        ports:
+            - "26257:26257"
+            - "8080:8080"
+        volumes:
+            - cockroach-data1:/cockroach/cockroach-data
+            - ../_common/cockroachdb/certs/:/certs
+        networks:
+            - server-cockroach
+            - world
+        command: ['start',  '--join=roach1:26257,roach2:26258,roach3:26259', '--certs-dir=/certs', '--listen-addr=0.0.0.0:26257', '--http-addr=0.0.0.0:8080', '--store=node1']
+
+    roach2:
+        image: cockroachdb/cockroach:v21.2.3
+        environment:
+            GODEBUG: netdns=go
+        volumes:
+            - cockroach-data2:/cockroach/cockroach-data
+            - ../_common/cockroachdb/certs/:/certs
+        networks:
+            - server-cockroach
+        command: ['start',  '--join=roach1:26257,roach2:26258,roach3:26259','--certs-dir=/certs', '--listen-addr=0.0.0.0:26258', '--http-addr=localhost:8081', '--store=node2']
+
+    roach3:
+        image: cockroachdb/cockroach:v21.2.3
+        volumes:
+            - cockroach-data3:/cockroach/cockroach-data
+            - ../_common/cockroachdb/certs/:/certs
+        environment:
+            GODEBUG: netdns=go
+        networks:
+            - server-cockroach
+        command: ['start',  '--join=roach1:26257,roach2:26258,roach3:26259','--certs-dir=/certs', '--listen-addr=0.0.0.0:26259', '--http-addr=localhost:8082', '--store=node3']
+
+    # initialize cockroach cluster
+    cockroach_init:
+        image: cockroachdb/cockroach:v21.2.3
+        environment:
+            GODEBUG: netdns=go
+        depends_on:
+            - roach1
+            - roach2
+            - roach3
+        volumes:
+            - ../_common/cockroachdb/certs/:/certs
+        networks:
+            - server-cockroach
+        command: [ 'init',  '--certs-dir=/certs', '--url=postgresql://roach1:26257']
+
+    acra-server:
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.93.0}"
+        restart: always
+        depends_on:
+            - roach1
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-t14/alGiPpS5mOH5R2zOQ8gjUcSQ3b+6l0qD31V+yZE=}
+            GODEBUG: netdns=go
+        networks:
+            - server-cockroach
+            - python-server
+            - world
+        ports:
+            - "9393:9393"
+        volumes:
+            - ./.acrakeys/acra-server:/keys
+            - ./configs/acra-server.yaml:/config/acra-server.yaml
+            - ../_common/cockroachdb/certs/:/certs
+            - ../acra/examples/python/encryptor_config_with_zone.yaml:/app/encryptor_config_with_zone.yaml
+            - ../acra/examples/python/encryptor_config_without_zone.yaml:/app/encryptor_config_without_zone.yaml
+        command: >-
+            --db_host=roach1
+            --db_port=26257
+            --tls_ocsp_from_cert=ignore
+            --tls_crl_from_cert=ignore
+            --tls_key=/certs/node.key
+            --tls_cert=/certs/node.crt
+            --tls_ca=/certs/ca.crt
+            --keys_dir=/keys
+            --http_api_enable
+            --incoming_connection_api_string=tcp://0.0.0.0:9090
+            --config_file=/config/acra-server.yaml
+            --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
+            --config_file=/config/acra-server.yaml
+            --tracing_jaeger_enable
+            --jaeger_agent_endpoint=''
+            --jaeger_collector_endpoint=http://jaeger:14268/api/traces
+            -v
+
+    python:
+        depends_on:
+            - acra-keymaker_writer
+            - acra-server
+        # Build and run container from source directory with demo django project
+        build:
+            context: ../
+            dockerfile: ./cockroachdb/python.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRA_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        environment:
+            # Direct connection to DB
+            DB_HOST: roach1
+            DB_PORT: 26257
+            # Demo script default configuration
+            EXAMPLE_ACRA_SERVER_API_ADDRESS: http://acra-server:9090
+            EXAMPLE_HOST: acra-server
+            EXAMPLE_PORT: 9393
+            EXAMPLE_DB_USER: ${POSTGRES_USER:-root}
+            EXAMPLE_DB_NAME: ${POSTGRES_DB:-defaultdb}
+            EXAMPLE_SSL_MODE: require
+            EXAMPLE_TLS_ROOT_CERT: /certs/ca.crt
+            EXAMPLE_TLS_KEY: /certs/client.root.key
+            EXAMPLE_TLS_CERT: /certs/client.root.crt
+            PUBLIC_KEY_DIR: "/app.acrakeys"
+        # We use internal 'python-server' for access to AcraServer
+        # and external network 'world' for port exposing
+        networks:
+            - python-server
+            - world
+        volumes:
+            - ./.acrakeys/acra-writer:/app.acrakeys:ro
+
+    prometheus:
+        image: prom/prometheus:v2.4.0
+        depends_on:
+            - acra-server
+        ports:
+            - "9090:9090"
+        volumes:
+            - ../_common/prometheus:/app.cfg
+        networks:
+            - python-server
+            - grafana-prometheus
+            - world
+        command: >-
+            --config.file=/app.cfg/prometheus.yml
+            --storage.tsdb.path=/prometheus
+            --web.console.libraries=/usr/share/prometheus/console_libraries
+            --web.console.templates=/usr/share/prometheus/consoles
+
+
+    grafana:
+        image: grafana/grafana:5.2.4
+        depends_on:
+            - prometheus
+        environment:
+            GF_AUTH_ANONYMOUS_ENABLED: !!str 'true'
+            GF_PATHS_PROVISIONING: '/app.cfg/provisioning'
+        ports:
+            - "3000:3000"
+        volumes:
+            - ../_common/grafana:/app.cfg
+        networks:
+            - grafana-prometheus
+            - world
+
+
+    jaeger:
+        image: jaegertracing/all-in-one:1.7
+        environment:
+            SPAN_STORAGE_TYPE: memory
+        ports:
+            - "16686:16686"
+        networks:
+            - python-server
+            - world
+
+
+networks:
+    world:
+    server-cockroach:
+        internal: true
+    python-server:
+        internal: true
+    grafana-prometheus:
+        internal: true
+
+
+volumes:
+    cockroach-data1:
+    cockroach-data2:
+    cockroach-data3:
