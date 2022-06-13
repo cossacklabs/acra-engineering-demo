@@ -1,0 +1,7 @@
+version: 0.93.0
+
+encryptor_config_file: "/config/searchable.yaml"
+
+mysql_enable: true
+db_host: mysql
+db_port: 3306
