@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-    acra-keymaker_writer:
+    acra-keymaker_client:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.93.0}"
         network_mode: "none"
         environment:
@@ -12,11 +12,9 @@ services:
         command: >-
             --client_id=""
             --tls_cert=/certs/client.root.crt
-            --generate_acrawriter_keys
-            --generate_symmetric_storage_key
             --keys_output_dir=/keys/acra-server
-            --keys_public_output_dir=/keys/acra-writer
-            --keystore=v1    
+            --keys_public_output_dir=/keys/acra-server
+            --keystore=v1              
 
     roach1:
         image: cockroachdb/cockroach:v21.2.3
@@ -88,8 +86,8 @@ services:
             - ./.acrakeys/acra-server:/keys
             - ./configs/acra-server.yaml:/config/acra-server.yaml
             - ../_common/cockroachdb/certs/:/certs
-            - ../acra/examples/python/encryptor_config_with_zone.yaml:/app/encryptor_config_with_zone.yaml
-            - ../acra/examples/python/encryptor_config_without_zone.yaml:/app/encryptor_config_without_zone.yaml
+            - ../acra/examples/python/extended_encryptor_config_without_zone.yaml:/config/extended_encryptor_config_without_zone.yaml
+            - ../acra/examples/python/extended_encryptor_config_with_zone.yaml:/config/extended_encryptor_config_with_zone.yaml
         command: >-
             --db_host=roach1
             --db_port=26257
@@ -111,9 +109,9 @@ services:
 
     python:
         depends_on:
-            - acra-keymaker_writer
+            - acra-keymaker_client
             - acra-server
-        # Build and run container from source directory with demo django project
+        # Build and run container from source examples/python folder from Acra repo
         build:
             context: ../
             dockerfile: ./cockroachdb/python.dockerfile
@@ -136,14 +134,11 @@ services:
             EXAMPLE_TLS_ROOT_CERT: /certs/ca.crt
             EXAMPLE_TLS_KEY: /certs/client.root.key
             EXAMPLE_TLS_CERT: /certs/client.root.crt
-            PUBLIC_KEY_DIR: "/app.acrakeys"
         # We use internal 'python-server' for access to AcraServer
         # and external network 'world' for port exposing
         networks:
             - python-server
             - world
-        volumes:
-            - ./.acrakeys/acra-writer:/app.acrakeys:ro
 
     prometheus:
         image: prom/prometheus:v2.4.0

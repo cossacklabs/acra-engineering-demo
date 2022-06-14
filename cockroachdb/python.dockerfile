@@ -65,7 +65,7 @@ RUN mkdir /app \
 RUN mkdir /app.requirements
 COPY ./cockroachdb/cockroach.patch /app/cockroach.patch
 COPY ./acra/examples/python/requirements/ /app.requirements/
-COPY ./acra/examples/python/requirements/ /app.requirements/
+
 RUN cd /app && git apply ./cockroach.patch
 RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt
 RUN pip install sqlalchemy-cockroachdb

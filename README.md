@@ -14,7 +14,7 @@ This collection has several example application. Each folder contains docker-com
 | 5   | [Client-side encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-5-client-side-encryption-django-postgresql)                                         | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL              |
 | 6   | [Client-side encryption with Zones, python app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql)                | Simple python client application, client-side encryption with Zones support, decryption on AcraServer, PostgreSQL  |
 | 7   | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql)                   | Ruby on Rails web application, client-side encryption, decryption on AcraServer, PostgreSQL                        |
-| 8   | [Client-side encryption, Zones, python app, CockroachDB](https://github.com/cossacklabs/acra-engineering-demo/#example-8-client-side-encryption-zones-python-app-cockroachdb)                  | Simple python client application, client-side encryption with Zones support, decryption on AcraServer, CockroachDB |
+| 8   | [Transparent encryption, Zones, python app, CockroachDB](https://github.com/cossacklabs/acra-engineering-demo/#example-8-transparent-encryption-zones-python-app-cockroachdb)                  | Simple python client application, transparent encryption with Zones support, decryption on AcraServer, CockroachDB |
 | 9   | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-9-sql-injection-prevention-acracensor)                                                    | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall)                  |
 | 10  | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-10-load-balancing)                                                                                              | python client application, AcraServer, HAProxy                                                                     |
 | 11  | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-11-search-in-encrypted-data)                                                                          | Coming soon                                                                                                        |
@@ -940,13 +940,13 @@ These are all the code changes! 🎉
 
 ---
 
-# Example 8. Client-side encryption, Zones, python app, CockroachDB
+# Example 8. Transparent encryption, Zones, python app, CockroachDB
 
 Python client application, client-side encryption with zones support, AcraServer, CockroachDB  database.
 
 ## 1. Installation
 
-### Asymmetric encryption mode
+### Transparent encryption mode
 
 ```bash
 curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
@@ -961,83 +961,83 @@ This command downloads a simple Python application that stores the data in a dat
 
 **The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraServer (that are transparent for the application).
 
-### 2.1 Write data
+### 2.1 Generate new zone
 
 ```bash
 docker exec -it cockroachdb_python_1 \
-  python /app/example_with_zone.py --data="top secret data"
+  python3 extended_example_with_zone.py --host=acra-server --port=9393 --generate_zone
 
 $:
-data: top secret data
-zone: DDDDDDDDFidFDxORlrleaUrC
+zone_id: DDDDDDDDPfBoWiixeMTUuEOk
+zone public key in base64: b"UEC2\x00\x00\x00-\xbf\xc4\xd4\xa5\x02\x13ZTsg\x13\x88%R\xb5\x00\xc2\xbc\xe9\x9d\xa5\xa3i';\x7f)\xa8a\x9c\xdc\x9b\xc4\xba8\xb6\x04"
 ```
 
-Call the [`example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_with_zone.py) to encrypt the "top secret data" with a specific [Zone](https://docs.cossacklabs.com/acra/security-controls/zones/). The application generates Zones using AcraServer HTTP API, then it uses Zone public key and Zone Id for encryption.
+Call the [`extended_example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example_with_zone.py)
+to encrypt the "top secret data" with a specific [Zone](https://docs.cossacklabs.com/acra/security-controls/zones/). The
+application generates Zones using AcraServer HTTP API, then it uses Zone public key and Zone ID for encryption.
 
-### 2.2 Read data
+### 2.2 Set ZoneID in encryptor config
 
-Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
+Set ZoneID `DDDDDDDDPfBoWiixeMTUuEOk` instead of existing in `./acra/examples/python/extended_encryptor_config_with_zone.yaml`:
 
 ```bash
-docker exec -it cockroachdb_python_1 \
-  python /app/example_with_zone.py --print --zone_id=DDDDDDDDFidFDxORlrleaUrC
-
-$:
-use zone_id:  DDDDDDDDFidFDxORlrleaUrC
-id  - zone - data - raw_data
-1   - DDDDDDDDFidFDxORlrleaUrC - top secret data - top secret data
+sed -i 's/DDDDDDDDHHNqiSYFXkpxopYZ/DDDDDDDDPfBoWiixeMTUuEOk/g' ./acra/examples/python/extended_encryptor_config_with_zone.yaml
 ```
 
-The output contains Zone Id, the decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
-
-### 2.3 Read the data directly from the database
-
-To make sure that the data is stored in an encrypted form, read it directly from the database:
-
-```bash
-docker exec -it cockroachdb_python_1 \
-  python /app/example_with_zone.py --print --zone_id=DDDDDDDDFidFDxORlrleaUrC --host=roach1 --port=26257
-
-$:
-use zone_id:  DDDDDDDDkOGnRsCBZEwXnHlL
-id  - zone - data - raw_data
-1   - DDDDDDDDkOGnRsCBZEwXnHlL - """"""""UEC2-CVs-K)'9@gJ-0 '&T@ {W|SҡϛڱY+:uKn"3Wɕ|Ict'JGCW;@ ̛W]aPI|Z ~*vI] - top secret data
-```
-
-As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintext so nothing changes.
-
-### 2.4 Encrypt the data without Zones
-
-Usage of [Zones](https://docs.cossacklabs.com/acra/security-controls/zones/) provides compartmentalisation as different users of the same app will have different encryption keys. However, it's possible to [use AcraServer without Zones](https://docs.cossacklabs.com/pages/documentation-acra/#running-acraserver-in-zone-mode).
-
-1. To disable Zones open `cockroachdb/acra-server-config/acra-server.yaml` and change `zonemode_enable: true` value to `false`.
-2. Open `cockroachdb/acra-server-config/acra-server.yaml` and change `encryptor_config_file: "/app/encryptor_config_with_zone.yaml"` to `encryptor_config_file: "/app/encryptor_config_without_zone.yaml`
-   and restart `acra-server`.
-
-3. Write and read the data:
+### 2.3 Restart acra-server to use updated config
 
 ```bash
 docker restart cockroachdb_acra-server_1
-
-docker exec -it cockroachdb_python_1 \
-  bash -c 'export EXAMPLE_PUBLIC_KEY="$(cat /pub_key_name.txt)" && \
-  python /app/example_without_zone.py --data="secret data without zones"'
-
-$:
-insert data: secret data without zones
-
-docker exec -it cockroachdb_python_1 \
-  bash -c 'export EXAMPLE_PUBLIC_KEY="$(cat /pub_key_name.txt)" && \  
-  python /app/example_without_zone.py --print'
-
-$:
-id  - data                 - raw_data
-2   - secret data without zones - secret data without zones
 ```
 
-> Note: AcraServer decrypts either AcraStructs with Zones or without Zones at the same time. Sending different kinds of AcraStructs without changing the mode will lead to decryption errors.
 
-### 2.5 Other available resources
+### 2.4 Insert data using updated config
+Script reads data from `data.json` where stored array of entries as data examples.
+```bash
+docker exec -it cockroachdb_python_1 \
+  python3 extended_example_without_zone.py --host=acra-server --port=9393 --data=data.json
+
+$:
+data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
+```
+
+### 2.5 Read data
+
+Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
+```bash
+docker exec -it cockroachdb_python_1 \
+  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print  --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
+  
+$:
+Fetch data by query {}
+ SELECT test.id, 'DDDDDDDDPfBoWiixeMTUuEOk' AS anon_1, test.data, test.masking, test.token_i32, test.token_i64, test.token_str, test.token_bytes, test.token_email 
+FROM test
+3
+id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_email
+1   - DDDDDDDDPfBoWiixeMTUuEOk - John Wed, Senior Relationshop Manager - $112000 - 1234 - 645664 - 078-05-1111 - byt13es - john_wed@cl.com
+2   - DDDDDDDDPfBoWiixeMTUuEOk - April Cassini, Marketing Manager - $168000 - 1235 - 645665 - 078-05-1112 - byt13es2 - april_cassini@cl.com
+3   - DDDDDDDDPfBoWiixeMTUuEOk - George Clooney, Famous Actor - $780000 - 1236 - 645667 - 078-05-1117 - byt13es3 - george_clooney@cl.com
+
+```
+
+### 2.6 Read the data directly from the database
+To make sure that the data is stored in an encrypted form, read it directly from the database. Use `--port=26257` and --host=`roach1`:
+
+```bash
+docker exec -it cockroachdb_python_1 \
+  python3 extended_example_with_zone.py --host=roach1 --port=26257 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
+
+$:
+Fetch data by query {}
+ SELECT test.id, 'DDDDDDDDYuWpBtCtrjpHyHta' AS anon_1, test.data, test.masking, test.token_i32, test.token_i64, test.token_str, test.token_bytes, test.token_email 
+FROM test
+3
+id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_email
+1   - DDDDDDDDYuWpBtCtrjpHyHta - %%%""""L@'/e_>I6躁iH 1Rz#X.5@@f+hRgjp�$~@oxշ '&T@ - -560604022 - -3330418728144437366 - ccxIvgP0iLp - ?a - 98LK9@sigT2.net
+...
+```
+
+### 2.7 Other available resources
 
 1. CockroachDB – connect directly to the database using the user `root` and DB `defaultdb`: [postgresql://localhost:26257](postgresql://localhost:26257).
 
