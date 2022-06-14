@@ -71,6 +71,7 @@ services:
         networks:
             - python-server
             - server-mysql
+            - server-postgresql
             - world
         ports:
             - "9393:9393"
@@ -108,7 +109,7 @@ services:
         # Build and run container from source directory with demo django project
         build:
             context: ../
-            dockerfile: ./python-mysql/python.dockerfile
+            dockerfile: ./python-searchable/python.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
@@ -131,6 +132,7 @@ services:
         networks:
             - python-server
             - python-mysql
+            - python-postgresql
         volumes:
             - ../acra/examples/python:/app
 
@@ -199,16 +201,81 @@ services:
             - python-server
             - world
 
+    postgresql:
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        # INSECURE!!! You MUST define your own DB name and credentials
+        environment:
+            # Admin user
+            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+        # Open the port outside for demonstration purposes only (connections
+        # between containers are performing within isolated networks)
+        ports:
+            - "5432:5432"
+        # We use internal 'server-postgresql' network for AcraServer and
+        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # with web interface and external network 'world' for port exposing
+        networks:
+            - server-postgresql
+            - python-postgresql
+            - postgresqlweb-postgresql
+            - world
+
+    postgresqlweb:
+        image: dpage/pgadmin4:6.2
+        volumes:
+            - ../_common/ssl/acra-client/:/ssl
+            - ../_common/ssl/ca/ca.crt:/home/pgadmin/.postgresql/root.crt
+          # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
+          # but we mount it to be consistent
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
+          # place pre-configured file with settings to timescale
+          # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
+            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
+        depends_on:
+            - postgresql
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
+            POSTGRES_HOST: postgresql
+            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+        ports:
+            - "8008:80"
+        networks:
+            - postgresqlweb-postgresql
+            - world
+
 
 networks:
     world:
     python-server:
         internal: true
+
     server-mysql:
         internal: true
     python-mysql:
         internal: true
     webui-mysql:
+        internal: true
+
+    server-postgresql:
+        internal: true
+    python-postgresql:
+        internal: true
+    postgresqlweb-postgresql:
         internal: true
 
     grafana-prometheus:
