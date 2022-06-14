@@ -966,7 +966,8 @@ Learn how to use [searchable encryption](https://docs.cossacklabs.com/acra/secur
 ## 1. Installation
 
 ```bash
-$ cowsay TODO: oops
+$ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/run.sh | \
+    bash -s -- python-searchable
 ```
 
 This command downloads a simple Python application that stores the data in a database, Acra Docker containers, MySQL and PostgreSQL 
