@@ -1154,7 +1154,7 @@ Pm2W¤8
 TOTAL 3
 ```
 
-### 2.6 Other resources to loot at 
+### 2.6 Other resources to look at 
 
 #### Acra
 
