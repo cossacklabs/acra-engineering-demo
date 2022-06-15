@@ -975,7 +975,7 @@ databases, sets up the environment, configures python application to connect to 
 
 ## 2. What's inside
 
-TODO: image
+![](_pics/eng_demo_python_searchable.png)
 
 **The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) 
 that works with a database. The application talks with the database via Acra, Acra **encrypts** the data before sending 
