@@ -16,7 +16,7 @@ This collection has several example application. Each folder contains docker-com
 | 7   | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql)                   | Ruby on Rails web application, client-side encryption, decryption on AcraServer, PostgreSQL                       |
 | 8   | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-8-sql-injection-prevention-acracensor)                                                    | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall)                 |
 | 9   | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-9-load-balancing)                                                                                               | python client application, AcraServer, HAProxy                                                                    |
-| 10  | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-10-search-in-encrypted-data)                                                                          | Coming soon                                                                                                       |
+| 10  | [Search in encrypted data](#example-10-search-in-encrypted-data)                                                                                                                               | Python client application, transparent encryption and search over encrypted data, PostgreSQl, MySQL               |
 
 
 # Overview
