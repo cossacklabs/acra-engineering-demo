@@ -24,8 +24,6 @@ services:
 
     mysql:
         # Build and run the container based on the official postgresql image
-        # with an additional configuration in accordance with djangoproject
-        # requirements
         build:
             context: ../
             dockerfile: _common/mysql-playground/mysql-playground.dockerfile
@@ -45,8 +43,8 @@ services:
         # between containers are performing within isolated networks)
         ports:
             - "3306:3306"
-        # We use internal 'server-postgresql' network for AcraServer and
-        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # We use internal 'server-mysql' network for AcraServer and
+        # DB interconnection, 'phpadmin-mysql' for interconnections
         # with web interface and external network 'world' for port exposing
         networks:
             - server-mysql
@@ -106,7 +104,6 @@ services:
     python:
         depends_on:
             - acra-keymaker_client
-        # Build and run container from source directory with demo django project
         build:
             context: ../
             dockerfile: ./python-searchable/python.dockerfile
@@ -126,7 +123,7 @@ services:
             EXAMPLE_TLS_ROOT_CERT: /ssl/root.crt
             EXAMPLE_TLS_KEY: /ssl/acra-client.key
             EXAMPLE_TLS_CERT: /ssl/acra-client.crt
-        # We use internal 'python-mysql' network for Django and
+        # We use internal 'python-mysql' network for PythonApp and
         # DB interconnection, 'python-server' for access to AcraServer
         # and external network 'world' for port exposing
         networks:
@@ -203,8 +200,6 @@ services:
 
     postgresql:
         # Build and run the container based on the official postgresql image
-        # with an additional configuration in accordance with djangoproject
-        # requirements
         build:
             context: ../
             dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
