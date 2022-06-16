@@ -216,20 +216,21 @@ Resources that will become available after launch:
 
       Run example with zones (write, read):
         docker exec -it cockroachdb_python_1 \
-            python /app/example_with_zone.py --data="some data"
+            python /app/extended_example_with_zone.py --data=data.json
         docker exec -it cockroachdb_python_1 \
-            python /app/example_with_zone.py \
+            python /app/extended_example_with_zone.py \
             --print --zone_id=$ZONE_ID
       where $ZONE_ID - zone id, printed on write step
 
-      Before using AcraServer without zones, open `cockroachdb/acra-server-config/acra-server.yaml` and change
-      `zonemode_enable: true` value to `false`..
+      Before using AcraServer without zones, open `python/acra-server-config/acra-server.yaml` and change
+      `zonemode_enable: true` value to `false` and
+      `encryptor_config_file: encryptor_config_with_zone.yaml` to `encryptor_config_without_zone.yaml`.
 
       Run example without zones (write, read):
         docker exec -it cockroachdb_python_1 \
-            python /app/example_without_zone.py --data="some data #1"
+            python /app/extended_example_without_zone.py --data=data.json
         docker exec -it cockroachdb_python_1 \
-            python /app/example_without_zone.py --print
+            python /app/extended_example_without_zone.py --print
 
     * CockroachDB - also you can connect to DB directly:
         postgresql://$HOST:26257
