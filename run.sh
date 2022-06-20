@@ -329,6 +329,60 @@ Resources that will become available after launch:
     acraengdemo_press_any_key
 }
 
+
+acraengdemo_info_python-searchable() {
+    echo '
+Resources that will become available after launch:
+
+    * Container with environment prepared for the python example. Folder with
+      example scripts will be mounted to container, so you will be able to
+      modify these scripts without stopping docker compose.
+
+      Insert data into PostgreSQL:
+        docker exec -it python-searchable-python-1 \
+            python /app/searchable.py --postgresql --data=searchable.json
+
+      Read data from PostgreSQL:
+        docker exec -it python-searchable-python-1 \
+            python /app/searchable.py --postgresql --print
+
+      To use MySQL instead of PostgreSQL, provide `--mysql` flag
+      instead of `--postgresql`.
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
+        http://$HOST:8008
+        Default user/password: test@test.test/test
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://$HOST:5432
+        Default admin user/password: test/test
+
+    * Web interface for MySQL - see how the encrypted data is stored:
+        http://$HOST:8080
+        Default user/password: test@test.test/test
+
+    * MySQL - also you can connect to DB directly:
+        mysql://$HOST:3306
+        Default admin user/password: test/test
+
+    * Prometheus - examine the collected metrics:
+        http://$HOST:9090
+
+    * Grafana - sample of dashboards with Acra metrics:
+        http://$HOST:3000
+
+    * Jaeger - view traces:
+        http://$HOST:16686
+
+
+    where are HOST is the IP address of the server with running Acra
+    Engineering Demo. If you run this demo on the same host, from
+    which you will connect, use "localhost".
+
+'
+    acraengdemo_press_any_key
+}
+
 acraengdemo_git_clone_acraengdemo() {
     COSSACKLABS_ACRAENGDEMO_VCS_URL=${COSSACKLABS_ACRAENGDEMO_VCS_URL:-'https://github.com/cossacklabs/acra-engineering-demo'}
     COSSACKLABS_ACRAENGDEMO_VCS_BRANCH=${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH:-master}
@@ -443,6 +497,30 @@ acraengdemo_launch_project_timescaledb() {
     acraengdemo_run_compose
 }
 
+
+acraengdemo_launch_project_python-searchable() {
+    COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.93.0}
+    if [ -d "${PROJECT_DIR}/acra" ]
+    then
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+    else
+      # we should clone into folder with acra-eng-demo to allow mount files from acra/examples/python folder
+      acraengdemo_cmd \
+        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra" \
+        "Cloning Acra"
+    fi;
+    COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
+    acraengdemo_add_cleanup_cmd "rm -rf ${PROJECT_DIR}/acra" "remove cloned \"acra\" repository"
+
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
+"COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
+"COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_ACRA_VCS_BRANCH\" "\
+"COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project() {
     [[ " ${PROJECTS_SUPPORTED[@]} " =~ " $demo_project_name " ]] ||
         acraengdemo_raise "unknown demo project '$demo_project_name'."
@@ -513,7 +591,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb )
+    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb python-searchable)
 }
 
 acraengdemo_run() {

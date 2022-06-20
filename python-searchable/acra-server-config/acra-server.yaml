@@ -1,0 +1,13 @@
+version: 0.93.0
+
+encryptor_config_file: "/config/searchable.yaml"
+
+# Comment for mysql
+postgresql_enable: true
+db_host: postgresql
+db_port: 5432
+
+# Uncomment for mysql
+# mysql_enable: true
+# db_host: mysql
+# db_port: 3306
