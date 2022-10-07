@@ -17,7 +17,7 @@ This collection has several example application. Each folder contains docker-com
 | 8   | [Transparent encryption, Zones, python app, CockroachDB](https://github.com/cossacklabs/acra-engineering-demo/#example-8-transparent-encryption-zones-python-app-cockroachdb)                  | Simple python client application, transparent encryption/decryption with Zones support, decryption on AcraServer, CockroachDB |
 | 9   | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-9-sql-injection-prevention-acracensor)                                                    | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall)                             |
 | 10  | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-10-load-balancing)                                                                                              | python client application, AcraServer, HAProxy                                                                                |
-| 11  | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-11-search-in-encrypted-data)                                                                          | Coming soon                                                                                                                   |
+| 11  | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-11-search-in-encrypted-data)                                                                          | python client app, AcraServer, MySQL / PostreSQL database                                                                     |
 
 
 # Overview
