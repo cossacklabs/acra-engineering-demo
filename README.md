@@ -10,11 +10,11 @@ This collection has several example application. Each folder contains docker-com
 | 1   | [Transparent encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-1-transparent-encryption-django-postgresql)                                         | Django web application, transparent encryption/decryption, AcraServer, PostgreSQL                                             |
 | 2   | [Intrusion detection system, transparent encryption, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-2-intrusion-detection-system-transparent-encryption-postgresql) | Go application, transparent encryption/decryption, poison records, PostgreSQL                                                 |
 | 3   | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-3-transparent-encryption-timescaledb)                                                      | TimescaleDB, transparent encryption/decryption, AcraServer                                                                    |
-| 4   | [Transparent encryption, MySQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-zones-python-app-mysql)                                                 | MySQL, transparent encryption/masking/tokenization, Python, AcraServer                                                        |
+| 4   | [Transparent encryption, Zones, Python app, MySQL (deprecated, will be removed)](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-zones-python-app-mysql)                                                 | MySQL, transparent encryption/masking/tokenization, Python, AcraServer                                                        |
 | 5   | [Client-side encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-5-client-side-encryption-django-postgresql)                                         | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL                         |
-| 6   | [Client-side encryption with Zones, python app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql)                | Simple python client application, client-side encryption with Zones support, decryption on AcraServer, PostgreSQL             |
+| 6   | [Client-side encryption with Zones, python app, PostgreSQL (deprecated, will be removed)](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql)                | Simple python client application, client-side encryption with Zones support, decryption on AcraServer, PostgreSQL             |
 | 7   | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql)                   | Ruby on Rails web application, client-side encryption, decryption on AcraServer, PostgreSQL                                   |
-| 8   | [Transparent encryption, Zones, python app, CockroachDB](https://github.com/cossacklabs/acra-engineering-demo/#example-8-transparent-encryption-zones-python-app-cockroachdb)                  | Simple python client application, transparent encryption/decryption with Zones support, decryption on AcraServer, CockroachDB |
+| 8   | [Transparent encryption, Zones, python app, CockroachDB (deprecated, will be removed)](https://github.com/cossacklabs/acra-engineering-demo/#example-8-transparent-encryption-zones-python-app-cockroachdb)                  | Simple python client application, transparent encryption/decryption with Zones support, decryption on AcraServer, CockroachDB |
 | 9   | [SQL injection prevention, AcraCensor](https://github.com/cossacklabs/acra-engineering-demo/#example-9-sql-injection-prevention-acracensor)                                                    | OWASP Mutillidae vulnerable web application, AcraConnector, AcraServer, AcraCensor (SQL firewall)                             |
 | 10  | [Load balancing](https://github.com/cossacklabs/acra-engineering-demo/#example-10-load-balancing)                                                                                              | python client application, AcraServer, HAProxy                                                                                |
 | 11  | [Search in encrypted data](https://github.com/cossacklabs/acra-engineering-demo/#example-11-search-in-encrypted-data)                                                                          | python client app, AcraServer, MySQL / PostreSQL database                                                                     |
@@ -241,7 +241,7 @@ docker exec -it -u postgres timescaledb-timescaledb-1 \
 
 ---
 
-# Example 4. Transparent encryption, Zones, Python app, MySQL
+# Example 4. Transparent encryption, Zones, Python app, MySQL (deprecated, will be removed)
 
 Python client application, transparent encryption/decryption/masking/tokenization with zones support, AcraServer, MySQL database.
 
@@ -581,7 +581,7 @@ Those are all the code changes! 🎉
 
 ---
 
-# Example 6. Client-side encryption, Zones, python app, PostgreSQL
+# Example 6. Client-side encryption, Zones, python app, PostgreSQL (deprecated, will be removed)
 
 Python client application, client-side encryption with zones support, AcraServer, PostgreSQL database.
 
@@ -940,7 +940,7 @@ These are all the code changes! 🎉
 
 ---
 
-# Example 8. Transparent encryption, Zones, python app, CockroachDB
+# Example 8. Transparent encryption, Zones, python app, CockroachDB (deprecated, will be removed)
 
 Python client application, transparent encryption with zones support, AcraServer, CockroachDB  database.
 
