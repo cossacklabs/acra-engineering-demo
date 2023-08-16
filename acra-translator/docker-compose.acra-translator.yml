@@ -39,9 +39,6 @@ services:
       start_period: 40s
     ports:
       - "27017:27017"
-    # We use internal 'server-mysql' network for AcraServer and
-    # DB interconnection, 'phpadmin-mysql' for interconnections
-    # with web interface and external network 'world' for port exposing
     networks:
       - go-mongo
       - world
@@ -65,11 +62,12 @@ services:
     networks:
       - world
 
-  acra-server:
+  acra-translator:
     image: "cossacklabs/acra-translator:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
     # Restart server after correct termination, for example after the config
     # was changed through the API
     restart: always
+    container_name: acra-server
     depends_on:
       - acra-keymaker_client
     environment:
@@ -101,7 +99,7 @@ services:
   go-api-server:
     depends_on:
       - healthcheck-wait
-      - acra-server
+      - acra-translator
     build:
       context: ./go-translator-demo
       dockerfile: ./docker/go-translator-demo.Dockerfile
