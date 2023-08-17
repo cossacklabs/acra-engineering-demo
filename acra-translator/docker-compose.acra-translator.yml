@@ -7,7 +7,7 @@ volumes:
 
 services:
   # Creating keys:
-  # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
+  # - ./.acrakeys/acra-translator/${ACRA_CLIENT_ID}_storage
   # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
   acra-keymaker_client:
     image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
@@ -32,7 +32,7 @@ services:
     volumes:
       - mongodb-data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
       interval: 10s
       timeout: 10s
       retries: 5
@@ -61,35 +61,32 @@ services:
       - "8081:8081"
     networks:
       - world
+      - webui-mongo
 
   acra-translator:
     image: "cossacklabs/acra-translator:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
     # Restart server after correct termination, for example after the config
     # was changed through the API
     restart: always
-    container_name: acra-server
     depends_on:
       - acra-keymaker_client
     environment:
       ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
-    # We use internal networks:
-    # - 'server-mysql' - for AcraServer and DB interconnection
-    # - 'python-server' - for AcraServer and PythonApp interconnection
     networks:
       - go-translator
     volumes:
       # Mount the directory with only the keys for this service. Must be
       # rewriteable in case of using API, otherwise should be read-only.
-      #- keystore/acra-server:/keys
+      #- keystore/acra-translator:/keys
       - acra-translator:/data
-      - ../_common/ssl/acra-server/:/ssl
+      - ../_common/ssl/acra-translator/:/ssl
       - ../_common/ssl/ca/ca.crt:/ssl/root.crt
     command: >-
       --incoming_connection_http_string=tcp://0.0.0.0:9595
       --keys_dir=/data/acra-translator
       --tls_ca=/ssl/root.crt
-      --tls_cert=/ssl/acra-server.crt
-      --tls_key=/ssl/acra-server.key
+      --tls_cert=/ssl/acra-translator.crt
+      --tls_key=/ssl/acra-translator.key
       --tls_ocsp_from_cert=ignore
       --tls_crl_from_cert=ignore
       --tls_auth=4      
@@ -104,16 +101,16 @@ services:
       context: ./go-translator-demo
       dockerfile: ./docker/go-translator-demo.Dockerfile
       args:
-        VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
-        VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
-        VCS_BRANCH: ${COSSACKLABS_ACRA_VCS_BRANCH}
+        VCS_URL: ${COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_URL}
+        VCS_REF: ${COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_REF}
+        VCS_BRANCH: ${COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_BRANCH}
         BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
     environment:
       ADDRESS: 0.0.0.0:8008
       SWAGGER_HOST: localhost:8008
       LOG_LEVEL: debug
       MONGODB_CONNECTION_URL: mongodb://root:password@mongo:27017/admin?authSource=admin
-      ACRA_TRANSLATOR_URL: https://acra-server:9595
+      ACRA_TRANSLATOR_URL: https://acra-translator:9595
       TLS_CLIENT_CERT_PATH: /ssl/acra-client.crt
       TLS_CLIENT_KEY_PATH: /ssl/acra-client.key
       TLS_CLIENT_CA_PATH: /ssl/root.crt
@@ -133,7 +130,6 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-
 
 networks:
   world:

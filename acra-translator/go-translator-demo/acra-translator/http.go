@@ -110,6 +110,38 @@ func (c HTTPClient) Decrypt(cipherText []byte) (DecryptResponse, error) {
 	return response, nil
 }
 
+func (c HTTPClient) Tokenize(data interface{}, tokenType TokenType) (TokenizeResponse, error) {
+	request := struct {
+		Data interface{} `json:"data"`
+		Type int         `json:"type"`
+	}{
+		Data: data,
+		Type: int(tokenType),
+	}
+
+	var response TokenizeResponse
+	if err := c.makeTranslatorRequest("/v2/tokenize", request, &response); err != nil {
+		return TokenizeResponse{}, err
+	}
+	return response, nil
+}
+
+func (c HTTPClient) Detokenize(data interface{}, tokenType TokenType) (TokenizeResponse, error) {
+	request := struct {
+		Data interface{} `json:"data"`
+		Type int         `json:"type"`
+	}{
+		Data: data,
+		Type: int(tokenType),
+	}
+
+	var response TokenizeResponse
+	if err := c.makeTranslatorRequest("/v2/detokenize", request, &response); err != nil {
+		return TokenizeResponse{}, err
+	}
+	return response, nil
+}
+
 func (c HTTPClient) makeTranslatorRequest(reqPath string, body, target interface{}) error {
 	rawBody, err := json.Marshal(body)
 	if err != nil {

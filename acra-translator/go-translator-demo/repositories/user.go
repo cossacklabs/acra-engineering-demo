@@ -2,15 +2,15 @@ package repositories
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"cossacklabs/acra-translator-demo/internal/models"
+	"cossacklabs/acra-translator-demo/models"
 	errors2 "cossacklabs/acra-translator-demo/pkg/errors"
-	"cossacklabs/acra-translator-demo/pkg/serialize"
 )
 
 const UserCollection = "users"
@@ -78,7 +78,7 @@ func (r user) FindByID(ctx context.Context, id string) (models.User, error) {
 	}
 
 	var user models.User
-	if err := serialize.FromBson(rawData, &user); err != nil {
+	if err := fromBson(rawData, &user); err != nil {
 		return models.User{}, err
 	}
 
@@ -114,7 +114,7 @@ func (r user) FindByEmailSubstr(ctx context.Context, email string) ([]models.Use
 		}
 
 		var user models.User
-		if err := serialize.FromBson(rawData, &user); err != nil {
+		if err := fromBson(rawData, &user); err != nil {
 			return nil, err
 		}
 
@@ -127,11 +127,31 @@ func (r user) FindByEmailSubstr(ctx context.Context, email string) ([]models.Use
 func (r user) Save(ctx context.Context, user *models.User) error {
 	user.ID = uuid.New().String()
 
-	bsonDoc, err := serialize.ToBson(user)
+	bsonDoc, err := toBson(user)
 	if err != nil {
 		return err
 	}
 
 	_, err = r.db.Collection(UserCollection).InsertOne(ctx, bsonDoc)
 	return err
+}
+
+func fromBson(sourceData bson.M, target interface{}) error {
+	marshalData, err := json.Marshal(sourceData)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(marshalData, target)
+}
+
+func toBson(data interface{}) (bson.M, error) {
+	rawDeploy, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	var bsonDoc bson.M
+	err = bson.UnmarshalExtJSON(rawDeploy, false, &bsonDoc)
+	return bsonDoc, err
 }

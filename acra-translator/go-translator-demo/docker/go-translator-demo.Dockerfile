@@ -37,7 +37,7 @@ WORKDIR /build
 COPY ./ /build
 
 ENV CGO_ENABLED=0 GOOS=linux GOOS=linux GOARCH=amd64
-RUN go build -a -installsuffix cgo -ldflags="-s -w" -o ./api-server ./cmd/api/
+RUN go build -a -installsuffix cgo -ldflags="-s -w" -o ./api-server .
 
 
 FROM alpine:3.9.5
