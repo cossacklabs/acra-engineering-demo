@@ -60,7 +60,8 @@ func (u User) Save(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Here is the example if synchronous call to AcraTranslator.
-	// It can be simplified via using the BulkAPI supported by AcraTranslator Enterprise version
+	// It can be simplified via using the BulkAPI supported by AcraTranslator Enterprise version:
+	// https://docs.cossacklabs.com/acra/guides/integrating-acra-translator-into-new-infrastructure/http_api/#bulk-processing-api-enterprise
 	//
 	// Example of interaction via BulkAPI:
 	//

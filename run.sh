@@ -318,11 +318,11 @@ Resources that will become available after launch:
         BasicAuth user/password: test/test
 
     * MongoDB - also you can connect to DB directly:
-        mysql://$HOST:27017
+        mongodb://$HOST:27017
         Default admin user/password: root/password
 
     * GO Server - API server integrated with AcraTransaltor and MongoDB:
-        http://$HOST:8008/swagger/index.html#/ - swagger for available API
+        http://$SWAGGER_HOST:8008/swagger/index.html#/ - swagger for available API
 
     where are HOST is the IP address of the server with running Acra
     Engineering Demo. If you run this demo on the same host, from
