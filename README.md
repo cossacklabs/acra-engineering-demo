@@ -1358,8 +1358,8 @@ $ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/maste
 ```
 
 This command downloads a simple Go API Server application, AcraTranslator, MongoDB, sets up the environment, configures
-Go application to data with AcraTranslator and store to MongoDB, and provides an
-API(Swagger) or [Postman Collection](./acra-translator/go-translator-demo/swagger/translator-demo.postman_collection.json)for you to try.
+Go application to encrypt data with AcraTranslator and store to MongoDB, and provides an
+API(Swagger) or [Postman Collection](./acra-translator/go-translator-demo/swagger/translator-demo.postman_collection.json) for you to try.
 
 ## 2. What's inside
 
