@@ -1,0 +1,324 @@
+definitions:
+  models.User:
+    properties:
+      birthday:
+        format: date-time
+        type: string
+      citizenship:
+        type: string
+      city:
+        type: string
+      doc_path:
+        type: string
+      email:
+        type: string
+      firstname:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      phone_number:
+        type: string
+      resident_country:
+        type: string
+      surname:
+        type: string
+      zipcode:
+        type: integer
+    required:
+    - birthday
+    - citizenship
+    - city
+    - email
+    - firstname
+    - notes
+    - phone_number
+    - resident_country
+    - surname
+    - zipcode
+    type: object
+  render.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/render.Result'
+    type: object
+  render.Result:
+    properties:
+      code:
+        type: string
+      message: {}
+    type: object
+  render.SuccessResponse:
+    properties:
+      data: {}
+    type: object
+info:
+  contact: {}
+  title: Go-AcraTranslator Demo
+  version: 0.0.1
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: user payload
+        in: body
+        name: user_payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+      tags:
+      - User Management
+  /users/{user_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: UserID
+        in: path
+        maxLength: 66
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+      summary: Return user by uuid ID
+      tags:
+      - User Management
+  /users/{user_id}/docs:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        maxLength: 66
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+      summary: Get user docs
+      tags:
+      - User Management
+    put:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: User ID
+        in: path
+        maxLength: 66
+        name: user_id
+        required: true
+        type: string
+      - description: User Doc
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+      summary: Upload user docs
+      tags:
+      - User Management
+  /users/search/{email}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: User email
+        in: path
+        maxLength: 66
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/render.ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/render.Result'
+              type: object
+      summary: Return user by email
+      tags:
+      - User Management
+produces:
+- application/json
+swagger: "2.0"

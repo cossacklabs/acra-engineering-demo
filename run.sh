@@ -307,6 +307,30 @@ Resources that will become available after launch:
     acraengdemo_press_any_key
 }
 
+acraengdemo_info_acra-translator() {
+    echo '
+Resources that will become available after launch:
+
+    * Container with environment prepared for the AcraTransaltor example.
+
+    * Web interface for MongoDB - see how the encrypted data is stored:
+        http://$HOST:8081
+        BasicAuth user/password: test/test
+
+    * MongoDB - also you can connect to DB directly:
+        mongodb://$HOST:27017
+        Default admin user/password: root/password
+
+    * GO Server - API server integrated with AcraTransaltor and MongoDB:
+        http://$SWAGGER_HOST:8008/swagger/index.html#/ - swagger for available API
+
+    where are HOST is the IP address of the server with running Acra
+    Engineering Demo. If you run this demo on the same host, from
+    which you will connect, use "localhost".
+'
+    acraengdemo_press_any_key
+}
+
 acraengdemo_info_rails() {
     ETCHOSTS_PREFIX=''
     if [ "$(uname)" == 'Darwin' ]; then
@@ -482,6 +506,19 @@ acraengdemo_launch_project_django-transparent() {
 "COSSACKLABS_DJANGO_VCS_URL=\"$COSSACKLABS_DJANGO_VCS_URL\" "\
 "COSSACKLABS_DJANGO_VCS_BRANCH=\"$COSSACKLABS_DJANGO_VCS_BRANCH\" "\
 "COSSACKLABS_DJANGO_VCS_REF=\"$COSSACKLABS_DJANGO_VCS_REF\" "
+
+    acraengdemo_run_compose
+}
+
+acraengdemo_launch_project_acra-translator() {
+    COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
+    COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
+    COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_REF='eb921ff32d76b79af4d9789d8bcb1e994b5777ef'
+
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
+"COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_URL=\"$COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_URL\" "\
+"COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_BRANCH=\"$COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_BRANCH\" "\
+"COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_REF=\"$COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_REF\" "
 
     acraengdemo_run_compose
 }
@@ -662,7 +699,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb cockroachdb python-searchable )
+    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb cockroachdb python-searchable acra-translator )
 }
 
 acraengdemo_run() {
