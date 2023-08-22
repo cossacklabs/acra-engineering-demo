@@ -831,15 +831,14 @@ $ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/maste
 
 This command downloads a simple Go API Server application, AcraTranslator, MongoDB, sets up the environment, configures
 Go application to encrypt data with AcraTranslator and store to MongoDB, and provides an
-API(Swagger) or [Postman Collection](./acra-translator/go-translator-demo/swagger/translator-demo.postman_collection.json) for you to try.
+API (Swagger) or [Postman Collection](./acra-translator/go-translator-demo/swagger/translator-demo.postman_collection.json) for you to try.
 
 ## 2. What's inside
 
 <p align="center"><img src="_pics/translator-demo.png" alt="Go API Server, MongoDB, AcraTranslator architecture" width="560"></p>
 
-**The client application** is a simple [Go API server](./acra-translator/go-translator-demo)
-that works with a database. The server talks with the database and **AcraTranslator**(via TLS). It **encrypts** the data
-before sending it to a database and decrypts the data when the app reads it. 
+**The client-side application** is a simple [Go API server](./acra-translator/go-translator-demo)
+that works with a database. The Go API server talks with the database and **AcraTranslator** (via TLS). AcraTranslator **encrypts** the incoming plaintext data, and decrypts the encrypted data. Go API server is responsible to call AcraTranslator and to talk with the database.
 
 ### 2.1 Insert data
 
@@ -1008,7 +1007,7 @@ To decrypt the file, just call:
 ```
 curl -X 'GET' \
   'http://localhost:8008/users/{user-id}/docs' \
-  -H 'accept: multipart/ > image.png
+  -H 'accept: multipart/' > image.png
 ```
 
 The `image.png` should contain the same file that was uploaded and encrypted.
