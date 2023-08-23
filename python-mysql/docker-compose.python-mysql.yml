@@ -147,7 +147,7 @@ services:
             args:
                 VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
-                VCS_BRANCH: ${COSSACKLABS_ACRA_VCS_BRANCH}
+                VCS_TAG: ${COSSACKLABS_ACRA_VCS_TAG}
                 BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
         networks:
             - webui-mysql
