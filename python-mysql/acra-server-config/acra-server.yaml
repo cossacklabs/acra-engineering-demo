@@ -1,2 +1,2 @@
 version: 0.95.0
-encryptor_config_file: "/config/encryptor_config.yaml"
+encryptor_config_file: "/config/extended_encryptor_config.yaml"
