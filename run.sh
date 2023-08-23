@@ -263,23 +263,12 @@ Resources that will become available after launch:
       example scripts will be mounted to container, so you will be able to
       modify these scripts without stopping docker compose.
 
-      Run example with zones (write, read):
-        docker exec -it python_python_1 \
-            python /app/extended_example_with_zone.py --data=data.json
-        docker exec -it python_python_1 \
-            python /app/extended_example_with_zone.py \
-            --print --zone_id=$ZONE_ID
-      where $ZONE_ID - zone id, printed on write step
+      Run example (write, read):
+        docker exec -it python-mysql_python_1 python3 \
+        extended_example.py --host=acra-server --port=9393 --data=data.json
 
-      Before using AcraServer without zones, open `python/acra-server-config/acra-server.yaml` and change
-      `zonemode_enable: true` value to `false` and
-      `encryptor_config_file: encryptor_config_with_zone.yaml` to `encryptor_config_without_zone.yaml`.
-
-      Run example without zones (write, read):
-        docker exec -it python_python_1 \
-            python /app/extended_example_without_zone.py --data=data.json
-        docker exec -it python_python_1 \
-            python /app/extended_example_without_zone.py --print
+        docker exec -it python-mysql_python_1 python3 \
+        extended_example.py --host=acra-server --port=9393 --print
 
     * Web interface for MySQL - see how the encrypted data is stored:
         http://$HOST:8080
@@ -567,7 +556,7 @@ acraengdemo_launch_project_cockroachdb() {
 
 acraengdemo_launch_project_python-mysql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.93.0}
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.95.0}
     if [ -d "${PROJECT_DIR}/acra" ]
     then
       git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";

@@ -8,7 +8,7 @@ services:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
     acra-keymaker_client:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.92.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -55,7 +55,7 @@ services:
             - webui-mysql
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.92.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always
@@ -80,11 +80,9 @@ services:
             #- keystore/acra-server:/keys
             - acra-server:/data
             # Directory with configuration, rewriteable
-            - ./acra-server-config/acra-server.yaml:/config/acra-server.yaml
             - ../_common/ssl/acra-server/:/ssl
             - ../_common/ssl/ca/ca.crt:/ssl/root.crt
-            - ../acra/examples/python/extended_encryptor_config_without_zone.yaml:/config/extended_encryptor_config_without_zone.yaml
-            - ../acra/examples/python/extended_encryptor_config_with_zone.yaml:/config/extended_encryptor_config_with_zone.yaml
+            - ../acra/examples/python/extended_encryptor_config.yaml:/config/extended_encryptor_config.yaml
         command: >-
             --mysql_enable
             --db_host=mysql

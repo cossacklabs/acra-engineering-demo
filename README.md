@@ -10,7 +10,7 @@ This collection has several example application. Each folder contains docker-com
 | 1  | [Transparent encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-1-transparent-encryption-django-postgresql)                                                        | Django web application, transparent encryption/decryption, AcraServer, PostgreSQL                                             |
 | 2  | [Intrusion detection system, transparent encryption, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-2-intrusion-detection-system-transparent-encryption-postgresql)                | Go application, transparent encryption/decryption, poison records, PostgreSQL                                                 |
 | 3  | [Transparent encryption, TimescaleDB](https://github.com/cossacklabs/acra-engineering-demo/#example-3-transparent-encryption-timescaledb)                                                                     | TimescaleDB, transparent encryption/decryption, AcraServer                                                                    |
-| 4  | [Transparent encryption, Zones, Python app, MySQL (deprecated, will be removed)](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-zones-python-app-mysql)               | MySQL, transparent encryption/masking/tokenization, Python, AcraServer                                                        |
+| 4  | [Transparent encryption, Python app, MySQL](https://github.com/cossacklabs/acra-engineering-demo/#example-4-transparent-encryption-python-app-mysql)                                                          | MySQL, transparent encryption/masking/tokenization, Python, AcraServer                                                        |
 | 5  | [Client-side encryption, Django, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-5-client-side-encryption-django-postgresql)                                                        | Django web application with client-side encryption (AcraWriter), decryption on AcraServer, PostgreSQL                         |
 | 6  | [Client-side encryption with Zones, python app, PostgreSQL (deprecated, will be removed)](https://github.com/cossacklabs/acra-engineering-demo/#example-6-client-side-encryption-zones-python-app-postgresql) | Simple python client application, client-side encryption with Zones support, decryption on AcraServer, PostgreSQL             |
 | 7  | [Client-side encryption, Ruby on Rails app, PostgreSQL](https://github.com/cossacklabs/acra-engineering-demo/#example-7-client-side-encryption-ruby-on-rails-app-postgresql)                                  | Ruby on Rails web application, client-side encryption, decryption on AcraServer, PostgreSQL                                   |
@@ -242,7 +242,7 @@ docker exec -it -u postgres timescaledb-timescaledb-1 \
 
 ---
 
-# Example 4. Transparent encryption, Zones, Python app, MySQL (deprecated, will be removed)
+# Example 4. Transparent encryption, Python app, MySQL
 
 Python client application, transparent encryption/decryption/masking/tokenization with zones support, AcraServer, MySQL database.
 
@@ -266,119 +266,18 @@ database, sets up the environment, configures python application to connect to A
 that works with a database. The application talks with the database via Acra, Acra **encrypts** the data before sending 
 it to a database, and decrypts the data when the app reads it from the database. Same it does transparently with tokenized data.
 
-### 2.1 Generate new zone
+### 2.1 Data Encryption/Decryption 
+
+1. Write and read the data:
 
 ```bash
-docker exec -it python-mysql_python_1 \
-  python3 extended_example_with_zone.py --host=acra-server --port=9393 --generate_zone
-
-$:
-zone_id: DDDDDDDDPfBoWiixeMTUuEOk
-zone public key in base64: b"UEC2\x00\x00\x00-\xbf\xc4\xd4\xa5\x02\x13ZTsg\x13\x88%R\xb5\x00\xc2\xbc\xe9\x9d\xa5\xa3i';\x7f)\xa8a\x9c\xdc\x9b\xc4\xba8\xb6\x04"
-```
-
-Call the [`extended_example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example_with_zone.py)
-to encrypt the "top secret data" with a specific [Zone](https://docs.cossacklabs.com/acra/security-controls/zones/). The
-application generates Zones using AcraServer HTTP API, then it uses Zone public key and Zone ID for encryption.
-
-### 2.2 Set ZoneID in encryptor config
-
-Set ZoneID `DDDDDDDDPfBoWiixeMTUuEOk` instead of existing in `./acra/examples/python/encryptor_config_with_zone.yaml`:
-
-```bash
-sed -i 's/DDDDDDDDHHNqiSYFXkpxopYZ/DDDDDDDDPfBoWiixeMTUuEOk/g' ./acra/examples/python/extended_encryptor_config_with_zone.yaml
-```
-
-### 2.3 Restart acra-server to use updated config
-
-```bash
-docker restart python-mysql_acra-server_1
-```
-
-
-### 2.4 Insert data using updated config
-Script reads data from `data.json` where stored array of entries as data examples.
-```bash
-docker exec -it python-mysql_python_1 \
-  python3 extended_example_without_zone.py --host=acra-server --port=9393 --data=data.json
-
-$:
-data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
-```
-
-### 2.5 Read data
-
-Read the data using the same ZoneId. AcraServer decrypts the data and returns plaintext:
-```bash
-docker exec -it python-mysql_python_1 \
-  python3 extended_example_with_zone.py --host=acra-server --port=9393 --print  --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
-  
-$:
-Fetch data by query {}
- SELECT test.id, 'DDDDDDDDPfBoWiixeMTUuEOk' AS anon_1, test.data, test.masking, test.token_i32, test.token_i64, test.token_str, test.token_bytes, test.token_email 
-FROM test
-3
-id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_email
-1   - DDDDDDDDPfBoWiixeMTUuEOk - John Wed, Senior Relationshop Manager - $112000 - 1234 - 645664 - 078-05-1111 - byt13es - john_wed@cl.com
-2   - DDDDDDDDPfBoWiixeMTUuEOk - April Cassini, Marketing Manager - $168000 - 1235 - 645665 - 078-05-1112 - byt13es2 - april_cassini@cl.com
-3   - DDDDDDDDPfBoWiixeMTUuEOk - George Clooney, Famous Actor - $780000 - 1236 - 645667 - 078-05-1117 - byt13es3 - george_clooney@cl.com
-
-```
-
-### 2.6 Read the data directly from the database
-To make sure that the data is stored in an encrypted form, read it directly from the database. Use `--port=3306` and --host=`mysql`:
-
-```bash
-docker exec -it python-mysql_python_1 \
-  python3 extended_example_with_zone.py --host=mysql --port=3306 --print --zone_id=DDDDDDDDPfBoWiixeMTUuEOk
-
-$:
-Fetch data by query {}
- SELECT test.id, 'DDDDDDDDYuWpBtCtrjpHyHta' AS anon_1, test.data, test.masking, test.token_i32, test.token_i64, test.token_str, test.token_bytes, test.token_email 
-FROM test
-3
-id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_email
-1   - DDDDDDDDYuWpBtCtrjpHyHta - %%%""""L@'/e_>I6躁iH 1Rz#X.5@@f+hRgjp�$~@oxշ '&T@ - -560604022 - -3330418728144437366 - ccxIvgP0iLp - ?a - 98LK9@sigT2.net
-...
-```
-
-As expected, `data` and `masking` looks encrypted and `token_*` replaced with random values.
-
-### 2.7 Connect to the database from the web
-
-1. Log into web MySQL phpmyadmin interface [http://localhost:8080](http://localhost:8080).
-
-2. Find the table and the data rows.
-
-<img src="_pics/python_mysql_phpmyadmin.png" width="700">
-
-3. Compare data in result table and source json. All entries except `id` were encrypted or tokenized.
-
-So, the data are protected and it is transparent for the Python application.
-
-### 2.8 Encrypt the data without Zones
-
-Usage of [Zones](https://docs.cossacklabs.com/acra/security-controls/zones/) provides compartmentalisation as different users of the same app will have different encryption keys.
-However, it's possible to use AcraServer without Zones.
-
-1. To disable Zones open `python-mysql/acra-server-config/acra-server.yaml` and change `zonemode_enable: true` value to `false`,
-   `encryptor_config_file: "/config/extended_encryptor_config_with_zone.yaml"` to `encryptor_config_file: "/config/extended_encryptor_config_without_zone.yaml"`
-   and restart `acra-server`.
-
-2. Write and read the data:
-
-```bash
-docker restart python-mysql_acra-server_1
-
-docker exec -it python-mysql_python_1 \
-  python3 extended_example_without_zone.py --host=acra-server --port=9393 --data=data.json
+docker exec -it python-mysql_python_1 python3 extended_example.py --host=acra-server --port=9393 --data=data.json
 
 $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
 
 
-docker exec -it python-mysql_python_1 \
-  python3 extended_example_without_zone.py --host=acra-server --port=9393 --print
+docker exec -it python-mysql_python_1 python3 extended_example.py --host=acra-server --port=9393 --print
 
 $:
 Fetch data by query {}
@@ -391,13 +290,21 @@ id  - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_e
 4   - John Wed, Senior Relationshop Manager - $112000 - 1234 - 645664 - 078-05-1111 - byt13es - john_wed@cl.com
 5   - April Cassini, Marketing Manager - $168000 - 1235 - 645665 - 078-05-1112 - byt13es2 - april_cassini@cl.com
 6   - George Clooney, Famous Actor - $780000 - 1236 - 645667 - 078-05-1117 - byt13es3 - george_clooney@cl.com
-bash-5.1# python3 extended_example_without_zone.py --host=acra-server --port=9393 --print
 ```
 
-> Note: First 3 entries are encrypted and tokenized from previous example with zones and last 3 are new one encrypted
-> in mode without zones.
+### 2.2 Connect to the database from the web
 
-### 2.9 Other available resources
+1. Log into web MySQL phpmyadmin interface [http://localhost:8080](http://localhost:8080).
+
+2. Find the table and the data rows.
+
+<img src="_pics/python_mysql_phpmyadmin.png" width="700">
+
+3. Compare data in result table and source json. All entries except `id` were encrypted or tokenized.
+
+So, the data are protected and it is transparent for the Python application.
+
+### 2.3 Other available resources
 
 1. MySQL – connect directly to the database using the admin account `test/test`: [mysql://localhost:3306](mysql://localhost:3306).
 
@@ -409,26 +316,15 @@ bash-5.1# python3 extended_example_without_zone.py --host=acra-server --port=939
 
 5. Jaeger – view traces: [http://localhost:16686](http://localhost:16686).
 
-6. [Docker-compose.python-mysql.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python/docker-compose.python-mysql.yml) file – read details about configuration and containers used in this example.
+6. [Docker-compose.python-mysql.yml](https://github.com/cossacklabs/acra-engineering-demo/blob/master/python-mysql/docker-compose.python-mysql.yml) file – read details about configuration and containers used in this example.
 
 ## 3. Show me the code!
 
-Take a look at the complete code of [`extended_example_with_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example_with_zone.py) and [`extended_example_without_zone.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example_without_zone.py).
+Take a look at the complete code of [`extended_example.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example.py).
 
-Let's see how many code lines are necessary to encrypt some data using Acra. We will look at the example with Zones
-because it's more complicated and requires additional API call to fetch Zone.
+Let's see how many code lines are necessary to encrypt some data using Acra. 
 
-1. The app gets a Zone using [AcraServer API](https://docs.cossacklabs.com/acra/configuring-maintaining/general-configuration/acra-server/#http-api):
-
-```python
-def get_zone():
-    response = urlopen('{}/getNewZone'.format(ACRA_SERVER_API_ADDRESS))
-    json_data = response.read().decode('utf-8')
-    zone_data = json.loads(json_data)
-    return zone_data['id'], b64decode(zone_data['public_key'])
-```
-
-2. The app reads JSON data and writes the data to the database as usual:
+1. The app reads JSON data and writes the data to the database as usual:
 
 ```python
 def write_data(data, connection):
@@ -446,7 +342,7 @@ def write_data(data, connection):
          test_table.insert(), row)
 ```
 
-3. Nothing changes when reading the data from the database:
+2. Nothing changes when reading the data from the database:
 
 ```python
 def print_data(connection, zone_id, columns):
