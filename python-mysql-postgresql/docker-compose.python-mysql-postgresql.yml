@@ -129,7 +129,6 @@ services:
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_string=tcp://0.0.0.0:9393
             --v
-            --d
             --tls_ocsp_from_cert=ignore
             --tls_crl_from_cert=ignore
             --config_file=/config/acra-server.yaml
