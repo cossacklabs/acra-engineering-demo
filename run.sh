@@ -564,8 +564,11 @@ acraengdemo_launch_project_cockroachdb() {
 
 acraengdemo_launch_project_python-mysql-postgresql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    # using commit instead of version/tag to use last commit with specific SqlAlchemy from examples/python
-    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'f9feee822c7855d130cbfb259ab7ac33d597114f'}
+    # using commit instead of version/tag to use the commit with specific SqlAlchemy from examples/python
+    # https://github.com/cossacklabs/acra/pull/669/commits/be2ab1a4440e105dee1423ae21da1ee74e842801
+    # and some examples/python fixes
+    # https://github.com/cossacklabs/acra/commit/e1773020a881a39d126724bd3992b9b436173fa0
+    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'e1773020a881a39d126724bd3992b9b436173fa0'}
     if [ -d "${PROJECT_DIR}/acra" ]
     then
       git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_REF";

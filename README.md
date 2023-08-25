@@ -268,7 +268,7 @@ it to a database, and decrypts the data when the app reads it from the database.
 
 ### 3. MySQL Transparent Encryption
 
-By default, Acra configured to work with MySQL database.
+By default in this demo, Acra configured to work with MySQL database.
 
 ### 3.1 Data Encryption(Write) 
 
@@ -382,7 +382,7 @@ You should see the garbage on the screen and see that data is stored encrypted.
 
 Everything worked well! Now, let's check the content of the database.
 
-Log into the web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test@test.test`/`test`.
+Log into the web PostgreSQL interface [http://localhost:8008](http://localhost:8008) using user/password: `test@test.test`/`test`.
 
 Find your blog post in  `Servers > postgresql > databases > djangoproject > Schemas > public > Tables > blog_entries` and open context menu with right-click.
 
