@@ -255,7 +255,7 @@ Resources that will become available after launch:
 }
 
 
-acraengdemo_info_python-mysql() {
+acraengdemo_info_python-mysql-postgresql() {
     echo '
 Resources that will become available after launch:
 
@@ -277,6 +277,14 @@ Resources that will become available after launch:
     * MySQL - also you can connect to DB directly:
         mysql://$HOST:3306
         Default admin user/password: test/test
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
+        http://$HOST:8008
+        Default user/password: test@test.test/test
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://$HOST:5432
+        Default admin user/password: postgres/test
 
     * Prometheus - examine the collected metrics:
         http://$HOST:9090
@@ -554,7 +562,7 @@ acraengdemo_launch_project_cockroachdb() {
     acraengdemo_run_compose
 }
 
-acraengdemo_launch_project_python-mysql() {
+acraengdemo_launch_project_python-mysql-postgresql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     # using commit instead of version/tag to use last commit with specific SqlAlchemy from examples/python
     COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'f9feee822c7855d130cbfb259ab7ac33d597114f'}
@@ -689,7 +697,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb cockroachdb python-searchable acra-translator )
+    PROJECTS_SUPPORTED=( django django-transparent python python-mysql-postgresql rails timescaledb cockroachdb python-searchable acra-translator )
 }
 
 acraengdemo_run() {

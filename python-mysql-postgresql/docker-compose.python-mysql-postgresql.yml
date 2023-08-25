@@ -22,6 +22,38 @@ services:
             --keys_public_output_dir=/keys/acra-server
             --keystore=v1
 
+    # Postgresql container
+    postgresql:
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        # INSECURE!!! You MUST define your own DB name and credentials
+        environment:
+            # Admin user
+            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+        # Open the port outside for demonstration purposes only (connections
+        # between containers are performing within isolated networks)
+        ports:
+            - "5432:5432"
+        # We use internal 'server-postgresql' network for AcraServer and
+        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # with web interface and external network 'world' for port exposing
+        networks:
+            - server-postgresql
+            - python-postgresql
+            - postgresqlweb-postgresql
+            - world
+
     mysql:
         # Build and run the container based on the official postgresql image
         # with an additional configuration in accordance with djangoproject
@@ -82,11 +114,9 @@ services:
             # Directory with configuration, rewriteable
             - ../_common/ssl/acra-server/:/ssl
             - ../_common/ssl/ca/ca.crt:/ssl/root.crt
+            - ./acra-server-config:/config
             - ../acra/examples/python/extended_encryptor_config.yaml:/config/extended_encryptor_config.yaml
         command: >-
-            --mysql_enable
-            --db_host=mysql
-            --db_port=3306
             --token_db=/data/token.db
             --keys_dir=/data/acra-server
             --http_api_enable
@@ -98,7 +128,8 @@ services:
             --tls_identifier_extractor_type=distinguished_name
             --incoming_connection_api_string=tcp://0.0.0.0:9090
             --incoming_connection_string=tcp://0.0.0.0:9393
-            -v
+            --v
+            --d
             --tls_ocsp_from_cert=ignore
             --tls_crl_from_cert=ignore
             --config_file=/config/acra-server.yaml
@@ -113,7 +144,7 @@ services:
         # Build and run container from source directory with demo django project
         build:
             context: ../
-            dockerfile: ./python-mysql/python.dockerfile
+            dockerfile: ./python-mysql-postgresql/python.dockerfile
             args:
                 VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
                 VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
@@ -139,6 +170,33 @@ services:
             - python-mysql
         volumes:
             - ../acra/examples/python:/app
+
+    postgresqlweb:
+        image: dpage/pgadmin4:6.2
+        volumes:
+            - ../_common/ssl/acra-client/:/ssl
+            - ../_common/ssl/ca/ca.crt:/home/pgadmin/.postgresql/root.crt
+            # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
+            # but we mount it to be consistent
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
+            # place pre-configured file with settings to timescale
+            # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
+            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
+        depends_on:
+            - postgresql
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
+            POSTGRES_HOST: postgresql
+            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+        ports:
+            - "8008:80"
+        networks:
+            - postgresqlweb-postgresql
+            - world
+
 
     phpmyadmin:
         build:
@@ -213,7 +271,13 @@ networks:
         internal: true
     server-mysql:
         internal: true
+    server-postgresql:
+        internal: true
     python-mysql:
+        internal: true
+    python-postgresql:
+        internal: true
+    postgresqlweb-postgresql:
         internal: true
     webui-mysql:
         internal: true
