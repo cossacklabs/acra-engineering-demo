@@ -1008,6 +1008,7 @@ id  - data_str - masking - token_i32 - data_i32 - token_i64 - data_i64 - token_s
 895033813588869121 - <memory at 0x7ff6607de280> - <memory at 0x7ff6607dea00> - 1980030424 - <memory at 0x7ff6607deac0> - -7885492195662891049 - <memory at 0x7ff6607deb80> - QFzwmjyhzTn - ne    - TTC6JX@eS7k8.de
 ...
 ```
+Where ` <memory at 0x....>` is python's representation of binary data returned from the database.
 
 ### 2.4 Other available resources
 
