@@ -941,7 +941,7 @@ These are all the code changes! 🎉
 
 ---
 
-# Example 8. Transparent encryption, Zones, python app, CockroachDB 
+# Example 8. Transparent encryption python app, CockroachDB 
 
 Python client application, AcraServer transparent encryption, CockroachDB  database.
 
@@ -964,7 +964,7 @@ that works with a database. The application talks with the database via Acra, Ac
 it to a database, and decrypts the data when the app reads it from the database. Same it does transparently with tokenized data.
 
 
-### 2.4 Insert data
+### 2.1 Insert data
 
 Script reads data from `data.json` where stored array of entries as data examples.
 
@@ -975,7 +975,7 @@ $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
 ```
 
-### 2.5 Read data
+### 2.2 Read data
 
 AcraServer decrypts the data and returns plaintext:
 ```bash
@@ -993,7 +993,7 @@ id  - zone_id - data - masking - token_i32 - token_i64 - token_str - token_bytes
 
 ```
 
-### 2.6 Read the data directly from the database
+### 2.3 Read the data directly from the database
 To make sure that the data is stored in an encrypted form, read it directly from the database. Use `--port=26257` and --host=`roach1`:
 
 ```bash
@@ -1009,7 +1009,7 @@ id  - data_str - masking - token_i32 - data_i32 - token_i64 - data_i64 - token_s
 ...
 ```
 
-### 2.7 Other available resources
+### 2.4 Other available resources
 
 1. CockroachDB – connect directly to the database using the user `root` and DB `defaultdb`: [postgresql://localhost:26257](postgresql://localhost:26257).
 
