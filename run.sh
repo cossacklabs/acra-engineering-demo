@@ -158,26 +158,11 @@ acraengdemo_info_python() {
     echo '
 Resources that will become available after launch:
 
-    * Container with environment prepared for the python example. Folder with
-      example scripts will be mounted to container, so you will be able to
-      modify these scripts without stopping docker compose.
-
-      Run example with zones (write, read):
+      Run example (write, read):
         docker exec -it python_python_1 \
-            python /app/example_with_zone.py --data="some data"
+            python /app/example.py --data="some data" --public_key="path-to-key"
         docker exec -it python_python_1 \
-            python /app/example_with_zone.py \
-            --print --zone_id=$ZONE_ID
-      where $ZONE_ID - zone id, printed on write step
-
-      Before using AcraServer without zones, open `python/acra-server-config/acra-server.yaml` and change
-      `zonemode_enable: true` value to `false`..
-
-      Run example without zones (write, read):
-        docker exec -it python_python_1 \
-            python /app/example_without_zone.py --data="some data #1"
-        docker exec -it python_python_1 \
-            python /app/example_without_zone.py --print
+            python /app/example.py --print --public_key="path-to-key"
 
     * Web interface for PostgreSQL - see how the encrypted data is stored:
         http://$HOST:8008
@@ -510,12 +495,12 @@ acraengdemo_launch_project_acra-translator() {
 
 acraengdemo_launch_project_python() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.92.0}
+    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'34e162b335a3d2c248b8fd1e294c25bd5c78350e'}
     if [ -d "${PROJECT_DIR}/acra" ]; then
-      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_REF";
     else
       acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL" \
+        "git clone --depth 1 $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
         "Cloning Acra"
     fi;
     COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
@@ -523,7 +508,7 @@ acraengdemo_launch_project_python() {
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
-"COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_ACRA_VCS_BRANCH\" "\
+"COSSACKLABS_ACRA_VCS_BRANCH=\"master\" "\
 "COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "
 
     acraengdemo_run_compose

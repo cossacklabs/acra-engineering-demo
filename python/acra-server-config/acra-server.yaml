@@ -1,5 +1,3 @@
-version: 0.92.0
+version: 0.95.0
 
-# Turn on zone mode
-zonemode_enable: true
-encryptor_config_file: "/app/encryptor_config_with_zone.yaml"
+encryptor_config_file: "/config/encryptor_config.yaml"
