@@ -59,6 +59,8 @@ RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt
 RUN mkdir /ssl
 COPY ./_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
 COPY ./_common/ssl/acra-client/acra-client.key /ssl/acra-client.key
+COPY ./_common/ssl/acra-client2/acra-client2.crt /ssl/acra-client2.crt
+COPY ./_common/ssl/acra-client2/acra-client2.key /ssl/acra-client2.key
 COPY ./_common/ssl/ca/ca.crt /ssl/root.crt
 
 RUN chmod 0600 -R /ssl/

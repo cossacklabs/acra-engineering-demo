@@ -244,7 +244,7 @@ docker exec -it -u postgres timescaledb-timescaledb-1 \
 
 # Example 4. Transparent encryption, Python app, MySQL, PostgreSQL
 
-Python client application, transparent encryption/decryption/masking/tokenization, AcraServer, MySQL database.
+Python client application, transparent encryption/decryption/masking/tokenization, AcraServer, MySQL and PostgreSQL databases.
 
 ## 1. Installation
 
@@ -592,12 +592,11 @@ This command downloads a simple Python application that stores the data in a dat
 ### 2.1 Write data
 
 ```bash
-docker exec -it python_python_1 python /app/example.py --data="top secret data" \
+docker exec -it python_python_1 python /app/example.py --data="some secret info" \
 --public_key=/app.acrakeys/28fa1ef8aa3184d7ce0621341299d74b5b561a95aecdee3b46b847d63495f800d276cdd1233f5950efb348113f2892ceef4b354abed383d8afc026901854ca28_storage.pub
 
 $:
-data="top secret data"
-insert data: top secret data
+insert data: some secret info
 ```
 
 Call the [`example.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example.py) to encrypt the "top secret data" with a specific public key mounted to container, used for client-side encryption.
@@ -610,12 +609,29 @@ docker exec -it python_python_1 python /app/example.py --print \
 
 $:
 id  - data                 - raw_data
-1   - top secret data      - top secret data
+1   - some secret info     - some secret info
 ```
 
 The output contains the decrypted `data`, and `raw_data` (stored in plaintext for the demo purposes),
 
-### 2.3 Read the data directly from the database
+### 2.3 Read data with different ClientID
+
+Read the data using a different ClientID. AcraServer will not decrypt the data and return the default data:
+
+```bash
+docker exec -it python_python_1 python /app/example.py --print \
+--public_key=/app.acrakeys/28fa1ef8aa3184d7ce0621341299d74b5b561a95aecdee3b46b847d63495f800d276cdd1233f5950efb348113f2892ceef4b354abed383d8afc026901854ca28_storage.pub \
+--tls_cert=/ssl/acra-client2.crt \
+--tls_key=/ssl/acra-client2.key
+
+$:
+id  - data                 - raw_data
+1   - test-data            - some secret info
+```
+
+As a result data field will be replaced on `test-data` according to [/app/encryptor_config.yaml](https://github.com/cossacklabs/acra/blob/master/examples/python/encryptor_config.yaml#L53) config.
+
+### 2.4 Read the data directly from the database
 
 To make sure that the data is stored in an encrypted form, read it directly from the database:
 
@@ -632,7 +648,7 @@ id  - data                 - raw_data
 
 As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintext so nothing changes.
 
-### 2.4 Connect to the database from the web
+### 2.5 Connect to the database from the web
 
 1. Log into web PostgreSQL interface [http://localhost:8008](http://localhost:8008) using user/password: `test@test.test`/`test`.
 
@@ -644,7 +660,7 @@ As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintex
 
 So, the data is stored in an encrypted form, but it is transparent for the Python application.
 
-### 2.5 Other available resources
+### 2.6 Other available resources
 
 1. PostgreSQL – connect directly to the database using the admin account `postgres/test`: [postgresql://localhost:5432](postgresql://localhost:5432).
 
