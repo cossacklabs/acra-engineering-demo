@@ -255,7 +255,7 @@ Resources that will become available after launch:
 }
 
 
-acraengdemo_info_python-mysql() {
+acraengdemo_info_python-mysql-postgresql() {
     echo '
 Resources that will become available after launch:
 
@@ -263,23 +263,12 @@ Resources that will become available after launch:
       example scripts will be mounted to container, so you will be able to
       modify these scripts without stopping docker compose.
 
-      Run example with zones (write, read):
-        docker exec -it python_python_1 \
-            python /app/extended_example_with_zone.py --data=data.json
-        docker exec -it python_python_1 \
-            python /app/extended_example_with_zone.py \
-            --print --zone_id=$ZONE_ID
-      where $ZONE_ID - zone id, printed on write step
+      Run example (write, read):
+        docker exec -it python-mysql_python_1 python3 \
+        extended_example.py --host=acra-server --port=9393 --data=data.json
 
-      Before using AcraServer without zones, open `python/acra-server-config/acra-server.yaml` and change
-      `zonemode_enable: true` value to `false` and
-      `encryptor_config_file: encryptor_config_with_zone.yaml` to `encryptor_config_without_zone.yaml`.
-
-      Run example without zones (write, read):
-        docker exec -it python_python_1 \
-            python /app/extended_example_without_zone.py --data=data.json
-        docker exec -it python_python_1 \
-            python /app/extended_example_without_zone.py --print
+        docker exec -it python-mysql_python_1 python3 \
+        extended_example.py --host=acra-server --port=9393 --print
 
     * Web interface for MySQL - see how the encrypted data is stored:
         http://$HOST:8080
@@ -288,6 +277,14 @@ Resources that will become available after launch:
     * MySQL - also you can connect to DB directly:
         mysql://$HOST:3306
         Default admin user/password: test/test
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
+        http://$HOST:8008
+        Default user/password: test@test.test/test
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://$HOST:5432
+        Default admin user/password: postgres/test
 
     * Prometheus - examine the collected metrics:
         http://$HOST:9090
@@ -565,24 +562,28 @@ acraengdemo_launch_project_cockroachdb() {
     acraengdemo_run_compose
 }
 
-acraengdemo_launch_project_python-mysql() {
+acraengdemo_launch_project_python-mysql-postgresql() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.93.0}
+    # using commit instead of version/tag to use the commit with specific SqlAlchemy from examples/python
+    # https://github.com/cossacklabs/acra/pull/669/commits/be2ab1a4440e105dee1423ae21da1ee74e842801
+    # and some examples/python fixes
+    # https://github.com/cossacklabs/acra/commit/e1773020a881a39d126724bd3992b9b436173fa0
+    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'e1773020a881a39d126724bd3992b9b436173fa0'}
     if [ -d "${PROJECT_DIR}/acra" ]
     then
-      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_REF";
     else
       # we should clone into folder with acra-eng-demo to allow mount files from acra/examples/python folder
       acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra" \
+        "git clone --depth 1 $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
         "Cloning Acra"
     fi;
-    COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
+
     acraengdemo_add_cleanup_cmd "rm -rf ${PROJECT_DIR}/acra" "remove cloned \"acra\" repository"
 
     COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
 "COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_ACRA_VCS_URL\" "\
-"COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_ACRA_VCS_BRANCH\" "\
+"COSSACKLABS_ACRA_VCS_BRANCH=\"master\" "\
 "COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_ACRA_VCS_REF\" "
 
     acraengdemo_run_compose
@@ -699,7 +700,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python python-mysql rails timescaledb cockroachdb python-searchable acra-translator )
+    PROJECTS_SUPPORTED=( django django-transparent python python-mysql-postgresql rails timescaledb cockroachdb python-searchable acra-translator )
 }
 
 acraengdemo_run() {

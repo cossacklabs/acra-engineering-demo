@@ -34,7 +34,7 @@ RUN echo 'root:!' | chpasswd -e
 
 RUN apk update
 
-RUN apk add --no-cache bash python3 py3-pip mariadb-dev mariadb-client
+RUN apk add --no-cache bash python3 py3-pip mariadb-dev mariadb-client postgresql-dev postgresql-client
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -55,6 +55,7 @@ RUN cd /root/themis \
 RUN mkdir /app.requirements
 COPY ./acra/examples/python/requirements/ /app.requirements/
 RUN pip3 install --no-cache-dir -r /app.requirements/mysql.txt
+RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt
 
 RUN mkdir /ssl
 COPY ./_common/ssl/acra-client/acra-client.crt /ssl/acra-client.crt
