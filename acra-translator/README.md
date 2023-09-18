@@ -17,7 +17,7 @@ API (Swagger) or [Postman Collection](./acra-translator/go-translator-demo/swagg
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/translator-demo.png" alt="Go API Server, MongoDB, AcraTranslator architecture" width="560"></p>
+<p align="center"><img src="../_pics/translator-demo.png" alt="Go API Server, MongoDB, AcraTranslator architecture" width="560"></p>
 
 **The client-side application** is a simple [Go API server](./acra-translator/go-translator-demo)
 that works with a database. The Go API server talks with the database and **AcraTranslator** (via TLS). AcraTranslator **encrypts** the incoming plaintext data, and decrypts the encrypted data. Go API server is responsible to call AcraTranslator and to talk with the database.

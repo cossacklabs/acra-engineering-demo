@@ -15,7 +15,7 @@ This command downloads a simple Python application that stores the data in a dat
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
+<p align="center"><img src="../_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
 
 **The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python) that works with a database. The application **encrypts** the data in AcraStructs before sending it to a database. The application **reads** the decrypted data through AcraServer (that are transparent for the application).
 
@@ -84,7 +84,7 @@ As expected, no entity decrypts the `data`. The `raw_data` is stored as plaintex
 
 2. Find the table and the data rows.
 
-<img src="_pics/db_web_python.png" width="700">
+<img src="../_pics/db_web_python.png" width="700">
 
 3. Try reading the content of `data` field – it's encrypted!
 

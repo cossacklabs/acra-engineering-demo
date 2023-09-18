@@ -16,7 +16,7 @@ databases, sets up the environment, configures python application to connect to 
 
 ## 2. What's inside
 
-<p align="center"><img src="_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
+<p align="center"><img src="../_pics/eng_demo_python-no-ac.png" alt="Protecting simple python application: Acra architecture" width="560"></p>
 
 **The client application** is a simple [python console application](https://github.com/cossacklabs/acra/tree/master/examples/python)
 that works with a database. The application talks with the database via Acra, Acra **encrypts** the data before sending
@@ -76,7 +76,7 @@ You should see the garbage on the screen and see that data is stored encrypted.
 
 2. Find the table and the data rows.
 
-<img src="_pics/python_mysql_phpmyadmin.png" width="700">
+<img src="../_pics/python_mysql_phpmyadmin.png" width="700">
 
 3. Compare data in result table and source json. All entries except `id` were encrypted or tokenized.
 

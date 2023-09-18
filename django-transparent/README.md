@@ -20,7 +20,7 @@ Grafana, pgAdmin images and sets up the environment, configures AcraServer to en
 **The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts. Application stores blog posts in PosgtreSQL database. We encrypt blog posts' content before storing in database, and decrypt when reading from database.
 
 
-<p align="center"><img src="_pics/eng_demo_django_transparent_encr-no-ac.png" alt="Protecting Django web application: Acra architecture (transparent mode)" width="700"></p>
+<p align="center"><img src="../_pics/eng_demo_django_transparent_encr-no-ac.png" alt="Protecting Django web application: Acra architecture (transparent mode)" width="700"></p>
 
 Django app **does not encrypt** the sensitive fields, it just passes data to AcraServer through secured TLS channel (which pretends to be a database). AcraServer **encrypts** these sensitive fields and stores them into database.
 
@@ -44,13 +44,13 @@ where `SERVER_IP` is the IP address of the server that is running the Acra Engin
 
 Add a blog post to the Blogs/Entries:
 
-<img src="_pics/web_django_posts.png" width="600">
+<img src="../_pics/web_django_posts.png" width="600">
 
 You can go to Dashboard window [http://www.djangoproject.example:8000/admin/dashboard/category/](http://www.djangoproject.example:8000/admin/dashboard/category/)
 
 And add a new Dashboard category:
 
-<img src="_pics/web_django_dashboard.png" width="600">
+<img src="../_pics/web_django_dashboard.png" width="600">
 
 2. Open the blog posts' feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
 
@@ -68,9 +68,9 @@ Dashboard categories are in `Servers > postgresql > databases > djangoproject > 
 
 Select `View/Edit Data > All rows` and now you can see content of the table. Download and read the content – it's encrypted.
 
-<img src="_pics/db_django.png" width="1200">
+<img src="../_pics/db_django.png" width="1200">
 
-<img src="_pics/db_django_dashboards.png" width="1200">
+<img src="../_pics/db_django_dashboards.png" width="1200">
 
 So, the blog posts/dashboard categories are stored encrypted, but it's transparent for site visitors and admins.
 
@@ -80,7 +80,7 @@ Open Grafana dashboards to see the performance stats of AcraServer. We collect f
 
 Grafana is available at [http://www.djangoproject.example:3000](http://www.djangoproject.example:3000).
 
-<img src="_pics/django_monitoring.png" width="900">
+<img src="../_pics/django_monitoring.png" width="900">
 
 ### 2.5 View traces
 
@@ -88,7 +88,7 @@ AcraServer can export detailed traces to Jaeger. Use this data to optimize the p
 
 Jaeger is available at [http://www.djangoproject.example:16686](http://www.djangoproject.example:16686).
 
-<img src="_pics/jaeger_traces.png" width="900">
+<img src="../_pics/jaeger_traces.png" width="900">
 
 ### 2.6 Other available resources
 

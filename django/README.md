@@ -19,7 +19,7 @@ Grafana, pgAdmin images and sets up the environment, configures Django applicati
 
 **The client application** is the famous Django app example – the source code of [djangoproject.com](https://www.djangoproject.com/). We've [updated their source code](https://github.com/cossacklabs/djangoproject.com) to protect blog posts. Application stores blog posts in PosgtreSQL database. We encrypt blog posts' content before storing in database, and decrypt when reading from database.
 
-<p align="center"><img src="_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture (asymmetric mode)" width="700"></p>
+<p align="center"><img src="../_pics/eng_demo_django.png" alt="Protecting Django web application: Acra architecture (asymmetric mode)" width="700"></p>
 
 Django app **encrypts** the sensitive fields of blog posts into separate AcraStructs (author name, author email, content are encrypted; blog post ID and title are in plaintext).
 
@@ -41,7 +41,7 @@ where `SERVER_IP` is the IP address of the server that is running the Acra Engin
 
 1. Log into admin cabinet [http://www.djangoproject.example:8000/admin/blog/entry/](http://www.djangoproject.example:8000/admin/blog/entry/) using user/password: `admin/admin`. Add a blog post to the Blogs/Entries:
 
-<img src="_pics/web_django_posts.png" width="600">
+<img src="../_pics/web_django_posts.png" width="600">
 
 2. Open the blog posts' feed [http://www.djangoproject.example:8000/weblog/](http://www.djangoproject.example:8000/weblog/) and see your fresh post.
 
@@ -51,7 +51,7 @@ Everything worked well! Now, let's check the content of the database.
 
 Log into the web PostgreSQL interface [http://www.djangoproject.example:8008](http://www.djangoproject.example:8008) using user/password: `test@test.test`/`test`. Find your blog post in  `Servers > postgresql > databases > djangoproject > Schemas > public > Tables > blog_entries` and open context menu with right-click. Select `View/Edit Data > All rows` and now you can see content of the table. Download and read the content – it's encrypted.
 
-<img src="_pics/db_django.png" width="900">
+<img src="../_pics/db_django.png" width="900">
 
 So, the blog posts are stored encrypted, but it's transparent for site visitors and admins.
 
@@ -61,7 +61,7 @@ Open Grafana dashboards to see the performance stats of AcraServer. We collect f
 
 Grafana is available at [http://localhost:3000](http://localhost:3000).
 
-<img src="_pics/django_monitoring.png" width="900">
+<img src="../_pics/django_monitoring.png" width="900">
 
 ### 2.5 View traces
 
@@ -69,7 +69,7 @@ AcraServer can export detailed traces to Jaeger. Use this data to optimize the p
 
 Jaeger is available at [http://localhost:16686](http://localhost:16686).
 
-<img src="_pics/jaeger_traces.png" width="900">
+<img src="../_pics/jaeger_traces.png" width="900">
 
 ### 2.6 Other available resources
 
