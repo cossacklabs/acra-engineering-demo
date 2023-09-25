@@ -1,0 +1,166 @@
+version: "3"
+
+services:
+    # Creating keys:
+    # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
+    # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
+    acra-keymaker_client:
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        network_mode: "none"
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+        volumes:
+            - ./.acrakeys:/keys
+            - ../_common/ssl/acra-client/:/ssl:ro
+        command: >-
+            --client_id=""
+            --tls_cert=/ssl/acra-client.crt
+            --keys_output_dir=/keys/acra-server
+            --keys_public_output_dir=/keys/acra-server
+            --keystore=v1   
+
+    # Postgresql container
+    postgresql:
+        # Build and run the container based on the official postgresql image
+        # with an additional configuration in accordance with djangoproject
+        # requirements
+        build:
+            context: ../
+            dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRAENGDEMO_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRAENGDEMO_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRAENGDEMO_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        # INSECURE!!! You MUST define your own DB name and credentials
+        environment:
+            # Admin user
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+        # Open the port outside for demonstration purposes only (connections
+        # between containers are performing within isolated networks)
+        ports:
+            - "5432:5432"
+        # We use internal 'server-postgresql' network for AcraServer and
+        # DB interconnection, 'postgresqlweb-postgresql' for interconnections
+        # with web interface and external network 'world' for port exposing
+        networks:
+            - server-postgresql
+            - python-postgresql
+            - postgresqlweb-postgresql
+            - world
+
+    acra-server:
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        # Restart server after correct termination, for example after the config
+        # was changed through the API
+        restart: always
+        depends_on:
+            - acra-keymaker_client
+            - postgresql
+        environment:
+            ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
+            GODEBUG: "netdns=go"
+        # We use internal networks:
+        # - 'server-postgresql' - for AcraServer and DB interconnection
+        # - 'python-server' - for AcraServer and PythonApp interconnection
+        networks:
+            - python-server
+            - server-postgresql
+        volumes:
+            # Mount the directory with only the keys for this service. Must be
+            # rewriteable in case of using API, otherwise should be read-only.
+            - ./.acrakeys/acra-server:/keys
+            # Directory with configuration, rewriteable
+            - ./acra-server-config:/config
+            - ../_common/ssl/acra-server/:/ssl
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
+        command: >-
+            --db_host=postgresql
+            --db_port=5432
+            --keys_dir=/keys
+            --tls_auth=4
+            --tls_ca=/ssl/root.crt
+            --tls_cert=/ssl/acra-server.crt
+            --tls_key=/ssl/acra-server.key
+            --tls_client_id_from_cert
+            --tls_identifier_extractor_type=distinguished_name
+            --config_file=/config/acra-server.yaml
+            --encryptor_config_file=/config/encryptor-config.yaml
+            -v
+
+    python:
+        depends_on:
+            - acra-keymaker_client
+            - postgresql
+        # Build and run container from source directory with demo django project
+        build:
+            context: ../
+            dockerfile: ./db-acra-migration/python.dockerfile
+            args:
+                VCS_URL: ${COSSACKLABS_ACRA_VCS_URL}
+                VCS_REF: ${COSSACKLABS_ACRA_VCS_REF}
+                VCS_BRANCH: ${COSSACKLABS_ACRA_VCS_BRANCH}
+                BUILD_DATE: ${COSSACKLABS_ACRAENGDEMO_BUILD_DATE}
+        environment:
+            # Direct connection to DB
+            DB_HOST: postgresql
+            DB_PORT: 5432
+            # Demo script default configuration
+            EXAMPLE_HOST: acra-server
+            EXAMPLE_PORT: 9393
+            EXAMPLE_DB_USER: ${POSTGRES_USER:-postgres}
+            EXAMPLE_DB_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            EXAMPLE_DB_NAME: ${POSTGRES_DB:-test}
+            EXAMPLE_SSL_MODE: verify-full
+            EXAMPLE_TLS_ROOT_CERT: /ssl/root.crt
+            EXAMPLE_TLS_KEY: /ssl/acra-client.key
+            EXAMPLE_TLS_CERT: /ssl/acra-client.crt
+        # We use internal 'python-postgresql' network for Django and
+        # DB interconnection, 'python-server' for access to AcraServer
+        # and external network 'world' for port exposing
+        networks:
+            - python-postgresql
+            - python-server
+        volumes:
+            - ./python:/app
+
+
+    postgresqlweb:
+        image: dpage/pgadmin4:6.2
+        volumes:
+            - ../_common/ssl/acra-client/:/ssl
+            - ../_common/ssl/ca/ca.crt:/home/pgadmin/.postgresql/root.crt
+          # actually, pgadmin ignore this file that defined in servers.json and require ~/.postgresql/root.crt
+          # but we mount it to be consistent
+            - ../_common/ssl/ca/ca.crt:/ssl/root.crt
+          # place pre-configured file with settings to timescale
+          # https://www.pgadmin.org/docs/pgadmin4/6.2/container_deployment.html
+            - ../_common/pgadmin/servers.json:/pgadmin4/servers.json
+        depends_on:
+            - postgresql
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-test@test.test}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-test}
+            POSTGRES_HOST: postgresql
+            POSTGRES_USER: ${POSTGRES_USER:-test}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+            POSTGRES_DB: ${POSTGRES_DB:-test}
+        ports:
+            - "8008:80"
+        networks:
+            - postgresqlweb-postgresql
+            - world
+
+
+networks:
+    world:
+    server-postgresql:
+        internal: true
+    python-postgresql:
+        internal: true
+    python-server:
+        internal: true
+    postgresqlweb-postgresql:
+        internal: true

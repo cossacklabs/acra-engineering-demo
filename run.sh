@@ -277,6 +277,29 @@ Resources that will become available after launch:
     acraengdemo_press_any_key
 }
 
+acraengdemo_info_db-acra-migration() {
+    echo '
+Resources that will become available after launch:
+
+    * Container with environment prepared for the migration example. Folder with
+      example scripts will be mounted to container, so you will be able to
+      modify these scripts without stopping docker compose.
+
+    * Web interface for PostgreSQL - see how the encrypted data is stored:
+        http://$HOST:8008
+        Default user/password: test@test.test/test
+
+    * PostgreSQL - also you can connect to DB directly:
+        postgresql://$HOST:5432
+        Default admin user/password: postgres/test
+
+    where are HOST is the IP address of the server with running Acra
+    Engineering Demo. If you run this demo on the same host, from
+    which you will connect, use "localhost".
+'
+    acraengdemo_press_any_key
+}
+
 acraengdemo_info_acra-translator() {
     echo '
 Resources that will become available after launch:
@@ -493,6 +516,19 @@ acraengdemo_launch_project_acra-translator() {
     acraengdemo_run_compose
 }
 
+acraengdemo_launch_project_db-acra-migration() {
+    COSSACKLABS_ACRA_VCS_URL='https://github.com/cossacklabs/acra-engineering-demo'
+    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_DJANGO_VCS_BRANCH:-master}
+    COSSACKLABS_ACRA_VCS_REF='eb921ff32d76b79af4d9789d8bcb1e994b5777ef'
+
+    COMPOSE_ENV_VARS="${COMPOSE_ENV_VARS} "\
+"COSSACKLABS_ACRA_VCS_URL=\"$COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_URL\" "\
+"COSSACKLABS_ACRA_VCS_BRANCH=\"$COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_BRANCH\" "\
+"COSSACKLABS_ACRA_VCS_REF=\"$COSSACKLABS_GO_TRANSLATOR_DEMO_VCS_REF\" "
+
+    acraengdemo_run_compose
+}
+
 acraengdemo_launch_project_python() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
     COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'34e162b335a3d2c248b8fd1e294c25bd5c78350e'}
@@ -673,7 +709,7 @@ acraengdemo_post() {
 }
 
 acraengdemo_init() {
-    PROJECTS_SUPPORTED=( django django-transparent python python-mysql-postgresql rails timescaledb cockroachdb python-searchable acra-translator )
+    PROJECTS_SUPPORTED=( django django-transparent python python-mysql-postgresql rails timescaledb cockroachdb python-searchable acra-translator db-acra-migration )
 }
 
 acraengdemo_run() {

@@ -1,0 +1,22 @@
+schemas:
+  # used in test.py
+  - table: users
+    columns:
+      - id
+      - phone_number
+      - ssn
+      - email
+      - firstname
+      - lastname
+      - age
+    encrypted:
+      - column: phone_number
+      - column: ssn
+      - column: email
+        token_type: email
+        tokenized: true
+      - column: firstname
+      - column: lastname
+      - column: age
+        token_type: int32
+        tokenized: true
