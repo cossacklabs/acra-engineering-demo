@@ -45,13 +45,6 @@ RUN mkdir -p /usr/local/sbin
 RUN echo -e '#!/bin/sh\n\nexit 0\n' > /usr/local/sbin/ldconfig
 RUN chmod +x /usr/local/sbin/ldconfig
 
-#RUN cd /root \
-#    && git clone --depth 1 -b stable https://github.com/cossacklabs/themis
-#RUN cd /root/themis \
-#    && make \
-#    && make install \
-#    && make pythemis_install
-
 RUN mkdir /app.requirements
 COPY ./db-acra-migration/python/requirements/ /app.requirements/
 RUN pip3 install --no-cache-dir -r /app.requirements/postgresql.txt

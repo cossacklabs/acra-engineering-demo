@@ -1,6 +1,6 @@
-# Client-side encryption, python app, PostgreSQL
+# Migration process, python app, PostgreSQL
 
-Python client application, client-side encryption, AcraServer, PostgreSQL database.
+Python client application, DB migration, AcraServer, PostgreSQL database.
 
 ## 1. Installation
 
@@ -9,7 +9,7 @@ curl https://raw.githubusercontent.com/cossacklabs/acra-engineering-demo/master/
     bash -s -- db-acra-migration
 ```
 
-This command downloads a simple Python application that run data migration in a database, Acra Docker containers, PostgreSQL database, sets up the environment, configures python application to encrypt data, and provides a list of links for you to try.
+This command downloads a simple Python application that run data migration in a database, Acra Docker containers, PostgreSQL database, sets up the environment, configures python application that run migration process, and provides a list of links for you to try.
 
 ## 2. What's inside
 
