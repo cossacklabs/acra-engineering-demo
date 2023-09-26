@@ -1,4 +1,4 @@
-FROM alpine:3.15.0
+FROM alpine:3.18.3
 
 # Product version
 ARG VERSION
@@ -36,7 +36,6 @@ RUN apk update
 
 RUN apk add --no-cache bash python3 py3-pip postgresql-dev postgresql-client
 RUN pip3 install --no-cache-dir --upgrade pip
-RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN apk add gcc python3-dev musl-dev libxml2-dev git alpine-sdk rsync
 

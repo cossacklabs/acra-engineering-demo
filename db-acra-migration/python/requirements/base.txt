@@ -1,3 +1,0 @@
-SQLAlchemy==1.4.15
-pythemis
-acrawriter

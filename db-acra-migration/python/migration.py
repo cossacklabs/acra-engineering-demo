@@ -1,4 +1,4 @@
-# Copyright 2016, Cossack Labs Limited
+# Copyright 2023, Cossack Labs Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
 # coding: utf-8
 import argparse
 import io
-
-from sqlalchemy import (Table, Column, Integer, MetaData, select, update, Text, func, asc,)
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.dialects import postgresql
+from sqlalchemy import (Table, Column, Integer, MetaData, select, update, Text, asc)
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 
 from common import get_engine, register_common_cli_params
 
@@ -35,22 +34,20 @@ user_table = Table(
 
 
 def generate_data(engine, csv_string):
-    session = sessionmaker(bind=engine)()
-
-    cursor = session.connection().connection.cursor()
-    cursor.copy_expert(
-        f'COPY users (id,phone_number,ssn,email,firstname,lastname,age) FROM STDIN WITH (FORMAT CSV, HEADER)',
-        io.StringIO(csv_string),
-    )
-    session.commit()
+    with Session(engine) as session:
+        with session.connection() as conn:
+            with conn.connection.cursor() as cursor:
+                sql = 'COPY users (id,phone_number,ssn,email,firstname,lastname,age) FROM STDIN WITH (FORMAT CSV, HEADER)'
+                cursor.copy_expert(sql, io.StringIO(csv_string))
+                session.commit()
     print("Data generated successfully!")
 
 
 def print_data(connection, table=user_table):
     """fetch data from database and print to console"""
-    query = select(user_table).order_by(asc(user_table.c.id)).limit(10)
-    print("Fetch data by query {}\n",
-          query.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+    query = text('SELECT * FROM users ORDER BY users.id ASC LIMIT 10')
+    print("Fetch data by query: \n", query)
+
     result = connection.execute(query)
     result = result.fetchall()
 
@@ -66,22 +63,23 @@ def print_data(connection, table=user_table):
         print(' - '.join(values))
 
 def migrate_data(connection, table=user_table):
-    count = connection.execute(select([func.count()]).select_from(user_table)).fetchone()[0]
+    count_query = text('SELECT count(*) FROM users')
+    count = connection.execute(count_query).fetchone()[0]
     print("Running migration for {} rows:".format(count))
 
     offset = 0
     step = 100
     while offset < count:
-        query = select(user_table).order_by(asc(user_table.c.id)).limit(step).offset(offset)
+        query = text('SELECT * FROM users ORDER BY users.id ASC LIMIT {} OFFSET {}'.format(step, offset))
         users = connection.execute(query).fetchall()
 
         for user in users:
             update_query = update(user_table).values(
                 phone_number=user["phone_number"].tobytes().decode("utf-8"),
                 ssn=user["ssn"].tobytes().decode("utf-8"),
-                email=user["email"],
                 firstname=user["firstname"].tobytes().decode("utf-8"),
                 lastname=user["lastname"].tobytes().decode("utf-8"),
+                email=user["email"],
             ).where(user_table.c.id == user["id"])
             connection.execute(update_query)
 

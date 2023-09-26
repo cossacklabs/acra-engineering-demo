@@ -3,7 +3,6 @@ version: "3"
 services:
     # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
-    # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
     acra-keymaker_client:
         image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
         network_mode: "none"
@@ -22,8 +21,6 @@ services:
     # Postgresql container
     postgresql:
         # Build and run the container based on the official postgresql image
-        # with an additional configuration in accordance with djangoproject
-        # requirements
         build:
             context: ../
             dockerfile: _common/pgsql-playground/pgsql-playground.dockerfile
@@ -94,7 +91,6 @@ services:
         depends_on:
             - acra-keymaker_client
             - postgresql
-        # Build and run container from source directory with demo django project
         build:
             context: ../
             dockerfile: ./db-acra-migration/python.dockerfile

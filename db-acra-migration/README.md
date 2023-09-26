@@ -13,9 +13,26 @@ This command downloads a simple Python application that run data migration in a 
 
 ## 2. What's inside
 
-**Migration script** is a simple [python console application](https://github.com/cossacklabs/acra-engineering-demo/blob/master/db-acra-migration/python) that works with a database. The application **generate** the data in by copying data from [`users.csv`](https://github.com/cossacklabs/acra-engineering-demo/blob/master/db-acra-migration/python/users.csv) file .The application **migrate** the plaintext data with Acra.
+**Migration script** is a simple [python console application](https://github.com/cossacklabs/acra-engineering-demo/blob/master/db-acra-migration/python) that works with a database. The application **generates** the data in by copying data from [`users.csv`](https://github.com/cossacklabs/acra-engineering-demo/blob/master/db-acra-migration/python/users.csv) file. The application **migrates** the plaintext data with Acra.
 
 ### 2.1 Generate data
+
+Let's generate a bunch of test data to show migration in action. 
+
+Initially table will look like:
+
+```
+create table users
+(
+   id           serial primary key,
+   phone_number text    not null,
+   ssn          text    not null,
+   email        text    not null,
+   firstname    text    not null,
+   lastname     text    not null,
+   age          integer not null
+);
+```
 
 ```bash
  docker exec -it db-acra-migration_python_1 python /app/migration.py --generate --port=5432 --host=postgresql
@@ -51,13 +68,12 @@ id | phone_number |    ssn    |             email             | firstname |  las
 
 ### 2.3 Update DB
 
-Change DB data types to `bytea` as Acra requires it to store ciphertext. 
-
-Note, that `age` and `email` remains the same as will be used for tokenization and data type changing is not needed.
+Acra requires change DB data type to `bytea` to store ciphertext.
 
 ```bash
-docker exec -it db-acra-migration_python_1 psql -h postgresql -U postgres -d test -c "ALTER TABLE users
-ALTER COLUMN phone_number TYPE bytea using phone_number::bytea,
+docker exec -it db-acra-migration_python_1 psql -h postgresql -U postgres -d test -c "
+    ALTER TABLE users
+    ALTER COLUMN phone_number TYPE bytea using phone_number::bytea,
     ALTER COLUMN ssn TYPE bytea using ssn::bytea,
     ALTER COLUMN firstname TYPE bytea using firstname::bytea,
     ALTER COLUMN lastname TYPE bytea using lastname::bytea;
@@ -66,6 +82,23 @@ ALTER COLUMN phone_number TYPE bytea using phone_number::bytea,
 $:
 ALTER TABLE;
 ```
+
+After update table should look like that:
+
+```
+create table users
+(
+    id           serial primary key,
+    phone_number bytea   not null,
+    ssn          bytea   not null,
+    email        text    not null,
+    firstname    bytea   not null,
+    lastname     bytea   not null,
+    age          integer not null
+);
+```
+
+Note, that `age` and `email` remains the same as will be used for tokenization and data type changing is not needed.
 
 As a result, you should see plaintext data in binary format:
 
@@ -123,7 +156,7 @@ $:
 
 2. Find the table and the data rows.
 
-<img src="../_pics/db_web_migration.png.png" width="700">
+<img src="../_pics/db_web_migration.png" width="700">
 
 
 ### 2.6 Other available resources
