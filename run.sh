@@ -584,7 +584,7 @@ acraengdemo_launch_project_python-mysql-postgresql() {
     else
       # we should clone into folder with acra-eng-demo to allow mount files from acra/examples/python folder
       acraengdemo_cmd \
-        "git clone --depth 1 $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
+        "git clone $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
         "Cloning Acra"
     fi;
 
