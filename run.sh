@@ -618,14 +618,18 @@ acraengdemo_launch_project_timescaledb() {
 
 acraengdemo_launch_project_python-searchable() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-    COSSACKLABS_ACRA_VCS_BRANCH=${COSSACKLABS_ACRA_VCS_BRANCH:-0.93.0}
+    # using commit instead of version/tag to use the commit with specific SqlAlchemy from examples/python
+    # https://github.com/cossacklabs/acra/pull/669/commits/be2ab1a4440e105dee1423ae21da1ee74e842801
+    # and some examples/python fixes
+    # https://github.com/cossacklabs/acra/commit/e1773020a881a39d126724bd3992b9b436173fa0
+    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'e1773020a881a39d126724bd3992b9b436173fa0'}
     if [ -d "${PROJECT_DIR}/acra" ]
     then
-      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_BRANCH";
+      git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_REF";
     else
       # we should clone into folder with acra-eng-demo to allow mount files from acra/examples/python folder
       acraengdemo_cmd \
-        "git clone --depth 1 -b $COSSACKLABS_ACRA_VCS_BRANCH $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra" \
+        "git clone $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
         "Cloning Acra"
     fi;
     COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
