@@ -1,5 +1,5 @@
-version: 0.95.0
+version: 0.96.0
 mysql_enable: true
 db_host: mysql
 db_port: 3306
-encryptor_config_file: "/config/extended_encryptor_config.yaml"
+encryptor_config_file: "/config/example_type_awareness_encryptor_config.yaml"

@@ -26,7 +26,7 @@ it to a database, and decrypts the data when the app reads it from the database.
 Script reads data from `data.json` where stored array of entries as data examples.
 
 ```bash
-docker exec -it cockroachdb_python_1 python3 extended_example.py --host=acra-server --port=9393 --data=data.json
+docker exec -it cockroachdb_python_1 python3 extended_example.py --host=acra-server --port=9393 --data=extended_example_data.json
 
 $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]

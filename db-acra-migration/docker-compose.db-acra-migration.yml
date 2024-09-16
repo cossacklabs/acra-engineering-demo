@@ -4,7 +4,7 @@ services:
     # Creating keys:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     acra-keymaker_client:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.96.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
@@ -49,7 +49,7 @@ services:
             - world
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.96.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always
