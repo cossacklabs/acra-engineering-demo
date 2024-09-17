@@ -19,6 +19,8 @@ services:
     roach1:
         build:
             context: .
+            # use custom docker file with custom entrypoint.sh which set proper permissions to the key certificates files
+            # to mitigate the issue with docker volume mounts on all systems
             dockerfile: cockroach.dockerfile
         environment:
             GODEBUG: netdns=go
