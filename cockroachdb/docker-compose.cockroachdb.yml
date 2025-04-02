@@ -2,12 +2,12 @@ version: "3"
 
 services:
     acra-keymaker_client:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.96.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-t14/alGiPpS5mOH5R2zOQ8gjUcSQ3b+6l0qD31V+yZE=}
         volumes:
-            - ./.acrakeys:/keys
+            - acra-server:/keys
             - ../_common/cockroachdb/certs/:/certs
         command: >-
             --client_id=""
@@ -17,7 +17,11 @@ services:
             --keystore=v1              
 
     roach1:
-        image: cockroachdb/cockroach:v21.2.3
+        build:
+            context: .
+            # use custom docker file with custom entrypoint.sh which set proper permissions to the key certificates files
+            # to mitigate the issue with docker volume mounts on all systems
+            dockerfile: cockroach.dockerfile
         environment:
             GODEBUG: netdns=go
         ports:
@@ -29,10 +33,12 @@ services:
         networks:
             - server-cockroach
             - world
-        command: ['start',  '--join=roach1:26257,roach2:26258,roach3:26259', '--certs-dir=/certs', '--listen-addr=0.0.0.0:26257', '--http-addr=0.0.0.0:8080', '--store=node1']
+        command: ['cockroach', 'start',  '--join=roach1:26257,roach2:26258,roach3:26259', '--certs-dir=/certs', '--listen-addr=0.0.0.0:26257', '--http-addr=0.0.0.0:8080', '--store=node1']
 
     roach2:
-        image: cockroachdb/cockroach:v21.2.3
+        build:
+            context: .
+            dockerfile: cockroach.dockerfile
         environment:
             GODEBUG: netdns=go
         volumes:
@@ -40,10 +46,12 @@ services:
             - ../_common/cockroachdb/certs/:/certs
         networks:
             - server-cockroach
-        command: ['start',  '--join=roach1:26257,roach2:26258,roach3:26259','--certs-dir=/certs', '--listen-addr=0.0.0.0:26258', '--http-addr=localhost:8081', '--store=node2']
+        command: ['cockroach', 'start',  '--join=roach1:26257,roach2:26258,roach3:26259','--certs-dir=/certs', '--listen-addr=0.0.0.0:26258', '--http-addr=localhost:8081', '--store=node2']
 
     roach3:
-        image: cockroachdb/cockroach:v21.2.3
+        build:
+            context: .
+            dockerfile: cockroach.dockerfile
         volumes:
             - cockroach-data3:/cockroach/cockroach-data
             - ../_common/cockroachdb/certs/:/certs
@@ -51,11 +59,13 @@ services:
             GODEBUG: netdns=go
         networks:
             - server-cockroach
-        command: ['start',  '--join=roach1:26257,roach2:26258,roach3:26259','--certs-dir=/certs', '--listen-addr=0.0.0.0:26259', '--http-addr=localhost:8082', '--store=node3']
+        command: ['cockroach', 'start',  '--join=roach1:26257,roach2:26258,roach3:26259','--certs-dir=/certs', '--listen-addr=0.0.0.0:26259', '--http-addr=localhost:8082', '--store=node3']
 
     # initialize cockroach cluster
     cockroach_init:
-        image: cockroachdb/cockroach:v21.2.3
+        build:
+            context: .
+            dockerfile: cockroach.dockerfile
         environment:
             GODEBUG: netdns=go
         depends_on:
@@ -66,10 +76,10 @@ services:
             - ../_common/cockroachdb/certs/:/certs
         networks:
             - server-cockroach
-        command: [ 'init',  '--certs-dir=/certs', '--url=postgresql://roach1:26257']
+        command: ['cockroach', 'init',  '--certs-dir=/certs', '--url=postgresql://roach1:26257']
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.96.0}"
         restart: always
         depends_on:
             - roach1
@@ -83,10 +93,10 @@ services:
         ports:
             - "9393:9393"
         volumes:
-            - ./.acrakeys/acra-server:/keys
+            - acra-server:/keys
             - ./configs/acra-server.yaml:/config/acra-server.yaml
             - ../_common/cockroachdb/certs/:/certs
-            - ../acra/examples/python/extended_encryptor_config.yaml:/config/extended_encryptor_config.yaml
+            - ../acra/examples/python/extended_example_encryptor_config.yaml:/config/extended_example_encryptor_config.yaml
         command: >-
             --db_host=roach1
             --db_port=26257
@@ -95,9 +105,8 @@ services:
             --tls_key=/certs/node.key
             --tls_cert=/certs/node.crt
             --tls_ca=/certs/ca.crt
-            --keys_dir=/keys
-            --http_api_enable
-            --incoming_connection_api_string=tcp://0.0.0.0:9090
+            --keys_dir=/keys/acra-server
+            --incoming_connection_string=tcp://0.0.0.0:9393
             --config_file=/config/acra-server.yaml
             --incoming_connection_prometheus_metrics_string=tcp://0.0.0.0:9399
             --config_file=/config/acra-server.yaml
@@ -199,3 +208,4 @@ volumes:
     cockroach-data1:
     cockroach-data2:
     cockroach-data3:
+    acra-server:

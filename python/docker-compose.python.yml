@@ -5,12 +5,13 @@ services:
     # - ./.acrakeys/acra-server/${ACRA_CLIENT_ID}_storage
     # - ./.acrakeys/acra-writer/${ACRA_CLIENT_ID}_storage.pub
     acra-keymaker_client:
-        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        image: "cossacklabs/acra-keymaker:${ACRA_DOCKER_IMAGE_TAG:-0.96.0}"
         network_mode: "none"
         environment:
             ACRA_MASTER_KEY: ${ACRA_SERVER_MASTER_KEY:-N0MyZEVCRGY1cHA4ODRSVHp3c3BNeGtDekxaV3BhTHI=}
         volumes:
-            - ./.acrakeys:/keys
+            - acra-server:/keys
+            - acra-writer:/keys/acra-writer
             - ../_common/ssl/acra-client/:/ssl:ro
         command: >-
             --client_id=""
@@ -53,7 +54,7 @@ services:
             - world
 
     acra-server:
-        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.95.0}"
+        image: "cossacklabs/acra-server:${ACRA_DOCKER_IMAGE_TAG:-0.96.0}"
         # Restart server after correct termination, for example after the config
         # was changed through the API
         restart: always
@@ -73,7 +74,7 @@ services:
         volumes:
             # Mount the directory with only the keys for this service. Must be
             # rewriteable in case of using API, otherwise should be read-only.
-            - ./.acrakeys/acra-server:/keys
+            - acra-server:/keys
             # Directory with configuration, rewriteable
             - ./acra-server-config:/config
             - ../_common/ssl/acra-server/:/ssl
@@ -82,7 +83,7 @@ services:
         command: >-
             --db_host=postgresql
             --db_port=5432
-            --keys_dir=/keys
+            --keys_dir=/keys/acra-server
             --http_api_enable
             --tls_auth=4
             --tls_ca=/ssl/root.crt
@@ -135,7 +136,7 @@ services:
             - python-server
         volumes:
             - ../acra/examples/python:/app
-            - ./.acrakeys/acra-writer:/app.acrakeys:ro
+            - acra-writer:/app.acrakeys:ro
 
 
     postgresqlweb:
@@ -222,3 +223,7 @@ networks:
         internal: true
     grafana-prometheus:
         internal: true
+
+volumes:
+    acra-server:
+    acra-writer:

@@ -552,12 +552,13 @@ acraengdemo_launch_project_python() {
 
 acraengdemo_launch_project_cockroachdb() {
     COSSACKLABS_ACRA_VCS_URL=${COSSACKLABS_ACRA_VCS_URL:-'https://github.com/cossacklabs/acra'}
-     COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'e1773020a881a39d126724bd3992b9b436173fa0'}
-    if [ -d "${PROJECT_DIR}/acra" ]; then
+    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'df81d2f82f84931ec81997a68dc3425551c63d91'}
+    if [ -d "${PROJECT_DIR}/acra" ]
+    then
       git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_REF";
     else
       acraengdemo_cmd \
-        "git clone --depth 1 $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
+        "git clone $COSSACKLABS_ACRA_VCS_URL ${PROJECT_DIR}/acra && cd ${PROJECT_DIR}/acra  && git checkout $COSSACKLABS_ACRA_VCS_REF" \
         "Cloning Acra"
     fi;
     COSSACKLABS_ACRA_VCS_REF=$(git -C "${PROJECT_DIR}/acra" rev-parse --verify HEAD)
@@ -577,7 +578,7 @@ acraengdemo_launch_project_python-mysql-postgresql() {
     # https://github.com/cossacklabs/acra/pull/669/commits/be2ab1a4440e105dee1423ae21da1ee74e842801
     # and some examples/python fixes
     # https://github.com/cossacklabs/acra/commit/e1773020a881a39d126724bd3992b9b436173fa0
-    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'e1773020a881a39d126724bd3992b9b436173fa0'}
+    COSSACKLABS_ACRA_VCS_REF=${COSSACKLABS_ACRA_VCS_REF:-'df81d2f82f84931ec81997a68dc3425551c63d91'}
     if [ -d "${PROJECT_DIR}/acra" ]
     then
       git -C "${PROJECT_DIR}/acra" checkout "$COSSACKLABS_ACRA_VCS_REF";

@@ -28,10 +28,10 @@ By default in this demo, Acra configured to work with MySQL database.
 
 ### 3.1 Data Encryption(Write)
 
-Let's write some data to DB using the [`extended_example.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example.py) script:
+Let's write some data to DB using the [`example_type_awareness.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example.py) script:
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 extended_example.py --host=acra-server --port=9393 --data=data.json
+docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --data=type_awareness_data.json
 
 $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
@@ -42,7 +42,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 To read and decrypt data the same script could be used but with `--print` param provided:
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 extended_example.py --host=acra-server --port=9393 --print
+docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --print
 ```
 
 You should see the output that contains all decrypted data:
@@ -96,7 +96,7 @@ docker restart python-mysql-postgresql_acra-server_1
 ### 4.1 Data Encryption(Write)
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 extended_example.py --host=acra-server --port=9393 --data=data.json --postgresql
+docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --data=type_awareness_data.json --postgresql
 
 $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
@@ -107,7 +107,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 To read and decrypt data the same script could be used but with `--print` param provided:
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 extended_example.py --host=acra-server --port=9393 --print --postgresql
+docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --print --postgresql
 ```
 
 You should see the output that contains all decrypted data:
@@ -166,7 +166,7 @@ Select `View/Edit Data > All rows` and now you can see content of the table. Dow
 
 ## 6. Show me the code!
 
-Take a look at the complete code of [`extended_example.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example.py).
+Take a look at the complete code of [`example_type_awareness.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/example_type_awareness.py).
 
 Let's see how many code lines are necessary to encrypt some data using Acra.
 
