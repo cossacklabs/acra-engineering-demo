@@ -84,11 +84,15 @@ acraengdemo_check() {
         acraengdemo_raise "OS version '$os' is not supported."
 
     # Required tools
-    for c in 'git' 'docker' 'docker-compose'; do
+    for c in 'git' 'docker'; do
         if ! which "$c" 1>/dev/null; then
             acraengdemo_raise "'$c' required but not found."
         fi
     done
+
+    if ! docker compose version >/dev/null 2>&1; then
+        acraengdemo_raise "'docker compose' required but not found."
+    fi
 }
 
 acraengdemo_cmd() {
@@ -469,12 +473,12 @@ acraengdemo_run_compose() {
     acraengdemo_add_cleanup_cmd \
         'docker image prune --all --force --filter "label=com.cossacklabs.product.name=acra-engdemo"' \
         'remove custom built images'
-    acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE pull" 'Pull fresh images'
+    acraengdemo_cmd "$COMPOSE_ENV_VARS docker compose -f $DC_FILE pull" 'Pull fresh images'
 
     acraengdemo_add_cleanup_cmd \
-        "docker-compose -f $DC_FILE down -v" \
-        'stop docker-compose'
-    acraengdemo_cmd "$COMPOSE_ENV_VARS docker-compose -f $DC_FILE up --build" 'Starting docker-compose'
+        "docker compose -f $DC_FILE down -v" \
+        'stop docker compose'
+    acraengdemo_cmd "$COMPOSE_ENV_VARS docker compose -f $DC_FILE up --build" 'Starting docker compose'
 }
 
 acraengdemo_launch_project_django() {
