@@ -31,8 +31,11 @@ By default in this demo, Acra configured to work with MySQL database.
 Let's write some data to DB using the [`example_type_awareness.py`](https://github.com/cossacklabs/acra/blob/master/examples/python/extended_example.py) script:
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --data=type_awareness_data.json
+docker exec -it python-mysql-postgresql-python-1 python3 example_type_awareness.py --host=acra-server --port=9393 --data=type_awareness_data.json
+```
 
+Output:
+```
 $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
 ```
@@ -42,7 +45,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 To read and decrypt data the same script could be used but with `--print` param provided:
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --print
+docker exec -it python-mysql-postgresql-python-1 python3 example_type_awareness.py --host=acra-server --port=9393 --print
 ```
 
 You should see the output that contains all decrypted data:
@@ -64,7 +67,7 @@ id  - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_e
 Let's make a direct call to DB to verify that data is indeed encrypted:
 
 ```bash
-docker exec -it python-mysql-postgresql_mysql_1 mysql -u test -D test --password=test -e 'select * from test'
+docker exec -it python-mysql-postgresql-mysql-1 mysql -u test -D test --password=test -e 'select * from test'
 ```
 
 You should see the garbage on the screen and see that data is stored encrypted.
@@ -90,14 +93,18 @@ To switch the demo to use PostgreSQL change `mysql_enable` to `false`, `db_host`
 Restart `acra-server` to use updated config
 
 ```bash
-docker restart python-mysql-postgresql_acra-server_1
+docker restart python-mysql-postgresql-acra-server-1
 ```
 
 ### 4.1 Data Encryption(Write)
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --data=type_awareness_data.json --postgresql
+docker exec -it python-mysql-postgresql-python-1 python3 example_type_awareness.py --host=acra-server --port=9393 --data=type_awareness_data.json --postgresql
+```
 
+Output: 
+
+```
 $:
 data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'token_bytes': 'byt13es', 'token_email': 'john_wed@cl.com', 'data': 'John Wed, Senior Relationshop Manager', 'masking': '$112000', 'searchable': 'john_wed@cl.com'}, {'token_i32': 1235, 'token_i64': 645665, 'token_str': '078-05-1112', 'token_bytes': 'byt13es2', 'token_email': 'april_cassini@cl.com', 'data': 'April Cassini, Marketing Manager', 'masking': '$168000', 'searchable': 'april_cassini@cl.com'}, {'token_i32': 1236, 'token_i64': 645667, 'token_str': '078-05-1117', 'token_bytes': 'byt13es3', 'token_email': 'george_clooney@cl.com', 'data': 'George Clooney, Famous Actor', 'masking': '$780000', 'searchable': 'george_clooney@cl.com'}]
 ```
@@ -107,7 +114,7 @@ data: [{'token_i32': 1234, 'token_i64': 645664, 'token_str': '078-05-1111', 'tok
 To read and decrypt data the same script could be used but with `--print` param provided:
 
 ```bash
-docker exec -it python-mysql-postgresql_python_1 python3 example_type_awareness.py --host=acra-server --port=9393 --print --postgresql
+docker exec -it python-mysql-postgresql-python-1 python3 example_type_awareness.py --host=acra-server --port=9393 --print --postgresql
 ```
 
 You should see the output that contains all decrypted data:
@@ -129,7 +136,7 @@ id  - data - masking - token_i32 - token_i64 - token_str - token_bytes - token_e
 Let's make a direct call to DB to verify that data is indeed encrypted:
 
 ```bash
-docker exec -it python-mysql-postgresql_postgresql_1 psql -h localhost -U test -d test -c "select * from test"
+docker exec -it python-mysql-postgresql-postgresql-1 psql -h localhost -U test -d test -c "select * from test"
 ```
 
 You should see the garbage on the screen and see that data is stored encrypted.
